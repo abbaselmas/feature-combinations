@@ -221,9 +221,9 @@ brief = cv2.xfeatures2d.BriefDescriptorExtractor_create()
 lucid = cv2.xfeatures2d.LUCID_create()
 latch = cv2.xfeatures2d.LATCH_create()
 beblid= cv2.xfeatures2d.BEBLID_create(5.0)
+teblid= cv2.xfeatures2d.TEBLID_create(5.0)
 #boost = cv2.xfeatures2d.BoostDesc_create()
 #daisy = cv2.xfeatures2d.DAISY_create()
-teblid= cv2.xfeatures2d.TEBLID_create(5.0)
 #vgg   = cv2.xfeatures2d.VGG_create()
 # lists of the different detectors, descriptors and matching methods
 DetectDescript = list([sift, akaze, orb, brisk, kaze])
@@ -358,13 +358,13 @@ for r in range(len(rot)):
 # Visualization of the results
 DetectDescript = list([sift, akaze, orb, brisk, kaze])
 Detectors     = list([fast, star, mser, agast, gftt, harrislaplace, msd, tbmr])
-Descriptors   = list([freak, brief, lucid, latch, beblid, boost, daisy, teblid, vgg])
+Descriptors   = list([freak, brief, lucid, latch, beblid, teblid]) #, boost, daisy, , vgg])
 # ..........................................................................................................................
 
 # Binary and non-binary methods used to set the legend
 DetectDescriptLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze']
 DetectorsLegend     = ['fast-', 'star-', 'mser-', 'agast-', 'gftt-', 'harrislaplace-', 'msd-', 'tbmr-']
-DescriptorsLegend   = ['freak', 'brief', 'lucid', 'latch', 'beblid', 'boost', 'daisy', 'teblid', 'vgg']
+DescriptorsLegend   = ['freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid'] #, 'boost', 'daisy',  'vgg']
 
 c2 = 1 # for non-binary methods "DetectDescript" (c2=0 for bf.L1, c2=1 for bf.L2)
 c3 = 2 # for binary methods "Detectors with Descriptors" (c2=0 for bf.L1, c2=1 for bf.L2, c2=2 for bf.HAMMING)
