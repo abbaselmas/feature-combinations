@@ -379,10 +379,10 @@ NUM_STYLES = len(LINE_STYLES)
 cm = plt.get_cmap('gist_rainbow')
 num = -1 # for plot
 # Initialization of the 4 figures
-fig1 = plt.figure(1,figsize= (13,5))
-fig2 = plt.figure(2,figsize= (13,5))
-fig3 = plt.figure(3,figsize= (13,5))
-fig4 = plt.figure(4,figsize= (13,5))
+fig1 = plt.figure(1,figsize= (15,10))
+fig2 = plt.figure(2,figsize= (15,10))
+fig3 = plt.figure(3,figsize= (15,10))
+fig4 = plt.figure(4,figsize= (15,10))
 ax1 = fig1.add_subplot(111)
 ax2 = fig2.add_subplot(111)
 ax3 = fig3.add_subplot(111)
@@ -455,22 +455,22 @@ elif c2 == 1 and c3 == 2:
 
 ax1.set_xlabel('Intensity changing (Img +/- value)', fontsize=12) # x-axis title of the figure
 ax1.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
-ax1.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize= 10, handlelength = 2) # legend :(loc=2 <=> Location String = 'upper left')
+ax1.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize= 8, handlelength = 2) # legend :(loc=2 <=> Location String = 'upper left')
 
 # ax2.set_title('Correctly matched point rate for different matching methods depending on intensity change', fontsize=13)
 ax2.set_xlabel('Intensity changing (Img * value)', fontsize=12) # x-axis title of the figure
 ax2.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
-ax2.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize= 10, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
+ax2.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize= 8, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
 
 # ax3.set_title('Correctly matched point rate for different matching methods depending on scale change', fontsize=13)
 ax3.set_xlabel('Scale changing', fontsize=12) # x-axis title of the figure
 ax3.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
-ax3.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize= 10, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
+ax3.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize= 8, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
 
 # ax4.set_title('Correctly matched point rate for different pairing methods depending on the change of rotation', fontsize=13)
 ax4.set_xlabel('Rotation changing', fontsize=12) # x-axis title of the figure
 ax4.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
-ax4.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize= 10, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
+ax4.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize= 8, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
 
 # Recording and display of the obtained figures
 fig1.savefig(basedir + '/figs' + '/Intensity1_changing.png')
