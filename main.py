@@ -16,6 +16,7 @@ from prettytable import PrettyTable # To view the displayboards on the console
 
 ## Reading database
 basedir = '/content/drive/MyDrive/Dataset/oxfordAffine'
+basedir = './'
 folder = '/bikes'
 picture = '/img1.jpg'
 data = basedir + folder + picture
@@ -200,7 +201,7 @@ def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, mise_corresp,rot, rot_matrix):
 
 # Initialization of our methods of detectors and descriptors (17 methods)
 ### detectors/descriptors
-sift  = cv2.xfeatures2d.SIFT_create()
+sift  = cv2.SIFT_create()
 akaze = cv2.AKAZE_create()
 orb   = cv2.ORB_create()
 brisk = cv2.BRISK_create()
