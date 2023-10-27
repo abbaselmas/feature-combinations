@@ -473,8 +473,8 @@ ax4.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis
 ax4.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize= 10, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
 
 # Recording and display of the obtained figures
-fig1.savefig(basedir + folder + '/Intensity1_changing.png')
-fig2.savefig(basedir + folder + '/Intensity1_changing2.png')
-fig3.savefig(basedir + folder + '/Scale_changing.png')
-fig4.savefig(basedir + folder + '/Rotation_changing.png')
+fig1.savefig(basedir + '/figs' + '/Intensity1_changing.png')
+fig2.savefig(basedir + '/figs' + '/Intensity1_changing2.png')
+fig3.savefig(basedir + '/figs' + '/Scale_changing.png')
+fig4.savefig(basedir + '/figs' + '/Rotation_changing.png')
 # plt.show()
