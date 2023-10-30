@@ -15,7 +15,7 @@ import time # for the calculation of the execution time
 from prettytable import PrettyTable # To view the displayboards on the console
 
 ## Reading database
-basedir = '/content/drive/MyDrive/Dataset/oxfordAffine'
+# basedir = '/content/drive/MyDrive/Dataset/oxfordAffine'
 basedir = './'
 folder = '/bikes'
 picture = '/img1.jpg'
