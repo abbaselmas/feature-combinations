@@ -122,6 +122,7 @@ def evaluate_scenario_2(KP1, KP2, Dspt1, Dspt2, mise_corresp,scale):
 # For this scenario2, the evaluation between two images with change of scale, we must compare the coordinates (x,y)
 # of the detected points between the two images (I and I_scale), after multiplying by the scale the coordinates
 # of the detected points in I_scale.
+
     # creation of a feature matcher
     bf = cv2.BFMatcher(mise_corresp, crossCheck=True)
     # match the descriptors of the two images
@@ -160,7 +161,7 @@ def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, mise_corresp,rot, rot_matrix):
 # For this scenario3, the evaluation between two images with rotation change, we must compare the coordinates (x,y)
 # of the points detected between the two images (I and I_scale), after multiplying by rot_matrix[:2,:2] the coordinates
 # of the points detected in I_rotation by adding a translation rot_matrix[0,2] for x and rot_matrix[1,2] for y.
-
+    
     # ccreation of a feature matcher
     bf = cv2.BFMatcher(mise_corresp, crossCheck=True)
     # match the descriptors of the two images
@@ -233,7 +234,10 @@ matching2 = list([cv2.NORM_L1, cv2.NORM_L2])
 matching3 = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_HAMMING])
 # ................................................................................
 
+
 ################ Scenario 1 (Intensity)
+print("Scenario 1 Scale")
+scenario1_time = time.time()
 #Img0 = data.get_cam2(0) # Original image
 Img0 = cv2.imread(data)
 Img0 = np.array(Img0)
@@ -249,7 +253,11 @@ Rate_intensity2 = np.zeros((nbre_img, len(matching3), len(Detectors), len(Descri
 
 img1, HuitImg1 = get_cam_intensity_8Img(Img0, val_b, val_c) # use the intensity change images (I+b and I*c)
 # for loop to compute rates (%) for intensity change images, matches, binary and non-binary methods
+
 for k in range(nbre_img): # for the 8 intensity images
+    # Start the timer
+    start_time = time.time()
+
     img2 = HuitImg1[k] # image with intensity change
     for c2 in range(len(matching2)): # for bf.L1 and bf.L2 mapping (bf.HAMMING does not work for most non-binary methods)
         match = matching2[c2]
@@ -259,6 +267,11 @@ for k in range(nbre_img): # for the 8 intensity images
             keypoints22, descriptors22 = method.detectAndCompute(img2, None) # the keypoints and descriptors of the image 2 obtained by the method X
             # Calculation of the rate (%) of correctly matched homologous points by the X method using the evaluation function of scenario 1
             Rate_intensity1[k, c2, ii] = evaluate_scenario_1(keypoints11, keypoints22, descriptors11, descriptors22, match)
+
+    elapsed_time = time.time() - start_time
+    print(f"SCenario 1 - c2 Elapsed time: {elapsed_time} seconds on image {k}")
+
+    start_time = time.time()
     for c3 in range(len(matching3)): # for bf.L1, bf.L2 and bf.HAMMING mapping
         match = matching3[c3]
         for i in range(len(Detectors)):
@@ -273,9 +286,16 @@ for k in range(nbre_img): # for the 8 intensity images
                 descriptors2 = method_dscrpt.compute(img2, keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 1
                 Rate_intensity2[k, c3, i, j] = evaluate_scenario_1(keypoints1, keypoints2, descriptors1, descriptors2, match)
+
+    elapsed_time = time.time() - start_time
+    print(f"SCenario 1 - c3 Elapsed time: {elapsed_time} seconds on image {k}")
+
+print(f"Scenario 1 Elapsed time: {time.time() - scenario1_time} seconds")
 # ................................................................................
 
 ################ Scenario 2: Scale
+print("Scenario 2 Scale")
+scenario2_time = time.time()
 cameraN = 2 # camera index
 ImageN = 0 # image index
 scale = [1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3] # 7 values of the scale change s ∈]1.1 : 0.2 : 2.3].
@@ -290,6 +310,9 @@ for s in range(len(scale)): # for the 7 scale images
     # use the original image and the scaling image (I and Is)
     img1 = get_cam_scale(cameraN, ImageN, scale[s])[0] # image I
     img2 = get_cam_scale(cameraN, ImageN, scale[s])[1] # image Is
+
+    start_time = time.time()
+
     for c2 in range(len(matching2)): # for bf.L1 and bf.L2 mapping (bf.HAMMING does not work for most non-binary methods)
         match = matching2[c2]
         for ii in range(len(DetectDescript)):
@@ -298,6 +321,11 @@ for s in range(len(scale)): # for the 7 scale images
             keypoints22, descriptors22 = method.detectAndCompute(img2, None)# the keypoints and descriptors of image 2 obtained by the method X
             # Calculation of the rate (%) of correctly matched homologous points by the X method using the evaluation function of scenario 2
             Rate_scale1[s, c2, ii] = evaluate_scenario_2(keypoints11, keypoints22, descriptors11, descriptors22, match, scale[s])
+
+    elapsed_time = time.time() - start_time
+    print(f"SCenario 2 - c2 Elapsed time: {elapsed_time} seconds on image {s}")
+    start_time = time.time()
+
     for c3 in range(len(matching3)): # for bf.L1, bf.L2 and bf.HAMMING mapping
         match = matching3[c3]
         for i in range(len(Detectors)):
@@ -312,9 +340,16 @@ for s in range(len(scale)): # for the 7 scale images
                 descriptors2 = method_dscrpt.compute(img2, keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 2
                 Rate_scale2[s, c3, i, j] = evaluate_scenario_2(keypoints1, keypoints2, descriptors1, descriptors2, match, scale[s])
+
+    elapsed_time = time.time() - start_time
+    print(f"SCenario 2 - c3 Elapsed time: {elapsed_time} seconds on image {s}")
+
+print(f"Scenario 2 Elapsed time: {time.time() - scenario2_time} seconds")
 # ................................................................................
 
 ################ Scenario 3: Rotation
+print("Scenario 3 Scale")
+scenario3_time = time.time()
 cameraN = 2 # camera index
 ImageN = 0 # image index
 rot = [10, 20, 30, 40, 50, 60, 70, 80, 90] # 9 values of rotation change, rotations from 10 to 90 with a step of 10.
@@ -330,6 +365,9 @@ for r in range(len(rot)):
     rot_matrix, img = get_cam_rot(cameraN, ImageN, rot[r])
     img1 = img[0] # image I
     img2 = img[1] # image Ir
+
+    start_time = time.time()
+
     for c2 in range(len(matching2)): # for bf.L1 and bf.L2 mappings (bf.HAMMING does not work for most non-binary methods)
         match = matching2[c2]
         for ii in range(len(DetectDescript)):
@@ -338,6 +376,12 @@ for r in range(len(rot)):
             keypoints22, descriptors22 = method.detectAndCompute(img2, None)# the keypoints and descriptors of image 2 obtained by the method X
             # Calculation of the rate (%) of correctly matched homologous points by the X method using the evaluation function of scenario 3
             Rate_rot1[r, c2, ii] = evaluate_scenario_3(keypoints11, keypoints22, descriptors11, descriptors22, match, rot[r], rot_matrix)
+
+    elapsed_time = time.time() - start_time
+    print(f"SCenario 3 - c2 Elapsed time: {elapsed_time} seconds on image {r}")
+
+    start_time = time.time()
+
     for c3 in range(len(matching3)): # for bf.L1, bf.L2 and bf.HAMMING mapping
         match = matching3[c3]
         for i in range(len(Detectors)):
@@ -352,7 +396,11 @@ for r in range(len(rot)):
                 descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]# the descriptors of the image 2 obtained by the method Y
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 3
                 Rate_rot2[r, c3, i, j] = evaluate_scenario_3(keypoints1, keypoints2, descriptors1, descriptors2, match, rot[r], rot_matrix)
-                
+
+    elapsed_time = time.time() - start_time
+    print(f"SCenario 3 - c3 Elapsed time: {elapsed_time} seconds on image {r}")
+
+print(f"Scenario 3 Elapsed time: {time.time() - scenario3_time} seconds")
 
 # ..........................................................................................................................
 # Visualization of the results
