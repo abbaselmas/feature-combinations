@@ -224,12 +224,13 @@ latch = cv2.xfeatures2d.LATCH_create()
 beblid= cv2.xfeatures2d.BEBLID_create(5.0)
 teblid= cv2.xfeatures2d.TEBLID_create(5.0)
 boost = cv2.xfeatures2d.BoostDesc_create()
-# vgg   = cv2.xfeatures2d.VGG_create()
-# daisy = cv2.xfeatures2d.DAISY_create()
+vgg   = cv2.xfeatures2d.VGG_create()
+daisy = cv2.xfeatures2d.DAISY_create()
+
 # lists of the different detectors, descriptors and matching methods
 DetectDescript = list([sift, akaze, orb, brisk, kaze])
 Detectors     = list([fast, star, mser, agast, gftt, harrislaplace, msd, tbmr])
-Descriptors   = list([freak, brief, lucid, latch, beblid, teblid, boost]) #vgg, daisy])
+Descriptors   = list([vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost])
 matching2 = list([cv2.NORM_L1, cv2.NORM_L2])
 matching3 = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_HAMMING])
 # ................................................................................
@@ -283,7 +284,13 @@ for k in range(nbre_img): # for the 8 intensity images
                 keypoints1   = method_dscrpt.compute(img1, keypoints1)[0] # the keypoints of image 1 obtained by the method Y
                 keypoints2   = method_dscrpt.compute(img2, keypoints2)[0] # the keypoints of image 2 obtained by the method Y
                 descriptors1 = method_dscrpt.compute(img1, keypoints1)[1] # the descriptors of the image 1 obtained by the method Y
+                if descriptors1.dtype != np.float32:
+                    if descriptors1.dtype != np.uint8:
+                        descriptors1 = descriptors1.astype(np.float32)
                 descriptors2 = method_dscrpt.compute(img2, keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
+                if descriptors2.dtype != np.float32:
+                    if descriptors2.dtype != np.uint8:
+                        descriptors2 = descriptors2.astype(np.float32)
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 1
                 Rate_intensity2[k, c3, i, j] = evaluate_scenario_1(keypoints1, keypoints2, descriptors1, descriptors2, match)
 
@@ -337,7 +344,13 @@ for s in range(len(scale)): # for the 7 scale images
                 keypoints1   = method_dscrpt.compute(img1, keypoints1)[0] # the keypoints of image 1 obtained by the method Y
                 keypoints2   = method_dscrpt.compute(img2, keypoints2)[0] # the keypoints of image 2 obtained by the method Y
                 descriptors1 = method_dscrpt.compute(img1, keypoints1)[1] # the descriptors of the image 1 obtained by the method Y
+                if descriptors1.dtype != np.float32:
+                    if descriptors1.dtype != np.uint8:
+                        descriptors1 = descriptors1.astype(np.float32)
                 descriptors2 = method_dscrpt.compute(img2, keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
+                if descriptors2.dtype != np.float32:
+                    if descriptors2.dtype != np.uint8:
+                        descriptors2 = descriptors2.astype(np.float32)
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 2
                 Rate_scale2[s, c3, i, j] = evaluate_scenario_2(keypoints1, keypoints2, descriptors1, descriptors2, match, scale[s])
 
@@ -393,7 +406,13 @@ for r in range(len(rot)):
                 keypoints1   = method_dscrpt.compute(img1, keypoints1)[0]# the keypoints of image 1 obtained by the method Y
                 keypoints2   = method_dscrpt.compute(img2, keypoints2)[0]# the keypoints of image 2 obtained by the method Y
                 descriptors1 = method_dscrpt.compute(img1, keypoints1)[1]# the descriptors of the image 1 obtained by the method Y
+                if descriptors1.dtype != np.float32:
+                    if descriptors1.dtype != np.uint8:
+                        descriptors1 = descriptors1.astype(np.float32)
                 descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]# the descriptors of the image 2 obtained by the method Y
+                if descriptors2.dtype != np.float32:
+                    if descriptors2.dtype != np.uint8:
+                        descriptors2 = descriptors2.astype(np.float32)
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 3
                 Rate_rot2[r, c3, i, j] = evaluate_scenario_3(keypoints1, keypoints2, descriptors1, descriptors2, match, rot[r], rot_matrix)
 
@@ -406,13 +425,13 @@ print(f"Scenario 3 Elapsed time: {time.time() - scenario3_time} seconds")
 # Visualization of the results
 DetectDescript = list([sift, akaze, orb, brisk, kaze])
 Detectors     = list([fast, star, mser, agast, gftt, harrislaplace, msd, tbmr])
-Descriptors   = list([freak, brief, lucid, latch, beblid, teblid, boost]) # vgg, daisy])
+Descriptors   = list([vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost])
 # ..........................................................................................................................
 
 # Binary and non-binary methods used to set the legend
 DetectDescriptLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze']
 DetectorsLegend     = ['fast-', 'star-', 'mser-', 'agast-', 'gftt-', 'harrislaplace-', 'msd-', 'tbmr-']
-DescriptorsLegend   = ['freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost'] # 'vgg', 'daisy']
+DescriptorsLegend   = ['vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
 
 c2 = 1 # for non-binary methods "DetectDescript" (c2=0 for bf.L1, c2=1 for bf.L2)
 c3 = 2 # for binary methods "Detectors with Descriptors" (c2=0 for bf.L1, c2=1 for bf.L2, c2=2 for bf.HAMMING)
