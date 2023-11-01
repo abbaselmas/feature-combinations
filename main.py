@@ -80,13 +80,15 @@ def get_cam_rot(camN, n, r):
 
 ## Evaluation of scenario 1: Function that takes as input the keypoints, the descriptors (of 2 images) and the type of matching, it returns
 #                            the percentage of correct matched points
-def evaluate_scenario_1(KP1, KP2, Dspt1, Dspt2, mise_corresp):
+def evaluate_scenario_1(KP1, KP2, Dspt1, Dspt2, match):
 # For this scenario1, the evaluation between two images with change of intensity, we must compare only the coordinates (x,y) of the detected
 # points between the two images.
 
     # creation of a feature matcher
-    bf = cv2.BFMatcher(mise_corresp, crossCheck=True)
+    bf = cv2.BFMatcher(normType=match, crossCheck=True)
     # match the descriptors of the two images
+    Dspt1 = Dspt1.astype(np.float32)
+    Dspt2 = Dspt2.astype(np.float32)
     matches = bf.match(Dspt1,Dspt2)
     # Sort matches by distance
     matches = sorted(matches, key = lambda x:x.distance)
@@ -201,13 +203,13 @@ def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, mise_corresp,rot, rot_matrix):
 # ...................................................................................................................
 
 # Initialization of our methods of detectors and descriptors (17 methods)
-### detectors/descriptors
+### detectors/descriptors 5
 sift  = cv2.SIFT_create()
 akaze = cv2.AKAZE_create()
 orb   = cv2.ORB_create()
 brisk = cv2.BRISK_create()
 kaze  = cv2.KAZE_create()
-### detectors
+### detectors 8
 fast  = cv2.FastFeatureDetector_create()
 star  = cv2.xfeatures2d.StarDetector_create()
 mser  = cv2.MSER_create()
@@ -216,7 +218,7 @@ gftt  = cv2.GFTTDetector.create()
 harrislaplace = cv2.xfeatures2d.HarrisLaplaceFeatureDetector_create()
 msd   = cv2.xfeatures2d.MSDDetector_create()
 tbmr  = cv2.xfeatures2d.TBMR_create()
-### descriptors
+### descriptors 9
 freak = cv2.xfeatures2d.FREAK_create()
 brief = cv2.xfeatures2d.BriefDescriptorExtractor_create()
 lucid = cv2.xfeatures2d.LUCID_create()
@@ -232,14 +234,14 @@ DetectDescript = list([sift, akaze, orb, brisk, kaze])
 Detectors     = list([fast, star, mser, agast, gftt, harrislaplace, msd, tbmr])
 Descriptors   = list([vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost])
 matching2 = list([cv2.NORM_L1, cv2.NORM_L2])
-matching3 = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_HAMMING])
+# matching3 = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_HAMMING])
 # ................................................................................
 
 
 ################ Scenario 1 (Intensity)
 print("Scenario 1 Scale")
 scenario1_time = time.time()
-#Img0 = data.get_cam2(0) # Original image
+
 Img0 = cv2.imread(data)
 Img0 = np.array(Img0)
 val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
@@ -250,7 +252,7 @@ nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> numbe
 # (same detectors and descriptors), and each type of matching (without bf.HAMMING). And the other one groups the
 # rates for each image, each method binary method (different detectors and descriptors), and each type of matching (with bf.HAMMING).
 Rate_intensity1 = np.zeros((nbre_img, len(matching2), len(DetectDescript)))
-Rate_intensity2 = np.zeros((nbre_img, len(matching3), len(Detectors), len(Descriptors)))
+Rate_intensity2 = np.zeros((nbre_img, len(matching2), len(Detectors), len(Descriptors)))
 
 img1, HuitImg1 = get_cam_intensity_8Img(Img0, val_b, val_c) # use the intensity change images (I+b and I*c)
 # for loop to compute rates (%) for intensity change images, matches, binary and non-binary methods
@@ -261,20 +263,20 @@ for k in range(nbre_img): # for the 8 intensity images
 
     img2 = HuitImg1[k] # image with intensity change
     for c2 in range(len(matching2)): # for bf.L1 and bf.L2 mapping (bf.HAMMING does not work for most non-binary methods)
-        match = matching2[c2]
+        match2 = matching2[c2]
         for ii in range(len(DetectDescript)):
             method = DetectDescript[ii] # choose a method from the "DetectDescript" list
             keypoints11, descriptors11 = method.detectAndCompute(img1, None) # the keypoints and descriptors of the image 1 obtained by the method X
             keypoints22, descriptors22 = method.detectAndCompute(img2, None) # the keypoints and descriptors of the image 2 obtained by the method X
             # Calculation of the rate (%) of correctly matched homologous points by the X method using the evaluation function of scenario 1
-            Rate_intensity1[k, c2, ii] = evaluate_scenario_1(keypoints11, keypoints22, descriptors11, descriptors22, match)
+            Rate_intensity1[k, c2, ii] = evaluate_scenario_1(keypoints11, keypoints22, descriptors11, descriptors22, match2)
 
-    elapsed_time = time.time() - start_time
+    elapsed_time = int(time.time() - start_time)
     print(f"SCenario 1 - c2 Elapsed time: {elapsed_time} seconds on image {k}")
 
     start_time = time.time()
-    for c3 in range(len(matching3)): # for bf.L1, bf.L2 and bf.HAMMING mapping
-        match = matching3[c3]
+    for c3 in range(len(matching2)): # for bf.L1, bf.L2 and bf.HAMMING mapping
+        match3 = matching2[c3]
         for i in range(len(Detectors)):
             method_keyPt = Detectors[i] # choose a detector from the "Detectors" list
             for j in range(len(Descriptors)):
@@ -284,20 +286,14 @@ for k in range(nbre_img): # for the 8 intensity images
                 keypoints1   = method_dscrpt.compute(img1, keypoints1)[0] # the keypoints of image 1 obtained by the method Y
                 keypoints2   = method_dscrpt.compute(img2, keypoints2)[0] # the keypoints of image 2 obtained by the method Y
                 descriptors1 = method_dscrpt.compute(img1, keypoints1)[1] # the descriptors of the image 1 obtained by the method Y
-                if descriptors1.dtype != np.float32:
-                    if descriptors1.dtype != np.uint8:
-                        descriptors1 = descriptors1.astype(np.float32)
                 descriptors2 = method_dscrpt.compute(img2, keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
-                if descriptors2.dtype != np.float32:
-                    if descriptors2.dtype != np.uint8:
-                        descriptors2 = descriptors2.astype(np.float32)
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 1
-                Rate_intensity2[k, c3, i, j] = evaluate_scenario_1(keypoints1, keypoints2, descriptors1, descriptors2, match)
+                Rate_intensity2[k, c3, i, j] = evaluate_scenario_1(keypoints1, keypoints2, descriptors1, descriptors2, match3)
 
-    elapsed_time = time.time() - start_time
+    elapsed_time = int(time.time() - start_time)
     print(f"SCenario 1 - c3 Elapsed time: {elapsed_time} seconds on image {k}")
 
-print(f"Scenario 1 Elapsed time: {time.time() - scenario1_time} seconds")
+print(f"Scenario 1 Elapsed time: {int(time.time() - scenario1_time)} seconds")
 # ................................................................................
 
 ################ Scenario 2: Scale
@@ -311,7 +307,7 @@ scale = [1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3] # 7 values of the scale change s ∈
 # and each type of matching (without bf.HAMMING). And the other one groups the rates for each image, each binary method (different detectors and
 # descriptors), and each type of matching (with bf.HAMMING).
 Rate_scale1 = np.zeros((len(scale), len(matching2), len(DetectDescript)))
-Rate_scale2 = np.zeros((len(scale), len(matching3), len(Detectors), len(Descriptors)))
+Rate_scale2 = np.zeros((len(scale), len(matching2), len(Detectors), len(Descriptors)))
 # for loop to calculate rates (%) for scaling images, matching, binary and non-binary methods
 for s in range(len(scale)): # for the 7 scale images
     # use the original image and the scaling image (I and Is)
@@ -330,11 +326,11 @@ for s in range(len(scale)): # for the 7 scale images
             Rate_scale1[s, c2, ii] = evaluate_scenario_2(keypoints11, keypoints22, descriptors11, descriptors22, match, scale[s])
 
     elapsed_time = time.time() - start_time
-    print(f"SCenario 2 - c2 Elapsed time: {elapsed_time} seconds on image {s}")
+    print(f"SCenario 2 - c2 Elapsed time: {int(elapsed_time)} seconds on image {s}")
     start_time = time.time()
 
-    for c3 in range(len(matching3)): # for bf.L1, bf.L2 and bf.HAMMING mapping
-        match = matching3[c3]
+    for c3 in range(len(matching2)): # for bf.L1, bf.L2 and bf.HAMMING mapping
+        match = matching2[c3]
         for i in range(len(Detectors)):
             method_keyPt = Detectors[i] # choose a detector from the "Detectors" list
             for j in range(len(Descriptors)):
@@ -344,20 +340,14 @@ for s in range(len(scale)): # for the 7 scale images
                 keypoints1   = method_dscrpt.compute(img1, keypoints1)[0] # the keypoints of image 1 obtained by the method Y
                 keypoints2   = method_dscrpt.compute(img2, keypoints2)[0] # the keypoints of image 2 obtained by the method Y
                 descriptors1 = method_dscrpt.compute(img1, keypoints1)[1] # the descriptors of the image 1 obtained by the method Y
-                if descriptors1.dtype != np.float32:
-                    if descriptors1.dtype != np.uint8:
-                        descriptors1 = descriptors1.astype(np.float32)
                 descriptors2 = method_dscrpt.compute(img2, keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
-                if descriptors2.dtype != np.float32:
-                    if descriptors2.dtype != np.uint8:
-                        descriptors2 = descriptors2.astype(np.float32)
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 2
                 Rate_scale2[s, c3, i, j] = evaluate_scenario_2(keypoints1, keypoints2, descriptors1, descriptors2, match, scale[s])
 
     elapsed_time = time.time() - start_time
-    print(f"SCenario 2 - c3 Elapsed time: {elapsed_time} seconds on image {s}")
+    print(f"SCenario 2 - c3 Elapsed time: {int(elapsed_time)} seconds on image {s}")
 
-print(f"Scenario 2 Elapsed time: {time.time() - scenario2_time} seconds")
+print(f"Scenario 2 Elapsed time: {int(time.time() - scenario2_time)} seconds")
 # ................................................................................
 
 ################ Scenario 3: Rotation
@@ -371,7 +361,7 @@ rot = [10, 20, 30, 40, 50, 60, 70, 80, 90] # 9 values of rotation change, rotati
 # and each type of matching (without bf.HAMMING). And the other one groups the rates for each image, each binary method (different detectors and
 # descriptors), and each type of matching (with bf.HAMMING).
 Rate_rot1 = np.zeros((len(rot), len(matching2), len(DetectDescript)))
-Rate_rot2 = np.zeros((len(rot), len(matching3), len(Detectors), len(Descriptors)))
+Rate_rot2 = np.zeros((len(rot), len(matching2), len(Detectors), len(Descriptors)))
 # for loop to compute rates (%) for rotation change images, matches, binary and non-binary methods
 for r in range(len(rot)):
     # use the rotation matrix, the original image and the rotation change matrix (I and Ir)
@@ -391,12 +381,12 @@ for r in range(len(rot)):
             Rate_rot1[r, c2, ii] = evaluate_scenario_3(keypoints11, keypoints22, descriptors11, descriptors22, match, rot[r], rot_matrix)
 
     elapsed_time = time.time() - start_time
-    print(f"SCenario 3 - c2 Elapsed time: {elapsed_time} seconds on image {r}")
+    print(f"SCenario 3 - c2 Elapsed time: {int(elapsed_time)} seconds on image {r}")
 
     start_time = time.time()
 
-    for c3 in range(len(matching3)): # for bf.L1, bf.L2 and bf.HAMMING mapping
-        match = matching3[c3]
+    for c3 in range(len(matching2)): # for bf.L1, bf.L2 and bf.HAMMING mapping
+        match = matching2[c3]
         for i in range(len(Detectors)):
             method_keyPt = Detectors[i] # choose a detector from the "Detectors" list
             for j in range(len(Descriptors)):
@@ -406,20 +396,14 @@ for r in range(len(rot)):
                 keypoints1   = method_dscrpt.compute(img1, keypoints1)[0]# the keypoints of image 1 obtained by the method Y
                 keypoints2   = method_dscrpt.compute(img2, keypoints2)[0]# the keypoints of image 2 obtained by the method Y
                 descriptors1 = method_dscrpt.compute(img1, keypoints1)[1]# the descriptors of the image 1 obtained by the method Y
-                if descriptors1.dtype != np.float32:
-                    if descriptors1.dtype != np.uint8:
-                        descriptors1 = descriptors1.astype(np.float32)
                 descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]# the descriptors of the image 2 obtained by the method Y
-                if descriptors2.dtype != np.float32:
-                    if descriptors2.dtype != np.uint8:
-                        descriptors2 = descriptors2.astype(np.float32)
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 3
                 Rate_rot2[r, c3, i, j] = evaluate_scenario_3(keypoints1, keypoints2, descriptors1, descriptors2, match, rot[r], rot_matrix)
 
     elapsed_time = time.time() - start_time
-    print(f"SCenario 3 - c3 Elapsed time: {elapsed_time} seconds on image {r}")
+    print(f"SCenario 3 - c3 Elapsed time: {int(elapsed_time)} seconds on image {r}")
 
-print(f"Scenario 3 Elapsed time: {time.time() - scenario3_time} seconds")
+print(f"Scenario 3 Elapsed time: {int(time.time() - scenario3_time)} seconds")
 
 # ..........................................................................................................................
 # Visualization of the results
@@ -434,7 +418,7 @@ DetectorsLegend     = ['fast-', 'star-', 'mser-', 'agast-', 'gftt-', 'harrislapl
 DescriptorsLegend   = ['vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
 
 c2 = 1 # for non-binary methods "DetectDescript" (c2=0 for bf.L1, c2=1 for bf.L2)
-c3 = 2 # for binary methods "Detectors with Descriptors" (c2=0 for bf.L1, c2=1 for bf.L2, c2=2 for bf.HAMMING)
+c3 = 1 # for binary methods "Detectors with Descriptors" (c3=0 for bf.L1, c3=1 for bf.L2, c3=2 for bf.HAMMING)
 # To choose the type of mapping for our binary and non-binary methods (this is for a good visualization, to
 # avoid plotting 46 curves and plotting only 17 curves in each figure)
 
