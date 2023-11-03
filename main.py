@@ -292,9 +292,9 @@ for k in range(nbre_img): # for the 8 intensity images
 
     elapsed_time = int(time.time() - start_time)
     print(f"SCenario 1 - c3 Elapsed time: {elapsed_time} seconds on image {k}")
-
 print(f"Scenario 1 Elapsed time: {int(time.time() - scenario1_time)} seconds")
 # ................................................................................
+
 
 ################ Scenario 2: Scale
 print("Scenario 2 Scale")
@@ -346,9 +346,9 @@ for s in range(len(scale)): # for the 7 scale images
 
     elapsed_time = time.time() - start_time
     print(f"SCenario 2 - c3 Elapsed time: {int(elapsed_time)} seconds on image {s}")
-
 print(f"Scenario 2 Elapsed time: {int(time.time() - scenario2_time)} seconds")
 # ................................................................................
+
 
 ################ Scenario 3: Rotation
 print("Scenario 3 Scale")
@@ -402,8 +402,8 @@ for r in range(len(rot)):
 
     elapsed_time = time.time() - start_time
     print(f"SCenario 3 - c3 Elapsed time: {int(elapsed_time)} seconds on image {r}")
-
 print(f"Scenario 3 Elapsed time: {int(time.time() - scenario3_time)} seconds")
+
 
 # ..........................................................................................................................
 # Visualization of the results
@@ -423,7 +423,7 @@ c3 = 1 # for binary methods "Detectors with Descriptors" (c3=0 for bf.L1, c3=1 f
 # avoid plotting 46 curves and plotting only 17 curves in each figure)
 
 # Number of colors to use for all curves
-NUM_COLORS = len(DetectDescriptLegend) + (len(DetectorsLegend)*len(DescriptorsLegend)) # NUM_COLORS = 17
+NUM_COLORS = len(DetectDescriptLegend) + (len(DetectorsLegend)*len(DescriptorsLegend)) # NUM_COLORS = 22
 
 LINE_STYLES = ['solid', 'dashed', 'dotted'] # style of the curve
 NUM_STYLES = len(LINE_STYLES)
@@ -449,8 +449,8 @@ for k in range(len(DetectDescriptLegend)):
 
     lines_I1 = ax1.plot(val_b, Rate1_I1, linewidth=2, label = DetectDescriptLegend[k]) # for the figure of the intensity change results (I+b)
     lines_I2 = ax2.plot(val_c, Rate1_I2, linewidth=2, label = DetectDescriptLegend[k]) # for the figure of intensity change results (I*c)
-    lines_S = ax3.plot(scale, Rate1_S, linewidth=2, label = DetectDescriptLegend[k]) # for the scaling results figure
-    lines_R = ax4.plot(rot, Rate1_R, linewidth=2, label = DetectDescriptLegend[k]) # for the figure of the results of rotation change
+    lines_S  = ax3.plot(scale, Rate1_S,  linewidth=2, label = DetectDescriptLegend[k]) # for the scaling results figure
+    lines_R  = ax4.plot(rot, Rate1_R,    linewidth=2, label = DetectDescriptLegend[k]) # for the figure of the results of rotation change
 
     num += 1 # to take each time the loop turns a different color and curve style
     # for the color and style of the curve for the results of the 3 scenarios
@@ -506,26 +506,26 @@ elif c2 == 1 and c3 == 2:
 
 ax1.set_xlabel('Intensity changing (Img +/- value)', fontsize=12) # x-axis title of the figure
 ax1.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
-ax1.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize= 8, handlelength = 2) # legend :(loc=2 <=> Location String = 'upper left')
+ax1.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize=7, handlelength = 2) # legend :(loc=2 <=> Location String = 'upper left')
 
 # ax2.set_title('Correctly matched point rate for different matching methods depending on intensity change', fontsize=13)
 ax2.set_xlabel('Intensity changing (Img * value)', fontsize=12) # x-axis title of the figure
 ax2.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
-ax2.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize= 8, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
+ax2.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize=7, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
 
 # ax3.set_title('Correctly matched point rate for different matching methods depending on scale change', fontsize=13)
 ax3.set_xlabel('Scale changing', fontsize=12) # x-axis title of the figure
 ax3.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
-ax3.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize= 8, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
+ax3.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize=7, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
 
 # ax4.set_title('Correctly matched point rate for different pairing methods depending on the change of rotation', fontsize=13)
 ax4.set_xlabel('Rotation changing', fontsize=12) # x-axis title of the figure
 ax4.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
-ax4.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize= 8, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
+ax4.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize=7, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
 
 # Recording and display of the obtained figures
-fig1.savefig(basedir + '/figs' + '/Intensity1_changing.png')
-fig2.savefig(basedir + '/figs' + '/Intensity1_changing2.png')
+fig1.savefig(basedir + '/figs' + '/IntensityIb_changing.png')
+fig2.savefig(basedir + '/figs' + '/IntensityIc_changing.png')
 fig3.savefig(basedir + '/figs' + '/Scale_changing.png')
 fig4.savefig(basedir + '/figs' + '/Rotation_changing.png')
 # plt.show()
