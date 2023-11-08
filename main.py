@@ -21,6 +21,7 @@ folder = '/bikes'
 picture = '/img1.jpg'
 data = basedir + folder + picture
 
+
 # ...................................................................................................................
 # I.1 Data preparation
 # ...................................................................................................................
@@ -198,10 +199,6 @@ def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, mise_corresp,rot, rot_matrix):
     return Prob_True
 # ................................................................................
 
-# ...................................................................................................................
-# II. Evaluation of matching methods for scenarios 1, 2 and 3
-# ...................................................................................................................
-
 # Initialization of our methods of detectors and descriptors (17 methods)
 ### detectors/descriptors 5
 sift  = cv2.SIFT_create()
@@ -237,9 +234,8 @@ matching2 = list([cv2.NORM_L1, cv2.NORM_L2])
 # matching3 = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_HAMMING])
 # ................................................................................
 
-
-################ Scenario 1 (Intensity)
-print("Scenario 1 Scale")
+################ Scenario 1 (Intensity) ################
+print("Scenario 1 Intensity")
 scenario1_time = time.time()
 
 Img0 = cv2.imread(data)
@@ -293,10 +289,9 @@ for k in range(nbre_img): # for the 8 intensity images
     elapsed_time = int(time.time() - start_time)
     print(f"SCenario 1 - c3 Elapsed time: {elapsed_time} seconds on image {k}")
 print(f"Scenario 1 Elapsed time: {int(time.time() - scenario1_time)} seconds")
-# ................................................................................
+##########################################################
 
-
-################ Scenario 2: Scale
+################ Scenario 2: Scale ################
 print("Scenario 2 Scale")
 scenario2_time = time.time()
 cameraN = 2 # camera index
@@ -347,11 +342,10 @@ for s in range(len(scale)): # for the 7 scale images
     elapsed_time = time.time() - start_time
     print(f"SCenario 2 - c3 Elapsed time: {int(elapsed_time)} seconds on image {s}")
 print(f"Scenario 2 Elapsed time: {int(time.time() - scenario2_time)} seconds")
-# ................................................................................
+##########################################################
 
-
-################ Scenario 3: Rotation
-print("Scenario 3 Scale")
+################ Scenario 3: Rotation ################
+print("Scenario 3 Rotation")
 scenario3_time = time.time()
 cameraN = 2 # camera index
 ImageN = 0 # image index
@@ -403,14 +397,12 @@ for r in range(len(rot)):
     elapsed_time = time.time() - start_time
     print(f"SCenario 3 - c3 Elapsed time: {int(elapsed_time)} seconds on image {r}")
 print(f"Scenario 3 Elapsed time: {int(time.time() - scenario3_time)} seconds")
+##########################################################
 
 
-# ..........................................................................................................................
-# Visualization of the results
-DetectDescript = list([sift, akaze, orb, brisk, kaze])
-Detectors     = list([fast, star, mser, agast, gftt, harrislaplace, msd, tbmr])
-Descriptors   = list([vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost])
-# ..........................................................................................................................
+# ...................................................................................................................
+# I.3 Display of results
+# ...................................................................................................................
 
 # Binary and non-binary methods used to set the legend
 DetectDescriptLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze']
@@ -418,12 +410,10 @@ DetectorsLegend     = ['fast-', 'star-', 'mser-', 'agast-', 'gftt-', 'harrislapl
 DescriptorsLegend   = ['vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
 
 c2 = 1 # for non-binary methods "DetectDescript" (c2=0 for bf.L1, c2=1 for bf.L2)
-c3 = 1 # for binary methods "Detectors with Descriptors" (c3=0 for bf.L1, c3=1 for bf.L2, c3=2 for bf.HAMMING)
-# To choose the type of mapping for our binary and non-binary methods (this is for a good visualization, to
-# avoid plotting 46 curves and plotting only 17 curves in each figure)
+c3 = 1 # for binary methods "Detectors with Descriptors" (c3=0 for bf.L1, c3=1 for bf.L2)
 
 # Number of colors to use for all curves
-NUM_COLORS = len(DetectDescriptLegend) + (len(DetectorsLegend)*len(DescriptorsLegend)) # NUM_COLORS = 22
+NUM_COLORS = len(DetectDescriptLegend) + (len(DetectorsLegend)*len(DescriptorsLegend)) # NUM_COLORS = 5+8+9 = 22
 
 LINE_STYLES = ['solid', 'dashed', 'dotted'] # style of the curve
 NUM_STYLES = len(LINE_STYLES)
@@ -528,4 +518,4 @@ fig1.savefig(basedir + '/figs' + '/IntensityIb_changing.png')
 fig2.savefig(basedir + '/figs' + '/IntensityIc_changing.png')
 fig3.savefig(basedir + '/figs' + '/Scale_changing.png')
 fig4.savefig(basedir + '/figs' + '/Rotation_changing.png')
-# plt.show()
+plt.show()
