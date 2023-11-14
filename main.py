@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt # For displaying the figures
 import cv2 # opencv
 import numpy as np # For numerical calculations
 import time # for the calculation of the execution time
+import os # for the creation of folders
 from prettytable import PrettyTable # To view the displayboards on the console
 
 ## Reading database
@@ -25,6 +26,8 @@ data = basedir + folder + picture
 # ...................................................................................................................
 # I.1 Data preparation
 # ...................................................................................................................
+
+
 
 ## Scenario 1 (Intensity): Function that returns 8 images with intensity changes from an I image.
 def get_cam_intensity_8Img(image0, val_b, val_c): # val_b, val_c must be 2 verctors with 4 values each
@@ -45,23 +48,30 @@ def get_cam_intensity_8Img(image0, val_b, val_c): # val_b, val_c must be 2 verct
         List8Img[j+4][List8Img[j+4] > 255] = 255 # set pixels with intensity > 255 to 255
         List8Img[j+4][List8Img[j+4] < 0] = 0 # set the pixels with intensity < 0 to the value of 0
         List8Img[j+4] = np.array(List8Img[j+4], dtype=np.uint8) # transform image to uint8 (min value = 0, max value = 255)
+    # # Save the images to disk
+    # for i, img in enumerate(List8Img):
+    #     filename = f"{basedir}intensity/image_{i}.png"  # You can change the format and naming convention as needed
+    #     cv2.imwrite(filename, img)
     return imageO, List8Img
 # ................................................................................
 
 ## Scenario 2 (Scale): Function that takes as input the index of the camera, the index of the image n, and a scale, it returns
 #                      a couple (I, Iscale). In the following, we will work with 7 images with a scale change Is : s ∈]1.1 : 0.2 : 2.3].
-def get_cam_scale(camN, n, s):
+def get_cam_scale(s):
     Img = cv2.imread(data)
     Img = np.array(Img) # transform the image into an array type
     ImgScale = cv2.resize(Img, (0, 0), fx=s, fy=s, interpolation = cv2.INTER_NEAREST) # opencv resize function with INTER_NEAREST interpolation
     I_Is = list([Img, ImgScale]) # list of 2 images (original image and scaled image)
+    # # Save the images to disk
+    # filename = f"{basedir}scale/image_{s}.png"  # You can change the format and naming convention as needed
+    # cv2.imwrite(filename, ImgScale)
     return I_Is
 # ................................................................................
 
 ## Scenario 3 (Rotation): Function that takes as input the index of the camera, the index of the image n, and a rotation angle, it returns a
 #                         couple (I, Irot), and the rotation matrix. In the following, we will work with 9 images with a change of scale For
 #                         an image I, we will create 9 images (I10, I20...I90) with change of rotation from 10 to 90 with a step of 10.
-def get_cam_rot(camN, n, r):
+def get_cam_rot(r):
     Img = cv2.imread(data)
     Img = np.array(Img) # transform the image into an array type
     # divide the height and width by 2 to get the center of the image
@@ -72,6 +82,9 @@ def get_cam_rot(camN, n, r):
     # rotate the image using cv2.warpAffine
     rotated_image = cv2.warpAffine(Img, rotate_matrix, dsize=(width, height), flags=cv2.INTER_LINEAR)
     couple_I_Ir = list([Img, rotated_image]) # list of 2 images (original image and image with rotation change)
+    # # Save the images to disk
+    # filename = f"{basedir}rotation/image_{r}.png"  # You can change the format and naming convention as needed
+    # cv2.imwrite(filename, rotated_image)
     return rotate_matrix,couple_I_Ir # it also returns the rotation matrix for further use in the rotation evaluation function
 # ................................................................................
 
@@ -294,8 +307,6 @@ print(f"Scenario 1 Elapsed time: {int(time.time() - scenario1_time)} seconds")
 ################ Scenario 2: Scale ################
 print("Scenario 2 Scale")
 scenario2_time = time.time()
-cameraN = 2 # camera index
-ImageN = 0 # image index
 scale = [1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3] # 7 values of the scale change s ∈]1.1 : 0.2 : 2.3].
 
 ## 2 matrices of the rates of scenario 2, the first one groups the rates for each image, each non-binary method (same detectors and descriptors),
@@ -306,8 +317,8 @@ Rate_scale2 = np.zeros((len(scale), len(matching2), len(Detectors), len(Descript
 # for loop to calculate rates (%) for scaling images, matching, binary and non-binary methods
 for s in range(len(scale)): # for the 7 scale images
     # use the original image and the scaling image (I and Is)
-    img1 = get_cam_scale(cameraN, ImageN, scale[s])[0] # image I
-    img2 = get_cam_scale(cameraN, ImageN, scale[s])[1] # image Is
+    img = get_cam_scale(scale[s])#[0] # image I
+    #img2 = get_cam_scale(scale[s])[1] # image Is
 
     start_time = time.time()
 
@@ -315,8 +326,8 @@ for s in range(len(scale)): # for the 7 scale images
         match = matching2[c2]
         for ii in range(len(DetectDescript)):
             method = DetectDescript[ii] # choose a method from the "DetectDescript" list
-            keypoints11, descriptors11 = method.detectAndCompute(img1, None)# the keypoints and descriptors of image 1 obtained by the method X
-            keypoints22, descriptors22 = method.detectAndCompute(img2, None)# the keypoints and descriptors of image 2 obtained by the method X
+            keypoints11, descriptors11 = method.detectAndCompute(img[0], None)# the keypoints and descriptors of image 1 obtained by the method X
+            keypoints22, descriptors22 = method.detectAndCompute(img[1], None)# the keypoints and descriptors of image 2 obtained by the method X
             # Calculation of the rate (%) of correctly matched homologous points by the X method using the evaluation function of scenario 2
             Rate_scale1[s, c2, ii] = evaluate_scenario_2(keypoints11, keypoints22, descriptors11, descriptors22, match, scale[s])
 
@@ -330,12 +341,12 @@ for s in range(len(scale)): # for the 7 scale images
             method_keyPt = Detectors[i] # choose a detector from the "Detectors" list
             for j in range(len(Descriptors)):
                 method_dscrpt = Descriptors[j] # choose a descriptor from the "Descriptors" list
-                keypoints1   = method_keyPt.detect(img1,None)
-                keypoints2   = method_keyPt.detect(img2,None)
-                keypoints1   = method_dscrpt.compute(img1, keypoints1)[0] # the keypoints of image 1 obtained by the method Y
-                keypoints2   = method_dscrpt.compute(img2, keypoints2)[0] # the keypoints of image 2 obtained by the method Y
-                descriptors1 = method_dscrpt.compute(img1, keypoints1)[1] # the descriptors of the image 1 obtained by the method Y
-                descriptors2 = method_dscrpt.compute(img2, keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
+                keypoints1   = method_keyPt.detect(img[0],None)
+                keypoints2   = method_keyPt.detect(img[1],None)
+                keypoints1   = method_dscrpt.compute(img[0], keypoints1)[0] # the keypoints of image 1 obtained by the method Y
+                keypoints2   = method_dscrpt.compute(img[1], keypoints2)[0] # the keypoints of image 2 obtained by the method Y
+                descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1] # the descriptors of the image 1 obtained by the method Y
+                descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 2
                 Rate_scale2[s, c3, i, j] = evaluate_scenario_2(keypoints1, keypoints2, descriptors1, descriptors2, match, scale[s])
 
@@ -347,8 +358,6 @@ print(f"Scenario 2 Elapsed time: {int(time.time() - scenario2_time)} seconds")
 ################ Scenario 3: Rotation ################
 print("Scenario 3 Rotation")
 scenario3_time = time.time()
-cameraN = 2 # camera index
-ImageN = 0 # image index
 rot = [10, 20, 30, 40, 50, 60, 70, 80, 90] # 9 values of rotation change, rotations from 10 to 90 with a step of 10.
 
 ## 2 matrices of the rates of scenario 3, the first one groups the rates for each image, each non-binary method (same detectors and descriptors),
@@ -359,7 +368,7 @@ Rate_rot2 = np.zeros((len(rot), len(matching2), len(Detectors), len(Descriptors)
 # for loop to compute rates (%) for rotation change images, matches, binary and non-binary methods
 for r in range(len(rot)):
     # use the rotation matrix, the original image and the rotation change matrix (I and Ir)
-    rot_matrix, img = get_cam_rot(cameraN, ImageN, rot[r])
+    rot_matrix, img = get_cam_rot(rot[r])
     img1 = img[0] # image I
     img2 = img[1] # image Ir
 
