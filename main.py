@@ -1,10 +1,18 @@
-##    Comparative study of detectors, descriptors and matching    ##
-##                     of points of interest                      ##
+##  Comparative study of detectors, descriptors and matching of points of interest    ##
 
-## Objective: In this project, we tested and evaluated the performance of several most used interest point detectors
-# such as (SIFT, AKAZE, ORB, BRISK, KAZE, FAST, STAR and MSER), several descriptors such as (SIFT, AKAZE, ORB, BRISK,
-# KAZE, FREAK, LATCH, LUCID and BRIEF) and several matching methods such as (Brute-Force L1 and Brute-Force L2
-# in order to know the most suitable method for a given scenario.
+## The objective of this project is to compare the performance of different methods of detection, description and matching methods.
+## The comparison will be based on the results of the evaluation of the different scenarios on the Oxford dataset.
+## The scenarios are: intensity change, scale change and rotation change.
+## The detector/descriptor methods used are: sift, akaze, orb, brisk, kaze.
+## The detector methods used are: fast, star, mser, agast, gftt, harrislaplace, msd, tbmr.
+## The descriptor methods used are: vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost.
+## The matching methods used are: bf.L1, bf.L2.
+## The evaluation of the scenarios is based on the percentage of correctly matched homologous points.
+## The results are displayed in 4 figures, each figure corresponds to a scenario.
+## The first figure corresponds to the results of the intensity change scenario (I+b).
+## The second figure corresponds to the results of the intensity change scenario (I*c).
+## The third figure corresponds to the results of the scale change scenario.
+## The fourth figure corresponds to the results of the rotation change scenario.
 
 # ................................................................................
 ## Imports of libraries
@@ -29,8 +37,8 @@ data = basedir + folder + picture
 ## Scenario 1 (Intensity): Function that returns 8 images with intensity changes from an I image.
 def get_cam_intensity_8Img(image0, val_b, val_c): # val_b, val_c must be 2 verctors with 4 values each
     imageO = np.array(image0)
-    image = np.array(image0, dtype=np.uint16) # transformation of the image into uint16 so that each pixel of the
-#                                               image will have the same intensity change (min value = 0, max value = 65535)
+    image = np.array(image0, dtype=np.uint16)   # transformation of the image into uint16 so that each pixel of the
+                                                # image will have the same intensity change (min value = 0, max value = 65535)
     I0 = np.zeros((image.shape[0], image.shape[1], image.shape[2])) # creation of empty image of 3 chanels to fill it afterwards
     List8Img = list([I0, I0, I0, I0, I0, I0, I0, I0]) # list of our 8 images that we will create
     for i in range(len(val_b)): # for I + b, with: b ∈ [-30 : 20 : +30]
@@ -225,6 +233,8 @@ harrislaplace = cv2.xfeatures2d.HarrisLaplaceFeatureDetector_create()
 msd   = cv2.xfeatures2d.MSDDetector_create()
 tbmr  = cv2.xfeatures2d.TBMR_create()
 ### descriptors 9
+vgg   = cv2.xfeatures2d.VGG_create()
+daisy = cv2.xfeatures2d.DAISY_create()
 freak = cv2.xfeatures2d.FREAK_create()
 brief = cv2.xfeatures2d.BriefDescriptorExtractor_create()
 lucid = cv2.xfeatures2d.LUCID_create()
@@ -232,8 +242,6 @@ latch = cv2.xfeatures2d.LATCH_create()
 beblid= cv2.xfeatures2d.BEBLID_create(5.0)
 teblid= cv2.xfeatures2d.TEBLID_create(5.0)
 boost = cv2.xfeatures2d.BoostDesc_create()
-vgg   = cv2.xfeatures2d.VGG_create()
-daisy = cv2.xfeatures2d.DAISY_create()
 
 # lists of the different detectors, descriptors and matching methods
 DetectDescript = list([sift, akaze, orb, brisk, kaze])
@@ -408,9 +416,9 @@ print(f"Scenario 3 Elapsed time: {int(time.time() - scenario3_time)} seconds")
 # ...................................................................................................................
 
 # Binary and non-binary methods used to set the legend
-DetectDescriptLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze']
-DetectorsLegend     = ['fast-', 'star-', 'mser-', 'agast-', 'gftt-', 'harrislaplace-', 'msd-', 'tbmr-']
-DescriptorsLegend   = ['vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
+DetectDescriptLegend = ['sift',  'akaze', 'orb',   'brisk',  'kaze']
+DetectorsLegend      = ['fast-', 'star-', 'mser-', 'agast-', 'gftt-', 'harrislaplace-', 'msd-',   'tbmr-']
+DescriptorsLegend    = ['vgg',   'daisy', 'freak', 'brief',  'lucid', 'latch',          'beblid', 'teblid', 'boost']
 
 c2 = 1 # for non-binary methods "DetectDescript"            (c2=0 for bf.L1, c2=1 for bf.L2)
 c3 = 1 # for binary methods "Detectors with Descriptors"    (c3=0 for bf.L1, c3=1 for bf.L2)
@@ -437,8 +445,8 @@ ax4 = fig4.add_subplot(111)
 for k in range(len(DetectDescriptLegend)):
     Rate1_I1 = Rate_intensity1[:4, c2, k]
     Rate1_I2 = Rate_intensity1[4:, c2, k]
-    Rate1_S = Rate_scale1[:, c2, k]
-    Rate1_R = Rate_rot1[:, c2, k]
+    Rate1_S  = Rate_scale1[:, c2, k]
+    Rate1_R  = Rate_rot1[:, c2, k]
 
     lines_I1 = ax1.plot(val_b, Rate1_I1, linewidth=2, label = DetectDescriptLegend[k]) # for the figure of the intensity change results (I+b)
     lines_I2 = ax2.plot(val_c, Rate1_I2, linewidth=2, label = DetectDescriptLegend[k]) # for the figure of intensity change results (I*c)
@@ -461,13 +469,13 @@ for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         Rate2_I1 = Rate_intensity2[:4,c3,i,j]
         Rate2_I2 = Rate_intensity2[4:,c3,i,j]
-        Rate2_S = Rate_scale2[:,c3,i,j]
-        Rate2_R = Rate_rot2[:,c3,i,j]
+        Rate2_S  = Rate_scale2[:,c3,i,j]
+        Rate2_R  = Rate_rot2[:,c3,i,j]
 
         lines_I1 = ax1.plot(val_b, Rate2_I1, linewidth=2, label = DetectorsLegend[i] + DescriptorsLegend[j]) # for the figure of intensity change results (I+b)
         lines_I2 = ax2.plot(val_c, Rate2_I2, linewidth=2, label = DetectorsLegend[i] + DescriptorsLegend[j]) # for the figure of intensity change results (I*c)
-        lines_S = ax3.plot(scale, Rate2_S, linewidth=2, label = DetectorsLegend[i] + DescriptorsLegend[j]) # for the figure of the results of scale change
-        lines_R = ax4.plot(rot, Rate2_R, linewidth=2, label = DetectorsLegend[i] + DescriptorsLegend[j]) # for the figure of the results of rotation change
+        lines_S  = ax3.plot(scale, Rate2_S,  linewidth=2, label = DetectorsLegend[i] + DescriptorsLegend[j]) # for the figure of the results of scale change
+        lines_R  = ax4.plot(rot,   Rate2_R,  linewidth=2, label = DetectorsLegend[i] + DescriptorsLegend[j]) # for the figure of the results of rotation change
 
         num += 1 # to take each time the loop turns a different style of curve
         # for the color and style of curve for the results of the 3 scenarios
