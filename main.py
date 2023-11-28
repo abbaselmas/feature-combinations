@@ -3,8 +3,8 @@
 
 ## Objective: In this project, we tested and evaluated the performance of several most used interest point detectors
 # such as (SIFT, AKAZE, ORB, BRISK, KAZE, FAST, STAR and MSER), several descriptors such as (SIFT, AKAZE, ORB, BRISK,
-# KAZE, FREAK, LATCH, LUCID and BRIEF) and several matching methods such as (Brute-Force L1, Brute-Force L2 and
-# Brute-Force HAMMING), in order to know the most suitable method for a given scenario.
+# KAZE, FREAK, LATCH, LUCID and BRIEF) and several matching methods such as (Brute-Force L1 and Brute-Force L2
+# in order to know the most suitable method for a given scenario.
 
 # ................................................................................
 ## Imports of libraries
@@ -22,12 +22,9 @@ folder = '/bikes'
 picture = '/img1.jpg'
 data = basedir + folder + picture
 
-
 # ...................................................................................................................
 # I.1 Data preparation
 # ...................................................................................................................
-
-
 
 ## Scenario 1 (Intensity): Function that returns 8 images with intensity changes from an I image.
 def get_cam_intensity_8Img(image0, val_b, val_c): # val_b, val_c must be 2 verctors with 4 values each
@@ -257,8 +254,8 @@ val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
 nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> number of test images
 
 ## 2 matrices of the rates of scenario 1, the first one gathers the rates for each image, each non-binary method
-# (same detectors and descriptors), and each type of matching (without bf.HAMMING). And the other one groups the
-# rates for each image, each method binary method (different detectors and descriptors), and each type of matching (with bf.HAMMING).
+# (same detectors and descriptors), and each type of matching. And the other one groups the
+# rates for each image, each method binary method (different detectors and descriptors), and each type of matching.
 Rate_intensity1 = np.zeros((nbre_img, len(matching2), len(DetectDescript)))
 Rate_intensity2 = np.zeros((nbre_img, len(matching2), len(Detectors), len(Descriptors)))
 
@@ -270,7 +267,7 @@ for k in range(nbre_img): # for the 8 intensity images
     start_time = time.time()
 
     img2 = HuitImg1[k] # image with intensity change
-    for c2 in range(len(matching2)): # for bf.L1 and bf.L2 mapping (bf.HAMMING does not work for most non-binary methods)
+    for c2 in range(len(matching2)): # for bf.L1 and bf.L2 mapping
         matching_method = matching2[c2]
         for ii in range(len(DetectDescript)):
             method = DetectDescript[ii] # choose a method from the "DetectDescript" list
@@ -283,7 +280,7 @@ for k in range(nbre_img): # for the 8 intensity images
     print(f"SCenario 1 - c2 Elapsed time: {elapsed_time} seconds on image {k}")
     start_time = time.time()
 
-    for c3 in range(len(matching2)): # for bf.L1, bf.L2 and bf.HAMMING mapping
+    for c3 in range(len(matching2)): # for bf.L1 and bf.L2 mapping
         match3 = matching2[c3]
         for i in range(len(Detectors)):
             method_keyPt = Detectors[i] # choose a detector from the "Detectors" list
@@ -360,8 +357,8 @@ scenario3_time = time.time()
 rot = [10, 20, 30, 40, 50, 60, 70, 80, 90] # 9 values of rotation change, rotations from 10 to 90 with a step of 10.
 
 ## 2 matrices of the rates of scenario 3, the first one groups the rates for each image, each non-binary method (same detectors and descriptors),
-# and each type of matching (without bf.HAMMING). And the other one groups the rates for each image, each binary method (different detectors and
-# descriptors), and each type of matching (with bf.HAMMING).
+# and each type of matching. And the other one groups the rates for each image, each binary method (different detectors and
+# descriptors), and each type of matching.
 Rate_rot1 = np.zeros((len(rot), len(matching2), len(DetectDescript)))
 Rate_rot2 = np.zeros((len(rot), len(matching2), len(Detectors), len(Descriptors)))
 # for loop to compute rates (%) for rotation change images, matches, binary and non-binary methods
@@ -373,7 +370,7 @@ for r in range(len(rot)):
 
     start_time = time.time()
 
-    for c2 in range(len(matching2)): # for bf.L1 and bf.L2 mappings (bf.HAMMING does not work for most non-binary methods)
+    for c2 in range(len(matching2)): # for bf.L1 and bf.L2 mappings
         matching_method = matching2[c2]
         for ii in range(len(DetectDescript)):
             method = DetectDescript[ii] # choose a method from the "DetectDescript" list
@@ -386,7 +383,7 @@ for r in range(len(rot)):
     print(f"SCenario 3 - c2 Elapsed time: {int(elapsed_time)} seconds on image {r}")
     start_time = time.time()
 
-    for c3 in range(len(matching2)): # for bf.L1, bf.L2 and bf.HAMMING mapping
+    for c3 in range(len(matching2)): # for bf.L1 and bf.L2
         matching_method = matching2[c3]
         for i in range(len(Detectors)):
             method_keyPt = Detectors[i] # choose a detector from the "Detectors" list
@@ -486,7 +483,7 @@ for i in range(len(DetectorsLegend)):
 # The titles of the figures according to the correspondences
 if c2 == 0 and c3 == 0:
     ax1.set_title('Results of scenario 1, with bf.L1 for non-binary methods and bf.L1 for binary methods', fontsize=13)
-    ax2.set_title('Results of scenario 1, with bf.L1 for non-binary methods and bf.L1 for binary methods', fontsize=13)
+    ax2.set_title('Results of scenario 2, with bf.L1 for non-binary methods and bf.L1 for binary methods', fontsize=13)
     ax3.set_title('Results of scenario 3, with bf.L1 for non-binary methods and bf.L1 for binary methods', fontsize=13)
     ax4.set_title('Results of scenario 4, with bf.L1 for non-binary methods and bf.L1 for binary methods', fontsize=13)
 elif c2 == 1 and c3 == 1:
