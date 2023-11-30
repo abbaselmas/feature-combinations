@@ -306,6 +306,13 @@ for k in range(nbre_img): # for the 8 intensity images
     elapsed_time = int(time.time() - start_time)
     print(f"SCenario 1 - c3 Elapsed time: {elapsed_time} seconds on image {k}")
 print(f"Scenario 1 Elapsed time: {int(time.time() - scenario1_time)} seconds")
+#save the results in csv files
+#3d array to 2d array
+np.savetxt('arrays/Rate_intensity1.csv', Rate_intensity1.reshape(nbre_img, -1), delimiter='\t')
+#4d array to 3d array
+reshaped_array = Rate_intensity2.reshape(nbre_img, -1)
+#3d array to 2d array
+np.savetxt('arrays/Rate_intensity2.csv', reshaped_array.reshape(nbre_img, -1), delimiter='\t')
 ##########################################################
 
 ################ Scenario 2: Scale ################
@@ -357,6 +364,13 @@ for s in range(len(scale)): # for the 7 scale images
     elapsed_time = time.time() - start_time
     print(f"SCenario 2 - c3 Elapsed time: {int(elapsed_time)} seconds on image {s}")
 print(f"Scenario 2 Elapsed time: {int(time.time() - scenario2_time)} seconds")
+#save the results in csv files
+#3d array to 2d array
+np.savetxt('arrays/Rate_scale1.csv', Rate_scale1.reshape(len(scale), -1), delimiter='\t')
+#4d array to 3d array
+reshaped_array_scale = Rate_scale2.reshape(len(scale), -1)
+#3d array to 2d array
+np.savetxt('arrays/Rate_scale2.csv', reshaped_array_scale.reshape(len(scale), -1), delimiter='\t')
 ##########################################################
 
 ################ Scenario 3: Rotation ################
@@ -409,6 +423,13 @@ for r in range(len(rot)):
     elapsed_time = time.time() - start_time
     print(f"SCenario 3 - c3 Elapsed time: {int(elapsed_time)} seconds on image {r}")
 print(f"Scenario 3 Elapsed time: {int(time.time() - scenario3_time)} seconds")
+#save the results in csv files
+#3d array to 2d array
+np.savetxt('arrays/Rate_rot1.csv', Rate_rot1.reshape(len(rot), -1), delimiter='\t')
+#4d array to 3d array
+reshaped_array_rot = Rate_rot2.reshape(len(rot), -1)
+#3d array to 2d array
+np.savetxt('arrays/Rate_rot2.csv', reshaped_array_rot.reshape(len(rot), -1), delimiter='\t')
 ##########################################################
 
 # ...................................................................................................................
