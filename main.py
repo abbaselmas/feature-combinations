@@ -511,25 +511,25 @@ for i in range(len(DetectorsLegend)):
 
 # The titles of the figures according to the correspondences
 if c2 == 0 and c3 == 0:
-    ax1.set_title('Results of scenario 1, with bf.L1 for non-binary methods and bf.L1 for binary methods', fontsize=13)
-    ax2.set_title('Results of scenario 2, with bf.L1 for non-binary methods and bf.L1 for binary methods', fontsize=13)
-    ax3.set_title('Results of scenario 3, with bf.L1 for non-binary methods and bf.L1 for binary methods', fontsize=13)
-    ax4.set_title('Results of scenario 4, with bf.L1 for non-binary methods and bf.L1 for binary methods', fontsize=13)
+    ax1.set_title('Scn.1 L1 (non-binary) and L1 (binary) meth.', fontsize=13)
+    ax2.set_title('Scn.2 L1 (non-binary) and L1 (binary) meth.', fontsize=13)
+    ax3.set_title('Scn.3 L1 (non-binary) and L1 (binary) meth.', fontsize=13)
+    ax4.set_title('Scn.4 L1 (non-binary) and L1 (binary) meth.', fontsize=13)
 elif c2 == 1 and c3 == 1:
-    ax1.set_title('Results of scenario 1, with bf.L2 for non-binary methods and bf.L2 for binary methods', fontsize=13)
-    ax2.set_title('Results of scenario 2, with bf.L2 for non-binary methods and bf.L2 for binary methods', fontsize=13)
-    ax3.set_title('Results of scenario 3, with bf.L2 for non-binary methods and bf.L2 for binary methods', fontsize=13)
-    ax4.set_title('Results of scenario 4, with bf.L2 for non-binary methods and bf.L2 for binary methods', fontsize=13)
+    ax1.set_title('Scn.1 L2 (non-binary) and L2 (binary) meth.', fontsize=13)
+    ax2.set_title('Scn.2 L2 (non-binary) and L2 (binary) meth.', fontsize=13)
+    ax3.set_title('Scn.3 L2 (non-binary) and L2 (binary) meth.', fontsize=13)
+    ax4.set_title('Scn.4 L2 (non-binary) and L2 (binary) meth.', fontsize=13)
 elif c2 == 0 and c3 == 1:
-    ax1.set_title('Results of scenario 1, with bf.L1 for non-binary methods and bf.L2 for binary methods', fontsize=13)
-    ax2.set_title('Results of scenario 2, with bf.L1 for non-binary methods and bf.L2 for binary methods', fontsize=13)
-    ax3.set_title('Results of scenario 3, with bf.L1 for non-binary methods and bf.L2 for binary methods', fontsize=13)
-    ax4.set_title('Results of scenario 4, with bf.L1 for non-binary methods and bf.L2 for binary methods', fontsize=13)
+    ax1.set_title('Scn.1 L1 (non-binary) and L2 (binary) meth.', fontsize=13)
+    ax2.set_title('Scn.2 L1 (non-binary) and L2 (binary) meth.', fontsize=13)
+    ax3.set_title('Scn.3 L1 (non-binary) and L2 (binary) meth.', fontsize=13)
+    ax4.set_title('Scn.4 L1 (non-binary) and L2 (binary) meth.', fontsize=13)
 elif c2 == 1 and c3 == 0:
-    ax1.set_title('Results of scenario 1, with bf.L2 for non-binary methods and bf.L1 for binary methods', fontsize=13)
-    ax2.set_title('Results of scenario 2, with bf.L2 for non-binary methods and bf.L1 for binary methods', fontsize=13)
-    ax3.set_title('Results of scenario 3, with bf.L2 for non-binary methods and bf.L1 for binary methods', fontsize=13)
-    ax4.set_title('Results of scenario 4, with bf.L2 for non-binary methods and bf.L1 for binary methods', fontsize=13)
+    ax1.set_title('Scn.1 L2 (non-binary) and L1 (binary) meth.', fontsize=13)
+    ax2.set_title('Scn.2 L2 (non-binary) and L1 (binary) meth.', fontsize=13)
+    ax3.set_title('Scn.3 L2 (non-binary) and L1 (binary) meth.', fontsize=13)
+    ax4.set_title('Scn.4 L2 (non-binary) and L1 (binary) meth.', fontsize=13)
 
 ax1.set_xlabel('Intensity changing (Img +/- value) I+b', fontsize=12) # x-axis title of the figure
 ax1.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
@@ -551,8 +551,8 @@ ax4.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis
 ax4.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize=7, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
 
 # Recording and display of the obtained figures
-fig1.savefig(basedir + '/figs' + '/IntensityIb_changing.png')
-fig2.savefig(basedir + '/figs' + '/IntensityIc_changing.png')
-fig3.savefig(basedir + '/figs' + '/Scale_changing.png')
-fig4.savefig(basedir + '/figs' + '/Rotation_changing.png')
+fig1.savefig(basedir + '/figs/' + ax1.get_title + ax1.get_xlabel + '.png')
+fig2.savefig(basedir + '/figs/' + ax2.get_title + ax2.get_xlabel + '.png')
+fig3.savefig(basedir + '/figs/' + ax3.get_title + ax3.get_xlabel + '.png')
+fig4.savefig(basedir + '/figs/' + ax4.get_title + ax4.get_xlabel + '.png')
 plt.show()
