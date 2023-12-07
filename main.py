@@ -435,6 +435,7 @@ np.savetxt('arrays/Rate_rot2.csv', reshaped_array_rot.reshape(len(rot), -1), del
 # ...................................................................................................................
 # I.3 Display of results
 # ...................................................................................................................
+# TODO: Seperate this part of code to another file
 
 # Binary and non-binary methods used to set the legend
 DetectDescriptLegend = ['sift',  'akaze', 'orb',   'brisk',  'kaze']
@@ -551,8 +552,8 @@ ax4.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis
 ax4.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize=7, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
 
 # Recording and display of the obtained figures
-fig1.savefig(basedir + '/figs/' + ax1.get_title + ax1.get_xlabel + '.png')
-fig2.savefig(basedir + '/figs/' + ax2.get_title + ax2.get_xlabel + '.png')
-fig3.savefig(basedir + '/figs/' + ax3.get_title + ax3.get_xlabel + '.png')
-fig4.savefig(basedir + '/figs/' + ax4.get_title + ax4.get_xlabel + '.png')
+fig1.savefig(basedir + '/figs/' + ax1.get_title() + ax1.get_xlabel() + '.png')
+fig2.savefig(basedir + '/figs/' + ax2.get_title() + ax2.get_xlabel() + '.png')
+fig3.savefig(basedir + '/figs/' + ax3.get_title() + ax3.get_xlabel() + '.png')
+fig4.savefig(basedir + '/figs/' + ax4.get_title() + ax4.get_xlabel() + '.png')
 plt.show()
