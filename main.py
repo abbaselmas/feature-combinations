@@ -305,8 +305,8 @@ for k in range(nbre_img): # for the 8 intensity images
     print(f"SCenario 1 - c3 Elapsed time: {elapsed_time} seconds on image {k}")
 print(f"Scenario 1 Elapsed time: {int(time.time() - scenario1_time)} seconds")
 # export numpy arrays
-np.save('arrays/Rate_intensity1.npy', Rate_intensity1)
-np.save('arrays/Rate_intensity2.npy', Rate_intensity2)
+np.save(basedir + 'arrays/Rate_intensity1.npy', Rate_intensity1)
+np.save(basedir + 'arrays/Rate_intensity2.npy', Rate_intensity2)
 ##########################################################
 
 ################ Scenario 2: Scale ################
@@ -359,8 +359,8 @@ for s in range(len(scale)): # for the 7 scale images
     print(f"SCenario 2 - c3 Elapsed time: {int(elapsed_time)} seconds on image {s}")
 print(f"Scenario 2 Elapsed time: {int(time.time() - scenario2_time)} seconds")
 # export numpy arrays
-np.save('arrays/Rate_scale1.npy', Rate_scale1)
-np.save('arrays/Rate_scale2.npy', Rate_scale2)
+np.save(basedir + 'arrays/Rate_scale1.npy', Rate_scale1)
+np.save(basedir + 'arrays/Rate_scale2.npy', Rate_scale2)
 ##########################################################
 
 ################ Scenario 3: Rotation ################
@@ -414,6 +414,6 @@ for r in range(len(rot)):
     print(f"SCenario 3 - c3 Elapsed time: {int(elapsed_time)} seconds on image {r}")
 print(f"Scenario 3 Elapsed time: {int(time.time() - scenario3_time)} seconds")
 # export numpy arrays
-np.save('arrays/Rate_rot1.npy', Rate_rot1)
-np.save('arrays/Rate_rot2.npy', Rate_rot2)
+np.save(basedir + 'arrays/Rate_rot1.npy', Rate_rot1)
+np.save(basedir + 'arrays/Rate_rot2.npy', Rate_rot2)
 ##########################################################
