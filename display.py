@@ -11,11 +11,11 @@ rot = [10, 20, 30, 40, 50, 60, 70, 80, 90] # 9 values of rotation change, rotati
 # import saved numpy arrays
 basedir = os.path.abspath(os.path.dirname(__file__))
 Rate_intensity1 = np.load(basedir + '/arrays/Rate_intensity1.npy')
-Rate_intensity2 = np.load(basedir + '/data/Rate_intensity2.npy')
-Rate_scale1     = np.load(basedir + '/data/Rate_scale1.npy')
-Rate_scale2     = np.load(basedir + '/data/Rate_scale2.npy')
-Rate_rot1       = np.load(basedir + '/data/Rate_rot1.npy')
-Rate_rot2       = np.load(basedir + '/data/Rate_rot2.npy')
+Rate_intensity2 = np.load(basedir + '/arrays/Rate_intensity2.npy')
+Rate_scale1     = np.load(basedir + '/arrays/Rate_scale1.npy')
+Rate_scale2     = np.load(basedir + '/arrays/Rate_scale2.npy')
+Rate_rot1       = np.load(basedir + '/arrays/Rate_rot1.npy')
+Rate_rot2       = np.load(basedir + '/arrays/Rate_rot2.npy')
 
 # ...................................................................................................................
 # I.3 Display of results
@@ -116,12 +116,12 @@ elif c2 == 1 and c3 == 0:
     ax3.set_title('Scn.3 L2 (non-binary) and L1 (binary) meth.', fontsize=13)
     ax4.set_title('Scn.4 L2 (non-binary) and L1 (binary) meth.', fontsize=13)
 
-ax1.set_xlabel('Intensity changing (Img +/- value) I+b', fontsize=12) # x-axis title of the figure
+ax1.set_xlabel('Intensity changing I+b', fontsize=12) # x-axis title of the figure
 ax1.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
 ax1.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize=7, handlelength = 2) # legend :(loc=2 <=> Location String = 'upper left')
 
 # ax2.set_title('Correctly matched point rate for different matching methods depending on intensity change', fontsize=13)
-ax2.set_xlabel('Intensity changing (Img * value) I*c', fontsize=12) # x-axis title of the figure
+ax2.set_xlabel('Intensity changing Ixc', fontsize=12) # x-axis title of the figure
 ax2.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
 ax2.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize=7, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
 
@@ -136,8 +136,8 @@ ax4.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis
 ax4.legend(loc= 'center left', bbox_to_anchor=(1, 0.5), fontsize=7, handlelength = 2) # (loc=2 <=> Location String = 'upper left')
 
 # Recording and display of the obtained figures
-fig1.savefig(basedir + '/figs/' + ax1.get_title() + ax1.get_xlabel() + '.png')
-fig2.savefig(basedir + '/figs/' + ax2.get_title() + ax2.get_xlabel() + '.png')
-fig3.savefig(basedir + '/figs/' + ax3.get_title() + ax3.get_xlabel() + '.png')
-fig4.savefig(basedir + '/figs/' + ax4.get_title() + ax4.get_xlabel() + '.png')
+fig1.savefig(basedir + '\\figs\\' + ax1.get_title() + ax1.get_xlabel() + '.png')
+fig2.savefig(basedir + '\\figs\\' + ax2.get_title() + ax2.get_xlabel() + '.png')
+fig3.savefig(basedir + '\\figs\\' + ax3.get_title() + ax3.get_xlabel() + '.png')
+fig4.savefig(basedir + '\\figs\\' + ax4.get_title() + ax4.get_xlabel() + '.png')
 plt.show()
