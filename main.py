@@ -1,28 +1,8 @@
-##  Comparative study of detectors, descriptors and matching of points of interest    ##
-
-## The objective of this project is to compare the performance of different methods of detection, description and matching methods.
-## The comparison will be based on the results of the evaluation of the different scenarios on the Oxford dataset.
-## The scenarios are: intensity change, scale change and rotation change.
-## The detector/descriptor methods used are: sift, akaze, orb, brisk, kaze.
-## The detector methods used are: fast, star, mser, agast, gftt, harrislaplace, msd, tbmr.
-## The descriptor methods used are: vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost.
-## The matching methods used are: bf.L1, bf.L2.
-## The evaluation of the scenarios is based on the percentage of correctly matched homologous points.
-## The results are displayed in 4 figures, each figure corresponds to a scenario.
-## The first figure corresponds to the results of the intensity change scenario (I+b).
-## The second figure corresponds to the results of the intensity change scenario (I*c).
-## The third figure corresponds to the results of the scale change scenario.
-## The fourth figure corresponds to the results of the rotation change scenario.
-
-# ................................................................................
-## Imports of libraries
 import matplotlib.pyplot as plt # For displaying the figures
 import cv2 # opencv
 import numpy as np # For numerical calculations
 import time # for the calculation of the execution time
 
-## Reading database
-# basedir = '/content/drive/MyDrive/Dataset/oxfordAffine'
 basedir = './'
 folder = '/bikes'
 picture = '/img1.jpg'
@@ -55,6 +35,7 @@ def get_cam_intensity_8Img(image0, val_b, val_c): # val_b, val_c must be 2 verct
     # for i, img in enumerate(List8Img):
     #     filename = f"{basedir}intensity/image_{i}.png"  # You can change the format and naming convention as needed
     #     cv2.imwrite(filename, img)
+    print("Scenario 1 Intensity: 4 images with intensity change I+b and 4 images with intensity change I*c")
     return imageO, List8Img
 # ................................................................................
 
@@ -68,6 +49,7 @@ def get_cam_scale(s):
     # # Save the images to disk
     # filename = f"{basedir}scale/image_{s}.png"  # You can change the format and naming convention as needed
     # cv2.imwrite(filename, ImgScale)
+    print("get_cam_scale run with parameter s = ", s, " and return a couple (I, Iscale) of images")
     return I_Is
 # ................................................................................
 
@@ -88,6 +70,7 @@ def get_cam_rot(r):
     # # Save the images to disk
     # filename = f"{basedir}rotation/image_{r}.png"  # You can change the format and naming convention as needed
     # cv2.imwrite(filename, rotated_image)
+    print("get_cam_rot run with parameter r = ", r, " and return a couple (I, Irot) of images")
     return rotate_matrix,couple_I_Ir # it also returns the rotation matrix for further use in the rotation evaluation function
 # ................................................................................
 
@@ -131,7 +114,6 @@ def evaluate_scenario_1(KP1, KP2, Dspt1, Dspt2, match_method):
             Prob_N += 1
     # Calculation of the rate (%) of correctly matched homologous points
     Prob_True = (Prob_P / (Prob_P + Prob_N))*100
-
     return Prob_True
 # ................................................................................
 
@@ -169,7 +151,6 @@ def evaluate_scenario_2(KP1, KP2, Dspt1, Dspt2, match_method,scale):
             Prob_N += 1
     # Calculation of the rate (%) of correctly matched homologous points
     Prob_True = (Prob_P / (Prob_P + Prob_N))*100
-
     return Prob_True
 # ................................................................................
 
@@ -210,7 +191,6 @@ def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, match_method, rot, rot_matrix):
             Prob_N += 1
     # Calculation of the rate (%) of correctly matched homologous points
     Prob_True = (Prob_P / (Prob_P + Prob_N))*100
-
     return Prob_True
 # ................................................................................
 
@@ -243,16 +223,13 @@ boost = cv2.xfeatures2d.BoostDesc_create()
 
 # lists of the different detectors, descriptors and matching methods
 DetectDescript = list([sift, akaze, orb, brisk, kaze])
-Detectors     = list([fast, star, mser, agast, gftt, harrislaplace, msd, tbmr])
-Descriptors   = list([vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost])
-matching2 = list([cv2.NORM_L1, cv2.NORM_L2])
+Detectors      = list([fast, star, mser, agast, gftt, harrislaplace, msd, tbmr])
+Descriptors    = list([vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost])
+matching2      = list([cv2.NORM_L1, cv2.NORM_L2])
 # matching3 = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_HAMMING])
-# ................................................................................
 
 ################ Scenario 1 (Intensity) ################
 print("Scenario 1 Intensity")
-scenario1_time = time.time()
-
 Img0 = cv2.imread(data)
 Img0 = np.array(Img0)
 val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
@@ -269,8 +246,6 @@ img1, HuitImg1 = get_cam_intensity_8Img(Img0, val_b, val_c) # use the intensity 
 # for loop to compute rates (%) for intensity change images, matches, binary and non-binary methods
 
 for k in range(nbre_img): # for the 8 intensity images
-    # Start the timer
-    start_time = time.time()
 
     img2 = HuitImg1[k] # image with intensity change
     for c2 in range(len(matching2)): # for bf.L1 and bf.L2 mapping
@@ -281,11 +256,7 @@ for k in range(nbre_img): # for the 8 intensity images
             keypoints22, descriptors22 = method.detectAndCompute(img2, None) # the keypoints and descriptors of the image 2 obtained by the method X
             # Calculation of the rate (%) of correctly matched homologous points by the X method using the evaluation function of scenario 1
             Rate_intensity1[k, c2, ii] = evaluate_scenario_1(keypoints11, keypoints22, descriptors11, descriptors22, matching_method)
-
-    elapsed_time = int(time.time() - start_time)
-    print(f"SCenario 1 - c2 Elapsed time: {elapsed_time} seconds on image {k}")
-    start_time = time.time()
-
+    print("Scenario 1 Intensity: Rate_intensity1 for image ", k, " is calculated")
     for c3 in range(len(matching2)): # for bf.L1 and bf.L2 mapping
         match3 = matching2[c3]
         for i in range(len(Detectors)):
@@ -300,10 +271,8 @@ for k in range(nbre_img): # for the 8 intensity images
                 descriptors2 = method_dscrpt.compute(img2, keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 1
                 Rate_intensity2[k, c3, i, j] = evaluate_scenario_1(keypoints1, keypoints2, descriptors1, descriptors2, match3)
+    print("Scenario 1 Intensity: Rate_intensity2 for image ", k, " is calculated")
 
-    elapsed_time = int(time.time() - start_time)
-    print(f"SCenario 1 - c3 Elapsed time: {elapsed_time} seconds on image {k}")
-print(f"Scenario 1 Elapsed time: {int(time.time() - scenario1_time)} seconds")
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_intensity1.npy', Rate_intensity1)
 np.save(basedir + 'arrays/Rate_intensity2.npy', Rate_intensity2)
@@ -311,7 +280,6 @@ np.save(basedir + 'arrays/Rate_intensity2.npy', Rate_intensity2)
 
 ################ Scenario 2: Scale ################
 print("Scenario 2 Scale")
-scenario2_time = time.time()
 scale = [1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3] # 7 values of the scale change s ∈]1.1 : 0.2 : 2.3].
 
 ## 2 matrices of the rates of scenario 2, the first one groups the rates for each image, each non-binary method (same detectors and descriptors),
@@ -325,8 +293,6 @@ for s in range(len(scale)): # for the 7 scale images
     img = get_cam_scale(scale[s])#[0] # image I
     #img2 = get_cam_scale(scale[s])[1] # image Is
 
-    start_time = time.time()
-
     for c2 in range(len(matching2)): # for bf.L1 and bf.L2 mapping
         matching_method = matching2[c2]
         for ii in range(len(DetectDescript)):
@@ -335,11 +301,7 @@ for s in range(len(scale)): # for the 7 scale images
             keypoints22, descriptors22 = method.detectAndCompute(img[1], None)# the keypoints and descriptors of image 2 obtained by the method X
             # Calculation of the rate (%) of correctly matched homologous points by the X method using the evaluation function of scenario 2
             Rate_scale1[s, c2, ii] = evaluate_scenario_2(keypoints11, keypoints22, descriptors11, descriptors22, matching_method, scale[s])
-
-    elapsed_time = time.time() - start_time
-    print(f"SCenario 2 - c2 Elapsed time: {int(elapsed_time)} seconds on image {s}")
-    start_time = time.time()
-
+    print("Scenario 2 Scale: Rate_scale1 for image ", s, " is calculated")
     for c3 in range(len(matching2)): # for bf.L1, bf.L2
         matching_method = matching2[c3]
         for i in range(len(Detectors)):
@@ -354,10 +316,7 @@ for s in range(len(scale)): # for the 7 scale images
                 descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 2
                 Rate_scale2[s, c3, i, j] = evaluate_scenario_2(keypoints1, keypoints2, descriptors1, descriptors2, matching_method, scale[s])
-
-    elapsed_time = time.time() - start_time
-    print(f"SCenario 2 - c3 Elapsed time: {int(elapsed_time)} seconds on image {s}")
-print(f"Scenario 2 Elapsed time: {int(time.time() - scenario2_time)} seconds")
+    print("Scenario 2 Scale: Rate_scale2 for image ", s, " is calculated")
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_scale1.npy', Rate_scale1)
 np.save(basedir + 'arrays/Rate_scale2.npy', Rate_scale2)
@@ -365,7 +324,6 @@ np.save(basedir + 'arrays/Rate_scale2.npy', Rate_scale2)
 
 ################ Scenario 3: Rotation ################
 print("Scenario 3 Rotation")
-scenario3_time = time.time()
 rot = [10, 20, 30, 40, 50, 60, 70, 80, 90] # 9 values of rotation change, rotations from 10 to 90 with a step of 10.
 
 ## 2 matrices of the rates of scenario 3, the first one groups the rates for each image, each non-binary method (same detectors and descriptors),
@@ -380,8 +338,6 @@ for r in range(len(rot)):
     img1 = img[0] # image I
     img2 = img[1] # image Ir
 
-    start_time = time.time()
-
     for c2 in range(len(matching2)): # for bf.L1 and bf.L2 mappings
         matching_method = matching2[c2]
         for ii in range(len(DetectDescript)):
@@ -390,11 +346,7 @@ for r in range(len(rot)):
             keypoints22, descriptors22 = method.detectAndCompute(img2, None)# the keypoints and descriptors of image 2 obtained by the method X
             # Calculation of the rate (%) of correctly matched homologous points by the X method using the evaluation function of scenario 3
             Rate_rot1[r, c2, ii] = evaluate_scenario_3(keypoints11, keypoints22, descriptors11, descriptors22, matching_method, rot[r], rot_matrix)
-
-    elapsed_time = time.time() - start_time
-    print(f"SCenario 3 - c2 Elapsed time: {int(elapsed_time)} seconds on image {r}")
-    start_time = time.time()
-
+    print("Scenario 3 Rotation: Rate_rot1 for image ", r, " is calculated")
     for c3 in range(len(matching2)): # for bf.L1 and bf.L2
         matching_method = matching2[c3]
         for i in range(len(Detectors)):
@@ -409,10 +361,7 @@ for r in range(len(rot)):
                 descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]# the descriptors of the image 2 obtained by the method Y
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 3
                 Rate_rot2[r, c3, i, j] = evaluate_scenario_3(keypoints1, keypoints2, descriptors1, descriptors2, matching_method, rot[r], rot_matrix)
-
-    elapsed_time = time.time() - start_time
-    print(f"SCenario 3 - c3 Elapsed time: {int(elapsed_time)} seconds on image {r}")
-print(f"Scenario 3 Elapsed time: {int(time.time() - scenario3_time)} seconds")
+    print("Scenario 3 Rotation: Rate_rot2 for image ", r, " is calculated")
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_rot1.npy', Rate_rot1)
 np.save(basedir + 'arrays/Rate_rot2.npy', Rate_rot2)
