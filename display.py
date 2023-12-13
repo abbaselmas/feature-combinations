@@ -17,10 +17,6 @@ Rate_scale2     = np.load(basedir + '/arrays/Rate_scale2.npy')
 Rate_rot1       = np.load(basedir + '/arrays/Rate_rot1.npy')
 Rate_rot2       = np.load(basedir + '/arrays/Rate_rot2.npy')
 
-# ...................................................................................................................
-# I.3 Display of results
-# ...................................................................................................................
-
 # Binary and non-binary methods used to set the legend
 DetectDescriptLegend = ['sift',  'akaze', 'orb',   'brisk',  'kaze']
 DetectorsLegend      = ['fast-', 'star-', 'mser-', 'agast-', 'gftt-', 'harrislaplace-', 'msd-',   'tbmr-']
@@ -30,21 +26,14 @@ c2 = 1 # for non-binary methods "DetectDescript"            (c2=0 for bf.L1, c2=
 c3 = 1 # for binary methods "Detectors with Descriptors"    (c3=0 for bf.L1, c3=1 for bf.L2)
 
 # Number of colors to use for all curves
-NUM_COLORS = len(DetectDescriptLegend) + (len(DetectorsLegend)*len(DescriptorsLegend)) # NUM_COLORS = 5+8+9 = 22
+NUM_COLORS = len(DetectDescriptLegend) + (len(DetectorsLegend)*len(DescriptorsLegend)) # NUM_COLORS = 5+8*9 = 77
 
-LINE_STYLES = ['solid', 'dashed', 'dotted'] # style of the curve
+LINE_STYLES = ['solid', 'dashed', 'dotted', 'dashdot'] # style of the curve 4 styles
 NUM_STYLES = len(LINE_STYLES)
 cm = plt.get_cmap('gist_rainbow')
 num = -1 # for plot
-# Initialization of the 4 figures
-fig1 = plt.figure(1,figsize= (15,10))
-fig2 = plt.figure(2,figsize= (15,10))
-fig3 = plt.figure(3,figsize= (15,10))
-fig4 = plt.figure(4,figsize= (15,10))
-ax1 = fig1.add_subplot(111)
-ax2 = fig2.add_subplot(111)
-ax3 = fig3.add_subplot(111)
-ax4 = fig4.add_subplot(111)
+
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2)
 
 # for the plot, I have inserted the following link: https://stackoverflow.com/questions/8389636/creating-over-20-unique-legend-colors-using-matplotlib
 # for loop to display the results of non-binary methods
@@ -61,14 +50,16 @@ for k in range(len(DetectDescriptLegend)):
 
     num += 1 # to take each time the loop turns a different color and curve style
     # for the color and style of the curve for the results of the 3 scenarios
-    lines_I1[0].set_color(cm(num//NUM_STYLES*float(NUM_STYLES)/NUM_COLORS))
-    lines_I1[0].set_linestyle(LINE_STYLES[num%NUM_STYLES])
-    lines_I2[0].set_color(cm(num//NUM_STYLES*float(NUM_STYLES)/NUM_COLORS))
-    lines_I2[0].set_linestyle(LINE_STYLES[num%NUM_STYLES])
-    lines_S[0].set_color(cm(num//NUM_STYLES*float(NUM_STYLES)/NUM_COLORS))
-    lines_S[0].set_linestyle(LINE_STYLES[num%NUM_STYLES])
-    lines_R[0].set_color(cm(num//NUM_STYLES*float(NUM_STYLES)/NUM_COLORS))
-    lines_R[0].set_linestyle(LINE_STYLES[num%NUM_STYLES])
+    colorcode = num//NUM_STYLES*float(NUM_STYLES)/NUM_COLORS
+    linestylecode = LINE_STYLES[num%NUM_STYLES]
+    lines_I1[0].set_color(cm(colorcode))
+    lines_I1[0].set_linestyle(linestylecode)
+    lines_I2[0].set_color(cm(colorcode))
+    lines_I2[0].set_linestyle(linestylecode)
+    lines_S[0].set_color(cm(colorcode))
+    lines_S[0].set_linestyle(linestylecode)
+    lines_R[0].set_color(cm(colorcode))
+    lines_R[0].set_linestyle(linestylecode)
 
 # for loop to display the results of binary methods
 for i in range(len(DetectorsLegend)):
@@ -116,28 +107,32 @@ elif c2 == 1 and c3 == 0:
     ax3.set_title('Scn.3 L2 (non-binary) and L1 (binary) meth. ', fontsize=13)
     ax4.set_title('Scn.4 L2 (non-binary) and L1 (binary) meth. ', fontsize=13)
 
-ax1.set_xlabel('Intensity changing I+b', fontsize=12) # x-axis title of the figure
-ax1.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
-ax1.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=7, handlelength=2) # legend :(loc=2 <=> Location String = 'upper left')
-fig1.savefig(basedir + '\\figs\\' + ax1.get_title() + ax1.get_xlabel() + '.png')
+ax1.set_xlabel('Intensity changing I+b', fontsize=10) # x-axis title of the figure
+ax1.set_ylabel('Correctly matched point rates %', fontsize=10) # title of y-axis of the figure
+# ax1.legend(loc="best", bbox_to_anchor=(1, -0.07), shadow=True, fancybox=True, fontsize=7)
+# plt.savefig(basedir + '\\figs\\' + ax1.get_title() + ax1.get_xlabel() + '.png', bbox_inches='tight')
 
-# ax2.set_title('Correctly matched point rate for different matching methods depending on intensity change', fontsize=13)
-ax2.set_xlabel('Intensity changing Ixc', fontsize=12) # x-axis title of the figure
-ax2.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
-ax2.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=7, handlelength=2) # (loc=2 <=> Location String = 'upper left')
-fig2.savefig(basedir + '\\figs\\' + ax2.get_title() + ax2.get_xlabel() + '.png')
 
-# ax3.set_title('Correctly matched point rate for different matching methods depending on scale change', fontsize=13)
-ax3.set_xlabel('Scale changing', fontsize=12) # x-axis title of the figure
-ax3.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
-ax3.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=7, handlelength=2) # (loc=2 <=> Location String = 'upper left')
-fig3.savefig(basedir + '\\figs\\' + ax3.get_title() + ax3.get_xlabel() + '.png')
+ax2.set_xlabel('Intensity changing Ixc', fontsize=10) # x-axis title of the figure
+ax2.set_ylabel('Correctly matched point rates %', fontsize=10) # title of y-axis of the figure
+# ax2.legend(loc="best", ncol=11, bbox_to_anchor=(1, -0.07), shadow=True, fancybox=True, fontsize=7)
+# plt.savefig(basedir + '\\figs\\' + ax2.get_title() + ax2.get_xlabel() + '.png')
 
-# ax4.set_title('Correctly matched point rate for different pairing methods depending on the change of rotation', fontsize=13)
-ax4.set_xlabel('Rotation changing', fontsize=12) # x-axis title of the figure
-ax4.set_ylabel('Correctly matched point rates %', fontsize=12) # title of y-axis of the figure
-ax4.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=7, handlelength=2) # (loc=2 <=> Location String = 'upper left')
-fig4.savefig(basedir + '\\figs\\' + ax4.get_title() + ax4.get_xlabel() + '.png')
+ax3.set_xlabel('Scale changing', fontsize=10) # x-axis title of the figure
+ax3.set_ylabel('Correctly matched point rates %', fontsize=10) # title of y-axis of the figure
+# ax3.legend(loc="best", ncol=11, bbox_to_anchor=(1, -0.07), shadow=True, fancybox=True, fontsize=7)
+# plt.savefig(basedir + '\\figs\\' + ax3.get_title() + ax3.get_xlabel() + '.png')
 
-# Recording and display of the obtained figures
+ax4.set_xlabel('Rotation changing', fontsize=10) # x-axis title of the figure
+ax4.set_ylabel('Correctly matched point rates %', fontsize=10) # title of y-axis of the figure
+# ax4.legend(loc="best", ncol=11, bbox_to_anchor=(1, -0.07), shadow=True, fancybox=True, fontsize=7)
+# plt.savefig(basedir + '\\figs\\' + ax4.get_title() + ax4.get_xlabel() + '.png')
+
+handles, labels = ax1.get_legend_handles_labels()
+# handles, labels = ax2.get_legend_handles_labels()
+# handles, labels = ax3.get_legend_handles_labels()
+# handles, labels = ax4.get_legend_handles_labels()
+
+fig.legend(handles, labels, loc='outside right center', ncol=2, shadow=True, fancybox=True, fontsize=7)
+fig.subplots_adjust(left=0.03, right=0.9, top=0.97, bottom=0.06, hspace=0.2, wspace=0.1)
 plt.show()
