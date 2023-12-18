@@ -100,6 +100,9 @@ def evaluate_scenario_1(KP1, KP2, Dspt1, Dspt2, match_method):
     for i in range(len(matches)):
         m1 = matches[i].queryIdx
         m2 = matches[i].trainIdx
+
+        if m1 >= len(KP1) or m2 >= len(KP2):
+            continue
         # the coordinates (x,y) of the points detected in the image 1
         X1 = int(KP1[m1].pt[0])
         Y1 = int(KP1[m1].pt[1])
@@ -138,6 +141,9 @@ def evaluate_scenario_2(KP1, KP2, Dspt1, Dspt2, match_method,scale):
     for i in range(len(matches)):
         m1 = matches[i].queryIdx
         m2 = matches[i].trainIdx
+
+        if m1 >= len(KP1) or m2 >= len(KP2):
+            continue
         # the coordinates (x,y) of the points detected in the image 1
         X1 = int(KP1[m1].pt[0])
         Y1 = int(KP1[m1].pt[1])
@@ -175,6 +181,9 @@ def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, match_method, rot, rot_matrix):
     for i in range(len(matches)):
         m1 = matches[i].queryIdx
         m2 = matches[i].trainIdx
+
+        if m1 >= len(KP1) or m2 >= len(KP2):
+            continue
         # the coordinates (x,y) of the points detected in the image 1
         X1 = int(KP1[m1].pt[0])
         Y1 = int(KP1[m1].pt[1])
@@ -225,8 +234,8 @@ boost = cv2.xfeatures2d.BoostDesc_create(use_scale_orientation=False, scale_fact
 
 # lists of the different detectors, descriptors and matching methods
 DetectDescript = list([sift, akaze, orb, brisk, kaze])
-Detectors      = list([fast, star, mser, agast, gftt, harrislaplace, msd, tbmr])
-Descriptors    = list([vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost])
+Detectors      = list([sift, akaze, orb, brisk, kaze, fast, star, mser, agast, gftt, harrislaplace, msd, tbmr])
+Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost])
 matching2      = list([cv2.NORM_L1, cv2.NORM_L2])
 # matching3 = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_HAMMING])
 
@@ -241,42 +250,43 @@ nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> numbe
 ## 2 matrices of the rates of scenario 1, the first one gathers the rates for each image, each non-binary method
 # (same detectors and descriptors), and each type of matching. And the other one groups the
 # rates for each image, each method binary method (different detectors and descriptors), and each type of matching.
-Rate_intensity1 = np.zeros((nbre_img, len(matching2), len(DetectDescript)))
+# Rate_intensity1 = np.zeros((nbre_img, len(matching2), len(DetectDescript)))
 Rate_intensity2 = np.zeros((nbre_img, len(matching2), len(Detectors), len(Descriptors)))
 
 img1, HuitImg1 = get_cam_intensity_8Img(Img0, val_b, val_c) # use the intensity change images (I+b and I*c)
 # for loop to compute rates (%) for intensity change images, matches, binary and non-binary methods
 
 for k in range(nbre_img): # for the 8 intensity images
-
     img2 = HuitImg1[k] # image with intensity change
-    for c2 in range(len(matching2)): # for bf.L1 and bf.L2 mapping
-        matching_method = matching2[c2]
-        for ii in range(len(DetectDescript)):
-            method = DetectDescript[ii] # choose a method from the "DetectDescript" list
-            keypoints11, descriptors11 = method.detectAndCompute(img1, None) # the keypoints and descriptors of the image 1 obtained by the method X
-            keypoints22, descriptors22 = method.detectAndCompute(img2, None) # the keypoints and descriptors of the image 2 obtained by the method X
-            # Calculation of the rate (%) of correctly matched homologous points by the X method using the evaluation function of scenario 1
-            Rate_intensity1[k, c2, ii] = evaluate_scenario_1(keypoints11, keypoints22, descriptors11, descriptors22, matching_method)
-    print("Scenario 1 Intensity: Rate_intensity1 for image ", k, " is calculated")
     for c3 in range(len(matching2)): # for bf.L1 and bf.L2 mapping
         match3 = matching2[c3]
         for i in range(len(Detectors)):
-            method_keyPt = Detectors[i] # choose a detector from the "Detectors" list
+            method_dtect = Detectors[i] # choose a detector from the "Detectors" list
+            if method_dtect in DetectDescript:
+                keypoints11, descriptors11 = method_dtect.detectAndCompute(img1, None) # the keypoints and descriptors of the image 1 obtained by the method X
+                keypoints22, descriptors22 = method_dtect.detectAndCompute(img2, None) # the keypoints and descriptors of the image 2 obtained by the method X
+                keypoints1 = keypoints11
+                keypoints2 = keypoints22
             for j in range(len(Descriptors)):
                 method_dscrpt = Descriptors[j] # choose a descriptor from the "Descriptors" list
-                keypoints1   = method_keyPt.detect(img1,None)
-                keypoints2   = method_keyPt.detect(img2,None)
-                keypoints1   = method_dscrpt.compute(img1, keypoints1)[0] # the keypoints of image 1 obtained by the method Y
-                keypoints2   = method_dscrpt.compute(img2, keypoints2)[0] # the keypoints of image 2 obtained by the method Y
-                descriptors1 = method_dscrpt.compute(img1, keypoints1)[1] # the descriptors of the image 1 obtained by the method Y
-                descriptors2 = method_dscrpt.compute(img2, keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
+                if method_dscrpt in DetectDescript: # if the detector or the descriptor is in the DetectDescript list
+                    keypoints11, descriptors11 = method_dscrpt.detectAndCompute(img1, None) # the keypoints and descriptors of the image 1 obtained by the method X
+                    keypoints22, descriptors22 = method_dscrpt.detectAndCompute(img2, None) # the keypoints and descriptors of the image 2 obtained by the method X
+                    descriptors1 = descriptors11
+                    descriptors2 = descriptors22
+                if method_dtect not in DetectDescript and method_dscrpt not in DetectDescript: # if the detector and the descriptor are not in the DetectDescript list
+                    keypoints1   = method_dtect.detect(img1,None)
+                    keypoints2   = method_dtect.detect(img2,None)
+                    keypoints1   = method_dscrpt.compute(img1, keypoints1)[0] # the keypoints of image 1 obtained by the method Y
+                    keypoints2   = method_dscrpt.compute(img2, keypoints2)[0] # the keypoints of image 2 obtained by the method Y
+                    descriptors1 = method_dscrpt.compute(img1, keypoints1)[1] # the descriptors of the image 1 obtained by the method Y
+                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 1
                 Rate_intensity2[k, c3, i, j] = evaluate_scenario_1(keypoints1, keypoints2, descriptors1, descriptors2, match3)
     print("Scenario 1 Intensity: Rate_intensity2 for image ", k, " is calculated")
 
 # export numpy arrays
-np.save(basedir + 'arrays/Rate_intensity1.npy', Rate_intensity1)
+# np.save(basedir + 'arrays/Rate_intensity1.npy', Rate_intensity1)
 np.save(basedir + 'arrays/Rate_intensity2.npy', Rate_intensity2)
 ##########################################################
 
@@ -287,40 +297,40 @@ scale = [1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3] # 7 values of the scale change s ∈
 ## 2 matrices of the rates of scenario 2, the first one groups the rates for each image, each non-binary method (same detectors and descriptors),
 # and each type of matching. And the other one groups the rates for each image, each binary method (different detectors and
 # descriptors), and each type of matching.
-Rate_scale1 = np.zeros((len(scale), len(matching2), len(DetectDescript)))
+# Rate_scale1 = np.zeros((len(scale), len(matching2), len(DetectDescript)))
 Rate_scale2 = np.zeros((len(scale), len(matching2), len(Detectors), len(Descriptors)))
 # for loop to calculate rates (%) for scaling images, matching, binary and non-binary methods
 for s in range(len(scale)): # for the 7 scale images
     # use the original image and the scaling image (I and Is)
     img = get_cam_scale(scale[s])#[0] # image I
-    #img2 = get_cam_scale(scale[s])[1] # image Is
-
-    for c2 in range(len(matching2)): # for bf.L1 and bf.L2 mapping
-        matching_method = matching2[c2]
-        for ii in range(len(DetectDescript)):
-            method = DetectDescript[ii] # choose a method from the "DetectDescript" list
-            keypoints11, descriptors11 = method.detectAndCompute(img[0], None)# the keypoints and descriptors of image 1 obtained by the method X
-            keypoints22, descriptors22 = method.detectAndCompute(img[1], None)# the keypoints and descriptors of image 2 obtained by the method X
-            # Calculation of the rate (%) of correctly matched homologous points by the X method using the evaluation function of scenario 2
-            Rate_scale1[s, c2, ii] = evaluate_scenario_2(keypoints11, keypoints22, descriptors11, descriptors22, matching_method, scale[s])
-    print("Scenario 2 Scale: Rate_scale1 for image ", s, " is calculated")
-    for c3 in range(len(matching2)): # for bf.L1, bf.L2
-        matching_method = matching2[c3]
+    for c3 in range(len(matching2)): # for bf.L1 and bf.L2 mapping
+        match3 = matching2[c3]
         for i in range(len(Detectors)):
-            method_keyPt = Detectors[i] # choose a detector from the "Detectors" list
+            method_dtect = Detectors[i] # choose a detector from the "Detectors" list
+            if method_dtect in DetectDescript:
+                keypoints11, descriptors11 = method_dtect.detectAndCompute(img1, None) # the keypoints and descriptors of the image 1 obtained by the method X
+                keypoints22, descriptors22 = method_dtect.detectAndCompute(img2, None) # the keypoints and descriptors of the image 2 obtained by the method X
+                keypoints1 = keypoints11
+                keypoints2 = keypoints22
             for j in range(len(Descriptors)):
                 method_dscrpt = Descriptors[j] # choose a descriptor from the "Descriptors" list
-                keypoints1   = method_keyPt.detect(img[0],None)
-                keypoints2   = method_keyPt.detect(img[1],None)
-                keypoints1   = method_dscrpt.compute(img[0], keypoints1)[0] # the keypoints of image 1 obtained by the method Y
-                keypoints2   = method_dscrpt.compute(img[1], keypoints2)[0] # the keypoints of image 2 obtained by the method Y
-                descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1] # the descriptors of the image 1 obtained by the method Y
-                descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
-                # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 2
-                Rate_scale2[s, c3, i, j] = evaluate_scenario_2(keypoints1, keypoints2, descriptors1, descriptors2, matching_method, scale[s])
+                if method_dscrpt in DetectDescript: # if the detector or the descriptor is in the DetectDescript list
+                    keypoints11, descriptors11 = method_dscrpt.detectAndCompute(img1, None) # the keypoints and descriptors of the image 1 obtained by the method X
+                    keypoints22, descriptors22 = method_dscrpt.detectAndCompute(img2, None) # the keypoints and descriptors of the image 2 obtained by the method X
+                    descriptors1 = descriptors11
+                    descriptors2 = descriptors22
+                if method_dtect not in DetectDescript and method_dscrpt not in DetectDescript: # if the detector and the descriptor are not in the DetectDescript list
+                    keypoints1   = method_dtect.detect(img1,None)
+                    keypoints2   = method_dtect.detect(img2,None)
+                    keypoints1   = method_dscrpt.compute(img1, keypoints1)[0] # the keypoints of image 1 obtained by the method Y
+                    keypoints2   = method_dscrpt.compute(img2, keypoints2)[0] # the keypoints of image 2 obtained by the method Y
+                    descriptors1 = method_dscrpt.compute(img1, keypoints1)[1] # the descriptors of the image 1 obtained by the method Y
+                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
+                # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 1
+                Rate_scale2[s, c3, i, j] = evaluate_scenario_2(keypoints1, keypoints2, descriptors1, descriptors2, match3, scale[s])
     print("Scenario 2 Scale: Rate_scale2 for image ", s, " is calculated")
 # export numpy arrays
-np.save(basedir + 'arrays/Rate_scale1.npy', Rate_scale1)
+# np.save(basedir + 'arrays/Rate_scale1.npy', Rate_scale1)
 np.save(basedir + 'arrays/Rate_scale2.npy', Rate_scale2)
 ##########################################################
 
@@ -331,7 +341,7 @@ rot = [10, 20, 30, 40, 50, 60, 70, 80, 90] # 9 values of rotation change, rotati
 ## 2 matrices of the rates of scenario 3, the first one groups the rates for each image, each non-binary method (same detectors and descriptors),
 # and each type of matching. And the other one groups the rates for each image, each binary method (different detectors and
 # descriptors), and each type of matching.
-Rate_rot1 = np.zeros((len(rot), len(matching2), len(DetectDescript)))
+# Rate_rot1 = np.zeros((len(rot), len(matching2), len(DetectDescript)))
 Rate_rot2 = np.zeros((len(rot), len(matching2), len(Detectors), len(Descriptors)))
 # for loop to compute rates (%) for rotation change images, matches, binary and non-binary methods
 for r in range(len(rot)):
@@ -340,31 +350,33 @@ for r in range(len(rot)):
     img1 = img[0] # image I
     img2 = img[1] # image Ir
 
-    for c2 in range(len(matching2)): # for bf.L1 and bf.L2 mappings
-        matching_method = matching2[c2]
-        for ii in range(len(DetectDescript)):
-            method = DetectDescript[ii] # choose a method from the "DetectDescript" list
-            keypoints11, descriptors11 = method.detectAndCompute(img1, None)# the keypoints and descriptors of image 1 obtained by the method X
-            keypoints22, descriptors22 = method.detectAndCompute(img2, None)# the keypoints and descriptors of image 2 obtained by the method X
-            # Calculation of the rate (%) of correctly matched homologous points by the X method using the evaluation function of scenario 3
-            Rate_rot1[r, c2, ii] = evaluate_scenario_3(keypoints11, keypoints22, descriptors11, descriptors22, matching_method, rot[r], rot_matrix)
-    print("Scenario 3 Rotation: Rate_rot1 for image ", r, " is calculated")
-    for c3 in range(len(matching2)): # for bf.L1 and bf.L2
-        matching_method = matching2[c3]
+    for c3 in range(len(matching2)): # for bf.L1 and bf.L2 mapping
+        match3 = matching2[c3]
         for i in range(len(Detectors)):
-            method_keyPt = Detectors[i] # choose a detector from the "Detectors" list
+            method_dtect = Detectors[i] # choose a detector from the "Detectors" list
+            if method_dtect in DetectDescript:
+                keypoints11, descriptors11 = method_dtect.detectAndCompute(img1, None) # the keypoints and descriptors of the image 1 obtained by the method X
+                keypoints22, descriptors22 = method_dtect.detectAndCompute(img2, None) # the keypoints and descriptors of the image 2 obtained by the method X
+                keypoints1 = keypoints11
+                keypoints2 = keypoints22
             for j in range(len(Descriptors)):
                 method_dscrpt = Descriptors[j] # choose a descriptor from the "Descriptors" list
-                keypoints1   = method_keyPt.detect(img1,None)
-                keypoints2   = method_keyPt.detect(img2,None)
-                keypoints1   = method_dscrpt.compute(img1, keypoints1)[0]# the keypoints of image 1 obtained by the method Y
-                keypoints2   = method_dscrpt.compute(img2, keypoints2)[0]# the keypoints of image 2 obtained by the method Y
-                descriptors1 = method_dscrpt.compute(img1, keypoints1)[1]# the descriptors of the image 1 obtained by the method Y
-                descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]# the descriptors of the image 2 obtained by the method Y
-                # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 3
-                Rate_rot2[r, c3, i, j] = evaluate_scenario_3(keypoints1, keypoints2, descriptors1, descriptors2, matching_method, rot[r], rot_matrix)
+                if method_dscrpt in DetectDescript: # if the detector or the descriptor is in the DetectDescript list
+                    keypoints11, descriptors11 = method_dscrpt.detectAndCompute(img1, None) # the keypoints and descriptors of the image 1 obtained by the method X
+                    keypoints22, descriptors22 = method_dscrpt.detectAndCompute(img2, None) # the keypoints and descriptors of the image 2 obtained by the method X
+                    descriptors1 = descriptors11
+                    descriptors2 = descriptors22
+                if method_dtect not in DetectDescript and method_dscrpt not in DetectDescript: # if the detector and the descriptor are not in the DetectDescript list
+                    keypoints1   = method_dtect.detect(img1,None)
+                    keypoints2   = method_dtect.detect(img2,None)
+                    keypoints1   = method_dscrpt.compute(img1, keypoints1)[0] # the keypoints of image 1 obtained by the method Y
+                    keypoints2   = method_dscrpt.compute(img2, keypoints2)[0] # the keypoints of image 2 obtained by the method Y
+                    descriptors1 = method_dscrpt.compute(img1, keypoints1)[1] # the descriptors of the image 1 obtained by the method Y
+                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
+                # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 1
+                Rate_rot2[r, c3, i, j] = evaluate_scenario_3(keypoints1, keypoints2, descriptors1, descriptors2, match3, rot[r], rot_matrix)
     print("Scenario 3 Rotation: Rate_rot2 for image ", r, " is calculated")
 # export numpy arrays
-np.save(basedir + 'arrays/Rate_rot1.npy', Rate_rot1)
+# np.save(basedir + 'arrays/Rate_rot1.npy', Rate_rot1)
 np.save(basedir + 'arrays/Rate_rot2.npy', Rate_rot2)
 ##########################################################
