@@ -28,7 +28,7 @@ c3 = 1 # for binary methods "Detectors with Descriptors"    (c3=0 for bf.L1, c3=
 # Number of colors to use for all curves
 NUM_COLORS = len(DetectDescriptLegend) + (len(DetectorsLegend)*len(DescriptorsLegend)) # NUM_COLORS = 5+8*9 = 77
 
-LINE_STYLES = ['solid', 'dashed', 'dotted', 'dashdot'] # style of the curve 4 styles
+LINE_STYLES = ['solid', 'dashed', 'dotted'] #, 'dashdot'] # style of the curve 4 styles
 NUM_STYLES = len(LINE_STYLES)
 cm = plt.get_cmap('gist_rainbow')
 num = -1 # for plot
@@ -64,6 +64,7 @@ for k in range(len(DetectDescriptLegend)):
 # for loop to display the results of binary methods
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
+        # j = 8
         Rate2_I1 = Rate_intensity2[:4,c3,i,j]
         Rate2_I2 = Rate_intensity2[4:,c3,i,j]
         Rate2_S  = Rate_scale2[:,c3,i,j]
@@ -110,23 +111,18 @@ elif c2 == 1 and c3 == 0:
 ax1.set_xlabel('Intensity changing I+b', fontsize=10) # x-axis title of the figure
 ax1.set_ylabel('Correctly matched point rates %', fontsize=10) # title of y-axis of the figure
 # ax1.legend(loc="best", bbox_to_anchor=(1, -0.07), shadow=True, fancybox=True, fontsize=7)
-# plt.savefig(basedir + '\\figs\\' + ax1.get_title() + ax1.get_xlabel() + '.png', bbox_inches='tight')
-
 
 ax2.set_xlabel('Intensity changing Ixc', fontsize=10) # x-axis title of the figure
 ax2.set_ylabel('Correctly matched point rates %', fontsize=10) # title of y-axis of the figure
 # ax2.legend(loc="best", ncol=11, bbox_to_anchor=(1, -0.07), shadow=True, fancybox=True, fontsize=7)
-# plt.savefig(basedir + '\\figs\\' + ax2.get_title() + ax2.get_xlabel() + '.png')
 
 ax3.set_xlabel('Scale changing', fontsize=10) # x-axis title of the figure
 ax3.set_ylabel('Correctly matched point rates %', fontsize=10) # title of y-axis of the figure
 # ax3.legend(loc="best", ncol=11, bbox_to_anchor=(1, -0.07), shadow=True, fancybox=True, fontsize=7)
-# plt.savefig(basedir + '\\figs\\' + ax3.get_title() + ax3.get_xlabel() + '.png')
 
 ax4.set_xlabel('Rotation changing', fontsize=10) # x-axis title of the figure
 ax4.set_ylabel('Correctly matched point rates %', fontsize=10) # title of y-axis of the figure
 # ax4.legend(loc="best", ncol=11, bbox_to_anchor=(1, -0.07), shadow=True, fancybox=True, fontsize=7)
-# plt.savefig(basedir + '\\figs\\' + ax4.get_title() + ax4.get_xlabel() + '.png')
 
 handles, labels = ax1.get_legend_handles_labels()
 # handles, labels = ax2.get_legend_handles_labels()
