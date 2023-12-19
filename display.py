@@ -10,23 +10,21 @@ rot = [10, 20, 30, 40, 50, 60, 70, 80, 90] # 9 values of rotation change, rotati
 
 # import saved numpy arrays
 basedir = os.path.abspath(os.path.dirname(__file__))
-Rate_intensity1 = np.load(basedir + '/arrays/Rate_intensity1.npy')
+#Rate_intensity1 = np.load(basedir + '/arrays/Rate_intensity1.npy')
 Rate_intensity2 = np.load(basedir + '/arrays/Rate_intensity2.npy')
-Rate_scale1     = np.load(basedir + '/arrays/Rate_scale1.npy')
+#Rate_scale1     = np.load(basedir + '/arrays/Rate_scale1.npy')
 Rate_scale2     = np.load(basedir + '/arrays/Rate_scale2.npy')
-Rate_rot1       = np.load(basedir + '/arrays/Rate_rot1.npy')
+#Rate_rot1       = np.load(basedir + '/arrays/Rate_rot1.npy')
 Rate_rot2       = np.load(basedir + '/arrays/Rate_rot2.npy')
 
 # Binary and non-binary methods used to set the legend
-DetectDescriptLegend = ['sift',  'akaze', 'orb',   'brisk',  'kaze']
-DetectorsLegend      = ['fast-', 'star-', 'mser-', 'agast-', 'gftt-', 'harrislaplace-', 'msd-',   'tbmr-']
-DescriptorsLegend    = ['vgg',   'daisy', 'freak', 'brief',  'lucid', 'latch',          'beblid', 'teblid', 'boost']
+DetectorsLegend =   ['sift-', 'akaze-', 'orb-', 'brisk-', 'kaze-', 'fast-', 'star-', 'mser-', 'agast-', 'gftt-', 'harrislaplace-', 'msd-',   'tbmr-']
+DescriptorsLegend = ['sift',  'akaze',  'orb',  'brisk',  'kaze',  'vgg',   'daisy', 'freak', 'brief',  'lucid', 'latch',          'beblid', 'teblid', 'boost']
 
-c2 = 1 # for non-binary methods "DetectDescript"            (c2=0 for bf.L1, c2=1 for bf.L2)
 c3 = 1 # for binary methods "Detectors with Descriptors"    (c3=0 for bf.L1, c3=1 for bf.L2)
 
 # Number of colors to use for all curves
-NUM_COLORS = len(DetectDescriptLegend) + (len(DetectorsLegend)*len(DescriptorsLegend)) # NUM_COLORS = 5+8*9 = 77
+NUM_COLORS = (len(DetectorsLegend)*len(DescriptorsLegend)) # NUM_COLORS = 5+8*9 = 77
 
 LINE_STYLES = ['solid', 'dashed', 'dotted'] #, 'dashdot'] # style of the curve 4 styles
 NUM_STYLES = len(LINE_STYLES)
@@ -36,32 +34,6 @@ num = -1 # for plot
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2)
 
 # for the plot, I have inserted the following link: https://stackoverflow.com/questions/8389636/creating-over-20-unique-legend-colors-using-matplotlib
-# for loop to display the results of non-binary methods
-for k in range(len(DetectDescriptLegend)):
-    Rate1_I1 = Rate_intensity1[:4, c2, k]
-    Rate1_I2 = Rate_intensity1[4:, c2, k]
-    Rate1_S  = Rate_scale1[:, c2, k]
-    Rate1_R  = Rate_rot1[:, c2, k]
-
-    lines_I1 = ax1.plot(val_b, Rate1_I1, linewidth=2, label = DetectDescriptLegend[k]) # for the figure of the intensity change results (I+b)
-    lines_I2 = ax2.plot(val_c, Rate1_I2, linewidth=2, label = DetectDescriptLegend[k]) # for the figure of intensity change results (I*c)
-    lines_S  = ax3.plot(scale, Rate1_S,  linewidth=2, label = DetectDescriptLegend[k]) # for the scaling results figure
-    lines_R  = ax4.plot(rot, Rate1_R,    linewidth=2, label = DetectDescriptLegend[k]) # for the figure of the results of rotation change
-
-    num += 1 # to take each time the loop turns a different color and curve style
-    # for the color and style of the curve for the results of the 3 scenarios
-    colorcode = num//NUM_STYLES*float(NUM_STYLES)/NUM_COLORS
-    linestylecode = LINE_STYLES[num%NUM_STYLES]
-    lines_I1[0].set_color(cm(colorcode))
-    lines_I1[0].set_linestyle(linestylecode)
-    lines_I2[0].set_color(cm(colorcode))
-    lines_I2[0].set_linestyle(linestylecode)
-    lines_S[0].set_color(cm(colorcode))
-    lines_S[0].set_linestyle(linestylecode)
-    lines_R[0].set_color(cm(colorcode))
-    lines_R[0].set_linestyle(linestylecode)
-
-# for loop to display the results of binary methods
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         # j = 8
@@ -87,26 +59,17 @@ for i in range(len(DetectorsLegend)):
         lines_R[0].set_linestyle(LINE_STYLES[num%NUM_STYLES])
 
 # The titles of the figures according to the correspondences
-if c2 == 0 and c3 == 0:
-    ax1.set_title('Scn.1 L1 (non-binary) and L1 (binary) meth. ', fontsize=13)
-    ax2.set_title('Scn.2 L1 (non-binary) and L1 (binary) meth. ', fontsize=13)
-    ax3.set_title('Scn.3 L1 (non-binary) and L1 (binary) meth. ', fontsize=13)
-    ax4.set_title('Scn.4 L1 (non-binary) and L1 (binary) meth. ', fontsize=13)
-elif c2 == 1 and c3 == 1:
-    ax1.set_title('Scn.1 L2 (non-binary) and L2 (binary) meth. ', fontsize=13)
-    ax2.set_title('Scn.2 L2 (non-binary) and L2 (binary) meth. ', fontsize=13)
-    ax3.set_title('Scn.3 L2 (non-binary) and L2 (binary) meth. ', fontsize=13)
-    ax4.set_title('Scn.4 L2 (non-binary) and L2 (binary) meth. ', fontsize=13)
-elif c2 == 0 and c3 == 1:
-    ax1.set_title('Scn.1 L1 (non-binary) and L2 (binary) meth. ', fontsize=13)
-    ax2.set_title('Scn.2 L1 (non-binary) and L2 (binary) meth. ', fontsize=13)
-    ax3.set_title('Scn.3 L1 (non-binary) and L2 (binary) meth. ', fontsize=13)
-    ax4.set_title('Scn.4 L1 (non-binary) and L2 (binary) meth. ', fontsize=13)
-elif c2 == 1 and c3 == 0:
-    ax1.set_title('Scn.1 L2 (non-binary) and L1 (binary) meth. ', fontsize=13)
-    ax2.set_title('Scn.2 L2 (non-binary) and L1 (binary) meth. ', fontsize=13)
-    ax3.set_title('Scn.3 L2 (non-binary) and L1 (binary) meth. ', fontsize=13)
-    ax4.set_title('Scn.4 L2 (non-binary) and L1 (binary) meth. ', fontsize=13)
+if c3 == 0:
+    ax1.set_title('Scn.1 Norm L1 for  all meth. ', fontsize=13)
+    ax2.set_title('Scn.2 Norm L1 for  all meth. ', fontsize=13)
+    ax3.set_title('Scn.3 Norm L1 for  all meth. ', fontsize=13)
+    ax4.set_title('Scn.4 Norm L1 for  all meth. ', fontsize=13)
+elif c3 == 1:
+    ax1.set_title('Scn.1 Norm L2 for  all meth. ', fontsize=13)
+    ax2.set_title('Scn.2 Norm L2 for  all meth. ', fontsize=13)
+    ax3.set_title('Scn.3 Norm L2 for  all meth. ', fontsize=13)
+    ax4.set_title('Scn.4 Norm L2 for  all meth. ', fontsize=13)
+
 
 ax1.set_xlabel('Intensity changing I+b', fontsize=10) # x-axis title of the figure
 ax1.set_ylabel('Correctly matched point rates %', fontsize=10) # title of y-axis of the figure
@@ -129,6 +92,6 @@ handles, labels = ax1.get_legend_handles_labels()
 # handles, labels = ax3.get_legend_handles_labels()
 # handles, labels = ax4.get_legend_handles_labels()
 
-fig.legend(handles, labels, loc='outside right center', ncol=2, shadow=True, fancybox=True, fontsize=7)
+fig.legend(handles, labels, loc='outside right center', ncol=3, shadow=True, fancybox=True, fontsize=7)
 fig.subplots_adjust(left=0.03, right=0.9, top=0.97, bottom=0.06, hspace=0.2, wspace=0.1)
 plt.show()
