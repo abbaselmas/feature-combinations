@@ -94,7 +94,7 @@ def evaluate_scenario_1(KP1, KP2, Dspt1, Dspt2, match_method):
     matches = sorted(matches, key = lambda x:x.distance)
 
     Prob_P = 0
-    Prob_N = 0
+    Prob_N = 1
 
     # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points
     for i in range(len(matches)):
@@ -135,7 +135,7 @@ def evaluate_scenario_2(KP1, KP2, Dspt1, Dspt2, match_method,scale):
     matches = sorted(matches, key = lambda x:x.distance)
 
     Prob_P = 0
-    Prob_N = 0
+    Prob_N = 1
 
     # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points
     for i in range(len(matches)):
@@ -175,7 +175,7 @@ def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, match_method, rot, rot_matrix):
     matches = sorted(matches, key = lambda x:x.distance)
 
     Prob_P = 0
-    Prob_N = 0
+    Prob_N = 1
     theta = rot*(np.pi/180) # transformation of the degree of rotation into radian
     # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points
     for i in range(len(matches)):
