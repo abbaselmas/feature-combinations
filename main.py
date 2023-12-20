@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt # For displaying the figures
 import cv2 # opencv
 import numpy as np # For numerical calculations
-import time # for the calculation of the execution time
 
 basedir = './'
 folder = '/bikes'
@@ -112,7 +111,7 @@ def evaluate_scenario_1(KP1, KP2, Dspt1, Dspt2, match_method):
             Prob_N += 1
     # Calculation of the rate (%) of correctly matched homologous points
     Prob_True = (Prob_P / (Prob_P + Prob_N))*100
-    return Prob_True
+    return Prob_True, matches
 # ................................................................................
 
 ## Evaluation of scenario 2: Scale change: Function that takes as input the keypoints, the descriptors (of 2 images),
@@ -273,7 +272,11 @@ for k in range(nbre_img): # for the 8 intensity images
                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1] # the descriptors of the image 2 obtained by the method Y
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 1
                 print("Scenario 1 Intensity: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", c3, " is calculated")
-                Rate_intensity2[k, c3, i, j] = evaluate_scenario_1(keypoints1, keypoints2, descriptors1, descriptors2, match3)
+                Rate_intensity2[k, c3, i, j], matches = evaluate_scenario_1(keypoints1, keypoints2, descriptors1, descriptors2, match3)
+                # Draw first 10 matches.
+                img3 = cv2.drawMatches(img,keypoints1,img2,keypoints2,matches[:100],None,flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                plt.title("Scenario 1 Intensity: image "+ str(k) +" Detector "+ str(method_dtect) +" Descriptor "+str(method_dscrpt)+" Matching "+str(match3))
+                plt.imshow(img3),plt.show()
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_intensity2.npy', Rate_intensity2)
 ##########################################################
