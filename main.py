@@ -54,18 +54,31 @@ def get_cam_scale(Img, s):
 #                         couple (I, Irot), and the rotation matrix. In the following, we will work with 9 images with a change of scale For
 #                         an image I, we will create 9 images (I10, I20...I90) with change of rotation from 10 to 90 with a step of 10.
 def get_cam_rot(Img, r):
-    # divide the height and width by 2 to get the center of the image
+    # Get the height and width of the image
     height, width = Img.shape[:2]
-    # get the coordinates of the center of the image to create the 2D rotation matrix
-    center = (width/2, height/2)
-    rotate_matrix = cv2.getRotationMatrix2D(center=center, angle=r, scale=1)
-    # rotate the image using cv2.warpAffine
-    rotated_image = cv2.warpAffine(Img, rotate_matrix, dsize=(width, height), flags=cv2.INTER_LINEAR)
-    couple_I_Ir = list([Img, rotated_image]) # list of 2 images (original image and image with rotation change)
+
+    image_center = (width/2, height/2)
+    rotation_mat = cv2.getRotationMatrix2D(image_center, r, 1.)
+
+    abs_cos = abs(rotation_mat[0,0])
+    abs_sin = abs(rotation_mat[0,1])
+
+    bound_w = int(height * abs_sin + width * abs_cos)
+    bound_h = int(height * abs_cos + width * abs_sin)
+
+    rotation_mat[0, 2] += bound_w/2 - image_center[0]
+    rotation_mat[1, 2] += bound_h/2 - image_center[1]
+
+    rotated_image = cv2.warpAffine(Img, rotation_mat, (bound_w, bound_h))
+
+    couple_I_Ir = [Img, rotated_image]  # list of 2 images (original image and image with rotation change)
+
     # Save the images to disk
     filename = f"{basedir}rotation/image_{r}.png"  # You can change the format and naming convention as needed
     cv2.imwrite(filename, rotated_image)
-    return rotate_matrix,couple_I_Ir # it also returns the rotation matrix for further use in the rotation evaluation function
+
+    return rotation_mat, couple_I_Ir  # it also returns the rotation matrix for further use in the rotation evaluation function
+
 # ................................................................................
 
 # ...................................................................................................................
@@ -232,7 +245,6 @@ matching2      = list([cv2.NORM_L1, cv2.NORM_L2])
 
 ################ Scenario 1 (Intensity) ################
 print("Scenario 1 Intensity")
-
 val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
 val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
 nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> number of test images
@@ -289,7 +301,7 @@ scale = [1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3] # 7 values of the scale change s ∈
 # and each type of matching. And the other one groups the rates for each image, each binary method (different detectors and
 # descriptors), and each type of matching.
 Rate_scale2 = np.zeros((len(scale), len(matching2), len(Detectors), len(Descriptors)))
-# for loop to calculate rates (%) for scaling images, matching, binary and non-binary methods
+
 for s in range(len(scale)): # for the 7 scale images
     # use the original image and the scaling image (I and Is)
     img = get_cam_scale(Image, scale[s])#[0] # image I
@@ -331,7 +343,7 @@ rot = [10, 20, 30, 40, 50, 60, 70, 80, 90] # 9 values of rotation change, rotati
 # and each type of matching. And the other one groups the rates for each image, each binary method (different detectors and
 # descriptors), and each type of matching.
 Rate_rot2 = np.zeros((len(rot), len(matching2), len(Detectors), len(Descriptors)))
-# for loop to compute rates (%) for rotation change images, matches, binary and non-binary methods
+
 for r in range(len(rot)):
     # use the rotation matrix, the original image and the rotation change matrix (I and Ir)
     rot_matrix, img = get_cam_rot(Image, rot[r])
