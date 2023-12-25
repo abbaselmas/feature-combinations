@@ -285,10 +285,10 @@ for k in range(nbre_img): # for the 8 intensity images
                 # Calculation of the rate (%) of correctly matched homologous points by the Y method using the evaluation function of scenario 1
                 print("Scenario 1 Intensity: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", c3, " is calculated")
                 Rate_intensity2[k, c3, i, j], matches = evaluate_scenario_1(keypoints1, keypoints2, descriptors1, descriptors2, match3)
-                # Draw first 10 matches.
-                img3 = cv2.drawMatches(img,keypoints1,img2,keypoints2,matches[:100],None,flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                plt.title("Scenario 1 Intensity: image "+ str(k) +" Detector "+ str(method_dtect) +" Descriptor "+str(method_dscrpt)+" Matching "+str(match3))
-                plt.imshow(img3),plt.show()
+                # # Draw first 10 matches.
+                # img3 = cv2.drawMatches(img,keypoints1,img2,keypoints2,matches[:100],None,flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                # plt.title("Scenario 1 Intensity: image "+ str(k) +" Detector "+ str(method_dtect) +" Descriptor "+str(method_dscrpt)+" Matching "+str(match3))
+                # plt.imshow(img3),plt.show()
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_intensity2.npy', Rate_intensity2)
 ##########################################################
