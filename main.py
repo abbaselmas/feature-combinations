@@ -289,8 +289,8 @@ for s in range(len(scale)): # for the 7 scale images
         match3 = matching2[c3]
         for i in range(len(Detectors)):
             method_dtect = Detectors[i]
-            keypoints1 = method_dtect.detect(img, None)
-            keypoints2 = method_dtect.detect(img2, None)
+            keypoints1 = method_dtect.detect(img[0], None)
+            keypoints2 = method_dtect.detect(img[1], None)
             for j in range(len(Descriptors)):
                 method_dscrpt = Descriptors[j]
                 try:
