@@ -300,7 +300,7 @@ for s in range(len(scale)): # for the 7 scale images
                     Rate_scale2[s, c3, i, j] = evaluate_scenario_2(keypoints1, keypoints2, descriptors1, descriptors2, match3, scale[s])
                 except Exception as e:
                     print("Combination of detector", Detectors[i], " and descriptor ", Descriptors[j], " is not possible.")
-                    Rate_scale2[k, c3, i, j] = 50
+                    Rate_scale2[s, c3, i, j] = 50
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_scale2.npy', Rate_scale2)
 ##########################################################
@@ -330,7 +330,7 @@ for r in range(len(rot)):
                     Rate_rot2[r, c3, i, j] = evaluate_scenario_3(keypoints1, keypoints2, descriptors1, descriptors2, match3, rot[r], rot_matrix)
                 except Exception as e:
                     print("Combination of detector", Detectors[i], " and descriptor ", Descriptors[j], " is not possible.")
-                    Rate_rot2[k, c3, i, j] = 50
+                    Rate_rot2[r, c3, i, j] = 50
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_rot2.npy', Rate_rot2)
 ##########################################################
