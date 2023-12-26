@@ -242,38 +242,38 @@ Detectors      = list([sift, akaze, orb, brisk, kaze, fast, star, mser, agast, g
 Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost])
 matching2      = list([cv2.NORM_L1, cv2.NORM_L2])
 
-################ Scenario 1 (Intensity) ################
-print("Scenario 1 Intensity")
-val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
-val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
-nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> number of test images
+# ################ Scenario 1 (Intensity) ################
+# print("Scenario 1 Intensity")
+# val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
+# val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
+# nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> number of test images
 
-## 2 matrices of the rates of scenario 1, the first one gathers the rates for each image, each non-binary method
-# (same detectors and descriptors), and each type of matching. And the other one groups the
-# rates for each image, each method binary method (different detectors and descriptors), and each type of matching.
-Rate_intensity2 = np.zeros((nbre_img, len(matching2), len(Detectors), len(Descriptors)))
-img, List8Img = get_intensity_8Img(Image, val_b, val_c) # use the intensity change images (I+b and I*c)
-for k in range(nbre_img):
-    img2 = List8Img[k]
-    for c3 in range(len(matching2)):
-        match3 = matching2[c3]
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]
-            keypoints1 = method_dtect.detect(img, None)
-            keypoints2 = method_dtect.detect(img2, None)
-            for j in range(len(Descriptors)):
-                method_dscrpt = Descriptors[j]
-                try:
-                    descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    print("Scenario 1 Intensity: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", c3, " is calculated")
-                    Rate_intensity2[k, c3, i, j] = evaluate_scenario_1(keypoints1, keypoints2, descriptors1, descriptors2, match3)
-                except Exception as e:
-                    print("Combination of detector", Detectors[i], " and descriptor ", Descriptors[j], " is not possible.")
-                    Rate_intensity2[k, c3, i, j] = 50
-# export numpy arrays
-np.save(basedir + 'arrays/Rate_intensity2.npy', Rate_intensity2)
-##########################################################
+# ## 2 matrices of the rates of scenario 1, the first one gathers the rates for each image, each non-binary method
+# # (same detectors and descriptors), and each type of matching. And the other one groups the
+# # rates for each image, each method binary method (different detectors and descriptors), and each type of matching.
+# Rate_intensity2 = np.zeros((nbre_img, len(matching2), len(Detectors), len(Descriptors)))
+# img, List8Img = get_intensity_8Img(Image, val_b, val_c) # use the intensity change images (I+b and I*c)
+# for k in range(nbre_img):
+#     img2 = List8Img[k]
+#     for c3 in range(len(matching2)):
+#         match3 = matching2[c3]
+#         for i in range(len(Detectors)):
+#             method_dtect = Detectors[i]
+#             keypoints1 = method_dtect.detect(img, None)
+#             keypoints2 = method_dtect.detect(img2, None)
+#             for j in range(len(Descriptors)):
+#                 method_dscrpt = Descriptors[j]
+#                 try:
+#                     descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
+#                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
+#                     print("Scenario 1 Intensity: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", c3, " is calculated")
+#                     Rate_intensity2[k, c3, i, j] = evaluate_scenario_1(keypoints1, keypoints2, descriptors1, descriptors2, match3)
+#                 except Exception as e:
+#                     print("Combination of detector", Detectors[i], " and descriptor ", Descriptors[j], " is not possible.")
+#                     Rate_intensity2[k, c3, i, j] = 50
+# # export numpy arrays
+# np.save(basedir + 'arrays/Rate_intensity2.npy', Rate_intensity2)
+# ##########################################################
 
 ################ Scenario 2: Scale ################
 print("Scenario 2 Scale")
@@ -294,9 +294,9 @@ for s in range(len(scale)): # for the 7 scale images
             for j in range(len(Descriptors)):
                 method_dscrpt = Descriptors[j]
                 try:
-                    descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    print("Scenario 1 Intensity: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", c3, " is calculated")
+                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                    descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
+                    print("Scenario 1 Intensity: image ", s, " Detector ", i, " Descriptor ", j, " Matching ", c3, " is calculated")
                     Rate_scale2[s, c3, i, j] = evaluate_scenario_2(keypoints1, keypoints2, descriptors1, descriptors2, match3, scale[s])
                 except Exception as e:
                     print("Combination of detector", Detectors[i], " and descriptor ", Descriptors[j], " is not possible.")
@@ -319,14 +319,14 @@ for r in range(len(rot)):
         match3 = matching2[c3]
         for i in range(len(Detectors)):
             method_dtect = Detectors[i]
-            keypoints1 = method_dtect.detect(img, None)
-            keypoints2 = method_dtect.detect(img2, None)
+            keypoints1 = method_dtect.detect(img[0], None)
+            keypoints2 = method_dtect.detect(img[1], None)
             for j in range(len(Descriptors)):
                 method_dscrpt = Descriptors[j]
                 try:
-                    descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    print("Scenario 1 Intensity: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", c3, " is calculated")
+                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                    descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
+                    print("Scenario 1 Intensity: image ", r, " Detector ", i, " Descriptor ", j, " Matching ", c3, " is calculated")
                     Rate_rot2[r, c3, i, j] = evaluate_scenario_3(keypoints1, keypoints2, descriptors1, descriptors2, match3, rot[r], rot_matrix)
                 except Exception as e:
                     print("Combination of detector", Detectors[i], " and descriptor ", Descriptors[j], " is not possible.")
