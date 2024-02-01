@@ -15,7 +15,7 @@ Rate_intensity2 = np.load(basedir + '/arrays/Rate_intensity2.npy')
 Rate_scale2 = np.load(basedir + '/arrays/Rate_scale2.npy')
 Rate_rot2 = np.load(basedir + '/arrays/Rate_rot2.npy')
 
-DetectorsLegend = ['sift-', 'akaze-', 'orb-', 'brisk-', 'kaze-', 'fast-', 'star-', 'mser-', 'agast-', 'gftt-', 'harrislaplace-', 'msd-', 'tbmr-']
+DetectorsLegend = ['sift-', 'akaze-', 'orb-', 'brisk-', 'kaze-', 'fast-', 'mser-', 'agast-', 'gftt-', 'star-', 'harrislaplace-', 'msd-', 'tbmr-']
 DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
 line_styles = ['solid', 'dash', 'dot']  # Add more styles as needed
 
@@ -54,4 +54,4 @@ fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 
-fig.show()
+fig.write_html("PhD.html")
