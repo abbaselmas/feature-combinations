@@ -15,28 +15,28 @@ Image = np.array(Image)
 # ...................................................................................................................
 
 ## Scenario 1 (Intensity): Function that returns 8 images with intensity changes from an I image.
-def get_intensity_8Img(Img, val_b, val_c): # val_b, val_c must be 2 vectors with 4 values each
+def get_intensity_10Img(Img, val_b, val_c): # val_b, val_c must be 2 vectors with 4 values each
     image = np.array(Img, dtype=np.uint16)   # transformation of the image into uint16 so that each pixel of the
                                                 # image will have the same intensity change (min value = 0, max value = 65535)
     I0 = np.zeros((image.shape[0], image.shape[1], image.shape[2])) # creation of empty image of 3 chanels to fill it afterwards
-    List8Img = list([I0, I0, I0, I0, I0, I0, I0, I0]) # list of our 8 images that we will create
+    List10Img = list([I0, I0, I0, I0, I0, I0, I0, I0, I0, I0]) # list of our 8 images that we will create
     for i in range(len(val_b)): # for I + b, with: b ∈ [-30 : 20 : +30]
         I =  image + val_b[i]
-        List8Img[i] = I.astype(int)
-        List8Img[i][List8Img[i] > 255] = 255 # set pixels with intensity > 255 to 255
-        List8Img[i][List8Img[i] < 0] = 0 # set the pixels with intensity < 0 to the value of 0
-        List8Img[i] = np.array(List8Img[i], dtype=np.uint8) # image transformation to uint8
+        List10Img[i] = I.astype(int)
+        List10Img[i][List10Img[i] > 255] = 255 # set pixels with intensity > 255 to 255
+        List10Img[i][List10Img[i] < 0] = 0 # set the pixels with intensity < 0 to the value of 0
+        List10Img[i] = np.array(List10Img[i], dtype=np.uint8) # image transformation to uint8
     for j in range(len(val_c)): # for I ∗ c, with: c ∈ [0.7 : 0.2 : 1.3].
         I =  image * val_c[j]
-        List8Img[j+4] = I.astype(int)
-        List8Img[j+4][List8Img[j+4] > 255] = 255 # set pixels with intensity > 255 to 255
-        List8Img[j+4][List8Img[j+4] < 0] = 0 # set the pixels with intensity < 0 to the value of 0
-        List8Img[j+4] = np.array(List8Img[j+4], dtype=np.uint8) # transform image to uint8 (min value = 0, max value = 255)
+        List10Img[j+5] = I.astype(int)
+        List10Img[j+5][List10Img[j+5] > 255] = 255 # set pixels with intensity > 255 to 255
+        List10Img[j+5][List10Img[j+5] < 0] = 0 # set the pixels with intensity < 0 to the value of 0
+        List10Img[j+5] = np.array(List10Img[j+5], dtype=np.uint8) # transform image to uint8 (min value = 0, max value = 255)
     # Save the images to disk
-    for i, img in enumerate(List8Img):
+    for i, img in enumerate(List10Img):
         filename = f"{basedir}intensity/image_{i}.png"  # You can change the format and naming convention as needed
         cv2.imwrite(filename, img)
-    return Img, List8Img
+    return Img, List10Img
 # ................................................................................
 
 ## Scenario 2 (Scale): Function that takes as input the index of the camera, the index of the image n, and a scale, it returns
@@ -252,9 +252,9 @@ nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> numbe
 # (same detectors and descriptors), and each type of matching. And the other one groups the
 # rates for each image, each method binary method (different detectors and descriptors), and each type of matching.
 Rate_intensity2 = np.zeros((nbre_img, len(matching2), len(Detectors), len(Descriptors)))
-img, List8Img = get_intensity_8Img(Image, val_b, val_c) # use the intensity change images (I+b and I*c)
+img, List10Img = get_intensity_10Img(Image, val_b, val_c) # use the intensity change images (I+b and I*c)
 for k in range(nbre_img):
-    img2 = List8Img[k]
+    img2 = List10Img[k]
     for c3 in range(len(matching2)):
         match3 = matching2[c3]
         for i in range(len(Detectors)):
