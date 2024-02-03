@@ -3,11 +3,11 @@ from plotly.subplots import make_subplots
 import numpy as np
 import os
 
-val_b = np.array([-30, -10, 0, 10, 30]) # b ∈ [−30 : 20 : +30]
-val_c = np.array([0.7, 0.9, 1, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
+val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
+val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
 nbre_img = len(val_b) + len(val_c)
-scale = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3] # 7 values of the scale change s ∈]1.1 : 0.2 : 2.3].
-rot = [-45, -30, -20, -10, 0, 10, 20, 30, 45] # 9 values of rotation change, rotations from 10 to 90 with a step of 10.
+scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈]1.1 : 0.2 : 2.3]
+rot = [5, 10, 15, 20, 25, 30, 50, 70, 90]
 
 # Load data
 basedir = os.path.abspath(os.path.dirname(__file__))
