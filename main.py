@@ -267,7 +267,7 @@ for k in range(nbre_img):
                     print("Scenario 1 Intensity: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                     Rate_intensity[k, c3, i, j] = evaluate_scenario_1(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                 except Exception as e:
-                    print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3] "is not possible.")
+                    print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
                     Rate_intensity[k, c3, i, j] = 50
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_intensity.npy', Rate_intensity)
@@ -296,7 +296,7 @@ for s in range(len(scale)): # for the 7 scale images
                     print("Scenario 1 Intensity: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                     Rate_scale[s, c3, i, j] = evaluate_scenario_2(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[s])
                 except Exception as e:
-                    print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3] "is not possible.")
+                    print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
                     Rate_scale[s, c3, i, j] = 50
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_scale.npy', Rate_scale)
@@ -325,7 +325,7 @@ for r in range(len(rot)):
                     print("Scenario 1 Intensity: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                     Rate_rot[r, c3, i, j] = evaluate_scenario_3(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[r], rot_matrix)
                 except Exception as e:
-                    print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3] "is not possible.")
+                    print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
                     Rate_rot[r, c3, i, j] = 50
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_rot.npy', Rate_rot)
