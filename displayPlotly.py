@@ -19,7 +19,7 @@ DetectorsLegend = ['sift-', 'akaze-', 'orb-', 'brisk-', 'kaze-', 'fast-', 'mser-
 DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
 line_styles = ['solid', 'dash', 'dot']  # Add more styles as needed
 
-c3 = 0
+c3 = 1
 
 fig = make_subplots(rows=2, cols=2, subplot_titles=['Scn. #1 Norm L2 for all methods', 'Scn. #2 Norm L2 for all methods', 'Scn. #3 Norm L2 for all methods', 'Scn. #4 Norm L2 for all methods'], shared_xaxes=False, shared_yaxes=False)
 
@@ -54,4 +54,4 @@ fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 
-fig.write_html("PhD.html")
+fig.write_html("PhD_c3_1.html")
