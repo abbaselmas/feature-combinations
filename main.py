@@ -115,7 +115,7 @@ def evaluate_scenario_1(KP1, KP2, Dspt1, Dspt2, match_method):
         Y2 = int(KP2[m2].pt[1])
 
         # comparison between these coordinates (x,y)
-        if (abs(X1 - X2) <=2) and (abs(Y1 - Y2) <=2):   #  Tolerance allowance (∼ 1-2 pixels)
+        if (abs(X1 - X2) <=5) and (abs(Y1 - Y2) <=5):   #  Tolerance allowance (∼ 1-2 pixels)
             Prob_P += 1
         else:
             Prob_N += 1
@@ -155,7 +155,7 @@ def evaluate_scenario_2(KP1, KP2, Dspt1, Dspt2, match_method,scale):
         X2 = int(KP2[m2].pt[0])
         Y2 = int(KP2[m2].pt[1])
 
-        if (abs(X1*scale - X2) <=2) and (abs(Y1*scale - Y2) <=2):   #  Tolerance allowance (∼ 1-2 pixels)
+        if (abs(X1*scale - X2) <=5) and (abs(Y1*scale - Y2) <=5):   #  Tolerance allowance (∼ 1-2 pixels)
             Prob_P += 1
         else:
             Prob_N += 1
@@ -198,7 +198,7 @@ def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, match_method, rot, rot_matrix):
         X12 = X1*np.cos(theta) + Y1*np.sin(theta) + rot_matrix[0,2]
         Y12 = -X1*np.sin(theta) + Y1*np.cos(theta) + rot_matrix[1,2]
 
-        if (abs(X12 - X2) <=2) and (abs(Y12 - Y2) <=2):   #  Tolerance allowance (∼ 1-2 pixels)
+        if (abs(X12 - X2) <=5) and (abs(Y12 - Y2) <=5):   #  Tolerance allowance (∼ 1-2 pixels)
             Prob_P += 1
         else:
             Prob_N += 1
@@ -293,7 +293,7 @@ for s in range(len(scale)): # for the 7 scale images
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                    print("Scenario 1 Intensity: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
+                    print("Scenario 2 Scale: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                     Rate_scale[s, c3, i, j] = evaluate_scenario_2(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[s])
                 except Exception as e:
                     print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
@@ -322,7 +322,7 @@ for r in range(len(rot)):
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                    print("Scenario 1 Intensity: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
+                    print("Scenario 3 Rotation: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                     Rate_rot[r, c3, i, j] = evaluate_scenario_3(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[r], rot_matrix)
                 except Exception as e:
                     print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
