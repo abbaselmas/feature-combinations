@@ -3,16 +3,12 @@ import cv2 # opencv
 import numpy as np # For numerical calculations
 
 basedir = './'
-folder = '/bikes'
+folder = '/graf'
 picture = '/img1.jpg'
 data = basedir + folder + picture
 
 Image = cv2.imread(data)
 Image = np.array(Image)
-
-# ...................................................................................................................
-# I.1 Data preparation
-# ...................................................................................................................
 
 ## Scenario 1 (Intensity): Function that returns 8 images with intensity changes from an I image.
 def get_intensity_8Img(Img, val_b, val_c): # val_b, val_c must be 2 vectors with 4 values each
@@ -80,31 +76,18 @@ def get_cam_rot(Img, r):
     return rotation_mat, couple_I_Ir  # it also returns the rotation matrix for further use in the rotation evaluation function
 # ................................................................................
 
-# ...................................................................................................................
-# I.2 Scenario evaluation: Function for each scenario that returns the percentage of the match of two lists of correct matched points
-# ...................................................................................................................
-
 ## Evaluation of scenario 1: Intensity change: Function that takes as input the keypoints, the descriptors (of 2 images),
 #                            the type of matching, it returns the percentage of correct matched points
 def evaluate_scenario_1(KP1, KP2, Dspt1, Dspt2, match_method):
-# For this scenario1, the evaluation between two images with change of intensity, we must compare only the coordinates (x,y) of the detected
-# points between the two images.
-
-    # creation of a feature matcher
     bf = cv2.BFMatcher(normType=match_method, crossCheck=True)
-    # match the descriptors of the two images
     matches = bf.match(Dspt1,Dspt2)
-    # Sort matches by distance
     matches = sorted(matches, key = lambda x:x.distance)
-
     Prob_P = 0
     Prob_N = 1
-
     # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points
     for i in range(len(matches)):
         m1 = matches[i].queryIdx
         m2 = matches[i].trainIdx
-
         if m1 >= len(KP1) or m2 >= len(KP2):
             continue
         # the coordinates (x,y) of the points detected in the image 1
@@ -113,7 +96,6 @@ def evaluate_scenario_1(KP1, KP2, Dspt1, Dspt2, match_method):
         # the coordinates (x,y) of the points detected in the image 2
         X2 = int(KP2[m2].pt[0])
         Y2 = int(KP2[m2].pt[1])
-
         # comparison between these coordinates (x,y)
         if (abs(X1 - X2) <=5) and (abs(Y1 - Y2) <=5):   #  Tolerance allowance (∼ 1-2 pixels)
             Prob_P += 1
@@ -127,25 +109,15 @@ def evaluate_scenario_1(KP1, KP2, Dspt1, Dspt2, match_method):
 ## Evaluation of scenario 2: Scale change: Function that takes as input the keypoints, the descriptors (of 2 images),
 #                            the type of matching and the scale, it returns the percentage of correct matched points
 def evaluate_scenario_2(KP1, KP2, Dspt1, Dspt2, match_method,scale):
-# For this scenario2, the evaluation between two images with change of scale, we must compare the coordinates (x,y)
-# of the detected points between the two images (I and I_scale), after multiplying by the scale the coordinates
-# of the detected points in I_scale.
-
-    # creation of a feature matcher
     bf = cv2.BFMatcher(normType=match_method, crossCheck=True)
-    # match the descriptors of the two images
     matches = bf.match(Dspt1,Dspt2)
-    # Sort matches by distance
     matches = sorted(matches, key = lambda x:x.distance)
-
     Prob_P = 0
     Prob_N = 1
-
     # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points
     for i in range(len(matches)):
         m1 = matches[i].queryIdx
         m2 = matches[i].trainIdx
-
         if m1 >= len(KP1) or m2 >= len(KP2):
             continue
         # the coordinates (x,y) of the points detected in the image 1
@@ -154,7 +126,6 @@ def evaluate_scenario_2(KP1, KP2, Dspt1, Dspt2, match_method,scale):
         # the coordinates (x,y) of the points detected in the image 2
         X2 = int(KP2[m2].pt[0])
         Y2 = int(KP2[m2].pt[1])
-
         if (abs(X1*scale - X2) <=5) and (abs(Y1*scale - Y2) <=5):   #  Tolerance allowance (∼ 1-2 pixels)
             Prob_P += 1
         else:
@@ -167,17 +138,9 @@ def evaluate_scenario_2(KP1, KP2, Dspt1, Dspt2, match_method,scale):
 ## Evaluation of scenario 3: Rotation change: Function that takes as input the keypoints, the descriptors (of 2 images),
 #                            the type of matching, the rotation angle and the rotation matrix, it returns the percentage of correct matched points
 def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, match_method, rot, rot_matrix):
-# For this scenario3, the evaluation between two images with rotation change, we must compare the coordinates (x,y)
-# of the points detected between the two images (I and I_scale), after multiplying by rot_matrix[:2,:2] the coordinates
-# of the points detected in I_rotation by adding a translation rot_matrix[0,2] for x and rot_matrix[1,2] for y.
-    
-    # ccreation of a feature matcher
     bf = cv2.BFMatcher(normType=match_method, crossCheck=True)
-    # match the descriptors of the two images
     matches = bf.match(Dspt1,Dspt2)
-    # Sort matches by distance
     matches = sorted(matches, key = lambda x:x.distance)
-
     Prob_P = 0
     Prob_N = 1
     theta = rot*(np.pi/180) # transformation of the degree of rotation into radian
@@ -185,7 +148,6 @@ def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, match_method, rot, rot_matrix):
     for i in range(len(matches)):
         m1 = matches[i].queryIdx
         m2 = matches[i].trainIdx
-
         if m1 >= len(KP1) or m2 >= len(KP2):
             continue
         # the coordinates (x,y) of the points detected in the image 1
@@ -194,10 +156,8 @@ def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, match_method, rot, rot_matrix):
         # the coordinates (x,y) of the points detected in the image 2
         X2 = int(KP2[m2].pt[0])
         Y2 = int(KP2[m2].pt[1])
-
         X12 = X1*np.cos(theta) + Y1*np.sin(theta) + rot_matrix[0,2]
         Y12 = -X1*np.sin(theta) + Y1*np.cos(theta) + rot_matrix[1,2]
-
         if (abs(X12 - X2) <=5) and (abs(Y12 - Y2) <=5):   #  Tolerance allowance (∼ 1-2 pixels)
             Prob_P += 1
         else:
@@ -207,7 +167,6 @@ def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, match_method, rot, rot_matrix):
     return Prob_True
 # ................................................................................
 
-# Initialization of our methods of detectors and descriptors (17 methods)
 ### detectors/descriptors 5
 sift  = cv2.SIFT_create(nOctaveLayers=3, contrastThreshold=0.01, edgeThreshold=100.0, sigma=1.6)
 akaze = cv2.AKAZE_create(descriptor_type=cv2.AKAZE_DESCRIPTOR_KAZE, descriptor_size=0, descriptor_channels=3, threshold=0.00005, nOctaves=4, nOctaveLayers=4, diffusivity=cv2.KAZE_DIFF_PM_G1)
@@ -236,9 +195,9 @@ boost = cv2.xfeatures2d.BoostDesc_create(use_scale_orientation=False, scale_fact
 
 # lists of the different detectors, descriptors and matching methods
 # DetectDescript = list([sift, akaze, orb, brisk, kaze])
-Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, star, hl, msd, tbmr])
-Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost])
-matching       = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_L2SQR, cv2.NORM_HAMMING])
+Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, star, hl, msd, tbmr]) # 13 detectors
+Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost]) # 14 descriptors
+matching       = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_L2SQR, cv2.NORM_HAMMING]) # 4 matching methods
 
 ################ Scenario 1 (Intensity) ################
 print("Scenario 1 Intensity")
@@ -246,9 +205,6 @@ val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
 val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
 nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> number of test images
 
-## 2 matrices of the rates of scenario 1, the first one gathers the rates for each image, each non-binary method
-# (same detectors and descriptors), and each type of matching. And the other one groups the
-# rates for each image, each method binary method (different detectors and descriptors), and each type of matching.
 Rate_intensity = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors)))
 img, List8Img = get_intensity_8Img(Image, val_b, val_c) # use the intensity change images (I+b and I*c)
 for k in range(nbre_img):
@@ -276,9 +232,6 @@ np.save(basedir + 'arrays/Rate_intensity.npy', Rate_intensity)
 print("Scenario 2 Scale")
 scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈]1.1 : 0.2 : 2.3]
 
-## 2 matrices of the rates of scenario 2, the first one groups the rates for each image, each non-binary method (same detectors and descriptors),
-# and each type of matching. And the other one groups the rates for each image, each binary method (different detectors and
-# descriptors), and each type of matching.
 Rate_scale = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
 for s in range(len(scale)): # for the 7 scale images
     img = get_cam_scale(Image, scale[s])#[0] # image I
@@ -305,9 +258,6 @@ np.save(basedir + 'arrays/Rate_scale.npy', Rate_scale)
 print("Scenario 3 Rotation")
 rot = [5, 10, 15, 20, 25, 30, 50, 70, 90]
 
-## 2 matrices of the rates of scenario 3, the first one groups the rates for each image, each non-binary method (same detectors and descriptors),
-# and each type of matching. And the other one groups the rates for each image, each binary method (different detectors and
-# descriptors), and each type of matching.
 Rate_rot = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors)))
 for r in range(len(rot)):
     rot_matrix, img = get_cam_rot(Image, rot[r])

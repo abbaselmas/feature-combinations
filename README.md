@@ -1,1 +1,0 @@
-![Results](/figs/result.png)
