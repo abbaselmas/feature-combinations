@@ -220,7 +220,7 @@ mser  = cv2.MSER_create(delta=1, min_area=30, max_area=1440, max_variation=0.025
 agast = cv2.AgastFeatureDetector_create(threshold=5,nonmaxSuppression=True,type=cv2.AgastFeatureDetector_OAST_9_16)
 gftt  = cv2.GFTTDetector.create(maxCorners=20000, qualityLevel=0.002, minDistance=1.0, blockSize=3, useHarrisDetector=False, k=0.04)
 star  = cv2.xfeatures2d.StarDetector_create(maxSize=15, responseThreshold=1, lineThresholdProjected=10, lineThresholdBinarized=8, suppressNonmaxSize=3)
-harrislaplace = cv2.xfeatures2d.HarrisLaplaceFeatureDetector_create(numOctaves=6, corn_thresh=0.01, DOG_thresh=0.01, maxCorners=20000, num_layers=4)
+hl    = cv2.xfeatures2d.HarrisLaplaceFeatureDetector_create(numOctaves=6, corn_thresh=0.01, DOG_thresh=0.01, maxCorners=20000, num_layers=4)
 msd   = cv2.xfeatures2d.MSDDetector_create(m_patch_radius=3, m_search_area_radius=5, m_nms_radius=5, m_nms_scale_radius=0, m_th_saliency=250.0, m_kNN=4, m_scale_factor=1.25, m_n_scales=-1, m_compute_orientation=0)
 tbmr  = cv2.xfeatures2d.TBMR_create(min_area=60, max_area_relative=0.01, scale_factor=1.25, n_scales=-1)
 ### descriptors 9
@@ -236,10 +236,9 @@ boost = cv2.xfeatures2d.BoostDesc_create(use_scale_orientation=False, scale_fact
 
 # lists of the different detectors, descriptors and matching methods
 # DetectDescript = list([sift, akaze, orb, brisk, kaze])
-Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, star, harrislaplace, msd, tbmr])
-Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost])
-# matching2      = list([cv2.NORM_INF, cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_L2SQR, cv2.NORM_HAMMING, cv2.NORM_HAMMING2, cv2.NORM_TYPE_MASK, cv2.NORM_RELATIVE, cv2.NORM_MINMAX])
-matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
+Detectors      = list([sift, akaze, orb, brisk, kaze]) # , fast, mser, agast, gftt, star, hl, msd, tbmr])
+Descriptors    = list([sift, akaze, orb, brisk, kaze]) #, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost])
+matching       = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_L2SQR, cv2.NORM_HAMMING])
 
 ################ Scenario 1 (Intensity) ################
 print("Scenario 1 Intensity")
@@ -268,7 +267,7 @@ for k in range(nbre_img):
                     Rate_intensity[k, c3, i, j] = evaluate_scenario_1(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                 except Exception as e:
                     print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
-                    Rate_intensity[k, c3, i, j] = 50
+                    Rate_intensity[k, c3, i, j] = None
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_intensity.npy', Rate_intensity)
 ##########################################################
@@ -297,7 +296,7 @@ for s in range(len(scale)): # for the 7 scale images
                     Rate_scale[s, c3, i, j] = evaluate_scenario_2(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[s])
                 except Exception as e:
                     print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
-                    Rate_scale[s, c3, i, j] = 50
+                    Rate_scale[s, c3, i, j] = None
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_scale.npy', Rate_scale)
 ##########################################################
@@ -326,7 +325,7 @@ for r in range(len(rot)):
                     Rate_rot[r, c3, i, j] = evaluate_scenario_3(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[r], rot_matrix)
                 except Exception as e:
                     print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
-                    Rate_rot[r, c3, i, j] = 50
+                    Rate_rot[r, c3, i, j] = None
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_rot.npy', Rate_rot)
 ##########################################################
