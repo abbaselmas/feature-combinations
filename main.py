@@ -126,7 +126,7 @@ def evaluate_scenario_2(KP1, KP2, Dspt1, Dspt2, match_method,scale):
         # the coordinates (x,y) of the points detected in the image 2
         X2 = int(KP2[m2].pt[0])
         Y2 = int(KP2[m2].pt[1])
-        if (abs(X1*scale - X2) <=5) and (abs(Y1*scale - Y2) <=5):   #  Tolerance allowance (∼ 1-2 pixels)
+        if (abs(X1*scale - X2) <=5) and (abs(Y1*scale - Y2) <=5):   #  Tolerance allowance 5 pixels
             Prob_P += 1
         else:
             Prob_N += 1
@@ -158,7 +158,7 @@ def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, match_method, rot, rot_matrix):
         Y2 = int(KP2[m2].pt[1])
         X12 = X1*np.cos(theta) + Y1*np.sin(theta) + rot_matrix[0,2]
         Y12 = -X1*np.sin(theta) + Y1*np.cos(theta) + rot_matrix[1,2]
-        if (abs(X12 - X2) <=5) and (abs(Y12 - Y2) <=5):   #  Tolerance allowance (∼ 1-2 pixels)
+        if (abs(X12 - X2) <=5) and (abs(Y12 - Y2) <=5):   #  Tolerance allowance 5 pixels
             Prob_P += 1
         else:
             Prob_N += 1
@@ -235,7 +235,7 @@ scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈]1.1 : 0.2 : 2.3]
 Rate_scale = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
 for s in range(len(scale)): # for the 7 scale images
     img = get_cam_scale(Image, scale[s])#[0] # image I
-    for c3 in range(len(matching)): # for bf.L2 mapping
+    for c3 in range(len(matching)): 
         for i in range(len(Detectors)):
             method_dtect = Detectors[i]
             keypoints1 = method_dtect.detect(img[0], None)
