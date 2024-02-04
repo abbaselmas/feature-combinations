@@ -236,8 +236,8 @@ boost = cv2.xfeatures2d.BoostDesc_create(use_scale_orientation=False, scale_fact
 
 # lists of the different detectors, descriptors and matching methods
 # DetectDescript = list([sift, akaze, orb, brisk, kaze])
-Detectors      = list([sift, akaze, orb, brisk, kaze]) # , fast, mser, agast, gftt, star, hl, msd, tbmr])
-Descriptors    = list([sift, akaze, orb, brisk, kaze]) #, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost])
+Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, star, hl, msd, tbmr])
+Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost])
 matching       = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_L2SQR, cv2.NORM_HAMMING])
 
 ################ Scenario 1 (Intensity) ################

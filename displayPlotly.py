@@ -16,8 +16,8 @@ Rate_intensity = np.load(basedir + '/arrays/Rate_intensity.npy')
 Rate_scale = np.load(basedir + '/arrays/Rate_scale.npy')
 Rate_rot = np.load(basedir + '/arrays/Rate_rot.npy')
 
-DetectorsLegend = ['sift-', 'akaze-', 'orb-', 'brisk-', 'kaze-'] #, 'fast-', 'mser-', 'agast-', 'gftt-', 'star-', 'harrislaplace-', 'msd-', 'tbmr-']
-DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze'] #, 'vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
+DetectorsLegend = ['sift-', 'akaze-', 'orb-', 'brisk-', 'kaze-', 'fast-', 'mser-', 'agast-', 'gftt-', 'star-', 'harrislaplace-', 'msd-', 'tbmr-']
+DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
 line_styles = ['solid', 'dash', 'dot']  # Add more styles as needed
 
 Norm = ['L1', 'L2', 'L2SQR', 'HAM']
