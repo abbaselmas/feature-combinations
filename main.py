@@ -256,7 +256,7 @@ np.save(basedir + 'arrays/Rate_scale.npy', Rate_scale)
 
 ################ Scenario 3: Rotation ################
 print("Scenario 3 Rotation")
-rot = [5, 10, 15, 20, 25, 30, 50, 70, 90]
+rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
 Rate_rot = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors)))
 for r in range(len(rot)):

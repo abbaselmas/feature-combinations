@@ -7,7 +7,7 @@ val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
 val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
 nbre_img = len(val_b) + len(val_c)
 scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈ [0.5 : 0.2 : 1.5]
-rot = [5, 10, 15, 20, 25, 30, 50, 70, 90]
+rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 Rate_intensity = np.load(basedir + '/arrays/Rate_intensity.npy')
@@ -34,7 +34,6 @@ for i in range(len(DetectorsLegend)):
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
 
             legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
-
             trace_I1 = go.Scatter(x=val_b, y=Rate2_I1, mode='lines', line=dict(color=color, dash=style), name=f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}', legendgroup=legend_group, showlegend= True)
             trace_I2 = go.Scatter(x=val_c, y=Rate2_I2, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
             trace_S  = go.Scatter(x=scale, y=Rate2_S,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
