@@ -45,10 +45,10 @@ for i in range(len(DetectorsLegend)):
             fig.add_trace(trace_S,  row=2, col=1)
             fig.add_trace(trace_R,  row=2, col=2)
 
-fig.update_xaxes(xaxis = dict(tickvals = val_b), row=1, col=1)
-fig.update_xaxes(xaxis = dict(tickvals = val_c), row=1, col=2)
-fig.update_xaxes(xaxis = dict(tickvals = scale), row=2, col=1)
-fig.update_xaxes(xaxis = dict(tickvals = rot), row=2, col=2)
+fig.update_layout(  xaxis = dict(tickvals = val_b),
+                    xaxis2 = dict(tickvals = val_c),
+                    xaxis3 = dict(tickvals = scale),
+                    xaxis4 = dict(tickvals = rot))
 
 fig.update_xaxes(title_text="Intensity changing I+b", row=1, col=1)
 fig.update_xaxes(title_text="Intensity changing Ixc", row=1, col=2)
