@@ -297,7 +297,7 @@ def evaluate_scenario_5_6_7(KP1, KP2, Dspt1, Dspt2, mise_corresp):
     Inliers_Pts2 = points2[mask.ravel()==1]
     # Creation of a vect (from zero to the number of points of interest of Inliers)  
     LenPts = len(Inliers_Pts2)
-    Vect_in = np.linspace(0, min(Inliers_Pts1.shape[0], Inliers_Pts2.shape[0])-1, LenPts, dtype=np.int) 
+    Vect_in = np.linspace(0, min(Inliers_Pts1.shape[0], Inliers_Pts2.shape[0])-1, LenPts, dtype=np.int32) 
     # Convert the coordinates of the points of interest of Inliers for our 2 images to "KeyPoint  
     InkeyPoint1 = [cv2.KeyPoint(x=P[0], y=P[1], _size=1) for P in Inliers_Pts1[Vect_in]] 
     InkeyPoint2 = [cv2.KeyPoint(x=P[0], y=P[1], _size=1) for P in Inliers_Pts2[Vect_in]]
