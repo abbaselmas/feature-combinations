@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt # For displaying the figures
+# import matplotlib.pyplot as plt # For displaying the figures
 import cv2 # opencv
 import numpy as np # For numerical calculations
 
