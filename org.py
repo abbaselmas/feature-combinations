@@ -331,7 +331,7 @@ def evaluate_scenario_5_6_7(KP1, KP2, Dspt1, Dspt2, mise_corresp):
 
 # Initialization of our methods of detectors and descriptors (17 methods)
 ### detectors/descriptors 
-sift  = cv2.xfeatures2d.SIFT_create()
+sift  = cv2.SIFT_create()
 akaze = cv2.AKAZE_create()
 orb   = cv2.ORB_create()
 brisk = cv2.BRISK_create()
