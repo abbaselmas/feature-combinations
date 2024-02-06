@@ -667,7 +667,7 @@ temps_execution_Sén4 = np.concatenate((temps_execution1m_S4[0], temps_execution
                                   temps_execution1m_S4[1], temps_execution2m_S4[1][0], temps_execution2m_S4[1][1], temps_execution2m_S4[1][2], 
                                   temps_execution2m_S4[2][0], temps_execution2m_S4[2][1], temps_execution2m_S4[2][2]), axis=0)
 # The set of methods used to put them in legend
-DetectDescript = list(['sift_bf.L1', 'akaze_bf.L1', 'orb_bf.L1', 'brisk_bf.L1', 'kaze_bf.L1', 'fast-freak_bf.L1', 'fast-brief_bf.L1', 
+DetectDescriptLegend = list(['sift_bf.L1', 'akaze_bf.L1', 'orb_bf.L1', 'brisk_bf.L1', 'kaze_bf.L1', 'fast-freak_bf.L1', 'fast-brief_bf.L1', 
                   'fast-lucid_bf.L1', 'fast-latch_bf.L1', 'star-freak_bf.L1', 'star-brief_bf.L1', 'star-lucid_bf.L1', 'star-latch_bf.L1', 
                   'mser-freak_bf.L1', 'mser-brief_bf.L1', 'mser-lucid_bf.L1', 'mser-latch_bf.L1', 'sift_bf.L2', 'akaze_bf.L2', 'orb_bf.L2', 
                   'brisk_bf.L2', 'kaze_bf.L2', 'fast-freak_bf.L2', 'fast-brief_bf.L2', 'fast-lucid_bf.L2', 'fast-latch_bf.L2', 'star-freak_bf.L2', 
@@ -691,7 +691,7 @@ for i in range(len(Taux_sorted_Sén4)):
 
 # Display the results in the table in descending order of the rate of correct matches
 for i in coords_Sén4:
-    x_Sén4.add_row([DetectDescript[i], round(temps_execution_Sén4[i], 3), round(Nbre_matches_Sén4[i], 3), round(Taux_stereo_rect_Sén4[i], 3)])
+    x_Sén4.add_row([DetectDescriptLegend[i], round(temps_execution_Sén4[i], 3), round(Nbre_matches_Sén4[i], 3), round(Taux_stereo_rect_Sén4[i], 3)])
 print(x_Sén4)
 #.........................................................................................
 
@@ -763,7 +763,7 @@ temps_execution_Sén5 = np.concatenate((temps_execution1m_S5[0], temps_execution
                                   temps_execution2m_S5[2][0], temps_execution2m_S5[2][1], temps_execution2m_S5[2][2]), axis=0)
 
 # The set of methods used to put them in caption
-DetectDescript = list(['sift_bf.L1', 'akaze_bf.L1', 'orb_bf.L1', 'brisk_bf.L1', 'kaze_bf.L1', 'fast-freak_bf.L1', 'fast-brief_bf.L1', 
+DetectDescriptLegend2 = list(['sift_bf.L1', 'akaze_bf.L1', 'orb_bf.L1', 'brisk_bf.L1', 'kaze_bf.L1', 'fast-freak_bf.L1', 'fast-brief_bf.L1', 
                   'fast-lucid_bf.L1', 'fast-latch_bf.L1', 'star-freak_bf.L1', 'star-brief_bf.L1', 'star-lucid_bf.L1', 'star-latch_bf.L1', 
                   'mser-freak_bf.L1', 'mser-brief_bf.L1', 'mser-lucid_bf.L1', 'mser-latch_bf.L1', 'sift_bf.L2', 'akaze_bf.L2', 'orb_bf.L2', 
                   'brisk_bf.L2', 'kaze_bf.L2', 'fast-freak_bf.L2', 'fast-brief_bf.L2', 'fast-lucid_bf.L2', 'fast-latch_bf.L2', 'star-freak_bf.L2', 
@@ -787,7 +787,7 @@ for i in range(len(Taux_sorted_Sén5)):
 
 # Displaying the results in the table in decreasing order of the rate of correct matched points
 for i in coords_Sén5:
-    x_Sén5.add_row([DetectDescript[i], round(temps_execution_Sén5[i], 3), round(Nbre_matches_Sén5[i], 3), round(Taux_stereo_rect_Sén5[i], 3)])
+    x_Sén5.add_row([DetectDescriptLegend2[i], round(temps_execution_Sén5[i], 3), round(Nbre_matches_Sén5[i], 3), round(Taux_stereo_rect_Sén5[i], 3)])
 print(x_Sén5)
 #.........................................................................................
 
@@ -859,7 +859,7 @@ temps_execution_Sén6 = np.concatenate((temps_execution1m_S6[0], temps_execution
                                   temps_execution2m_S6[2][0], temps_execution2m_S6[2][1], temps_execution2m_S6[2][2]), axis=0)
 
 # The set of methods used to put them in caption
-DetectDescript = list(['sift_bf.L1', 'akaze_bf.L1', 'orb_bf.L1', 'brisk_bf.L1', 'kaze_bf.L1', 'fast-freak_bf.L1', 'fast-brief_bf.L1', 
+DetectDescriptLegend3 = list(['sift_bf.L1', 'akaze_bf.L1', 'orb_bf.L1', 'brisk_bf.L1', 'kaze_bf.L1', 'fast-freak_bf.L1', 'fast-brief_bf.L1', 
                   'fast-lucid_bf.L1', 'fast-latch_bf.L1', 'star-freak_bf.L1', 'star-brief_bf.L1', 'star-lucid_bf.L1', 'star-latch_bf.L1', 
                   'mser-freak_bf.L1', 'mser-brief_bf.L1', 'mser-lucid_bf.L1', 'mser-latch_bf.L1', 'sift_bf.L2', 'akaze_bf.L2', 'orb_bf.L2', 
                   'brisk_bf.L2', 'kaze_bf.L2', 'fast-freak_bf.L2', 'fast-brief_bf.L2', 'fast-lucid_bf.L2', 'fast-latch_bf.L2', 'star-freak_bf.L2', 
@@ -883,7 +883,7 @@ for i in range(len(Taux_sorted_Sén6)):
 
 # Display of the results in the table following the decreasing order of the rate of correct matched points 
 for i in coords_Sén6:
-    x_Sén6.add_row([DetectDescript[i], round(temps_execution_Sén6[i], 3), round(Nbre_matches_Sén6[i], 3), round(Taux_stereo_rect_Sén6[i], 3)])
+    x_Sén6.add_row([DetectDescriptLegend[i], round(temps_execution_Sén6[i], 3), round(Nbre_matches_Sén6[i], 3), round(Taux_stereo_rect_Sén6[i], 3)])
 print(x_Sén6)
 #.........................................................................................
 
@@ -954,7 +954,7 @@ temps_execution_Sén7 = np.concatenate((temps_execution1m_S7[0], temps_execution
                                   temps_execution2m_S7[2][0], temps_execution2m_S7[2][1], temps_execution2m_S7[2][2]), axis=0)
 
 # The set of methods used to put them in caption
-DetectDescript = list(['sift_bf.L1', 'akaze_bf.L1', 'orb_bf.L1', 'brisk_bf.L1', 'kaze_bf.L1', 'fast-freak_bf.L1', 'fast-brief_bf.L1', 
+DetectDescriptLegend4 = list(['sift_bf.L1', 'akaze_bf.L1', 'orb_bf.L1', 'brisk_bf.L1', 'kaze_bf.L1', 'fast-freak_bf.L1', 'fast-brief_bf.L1', 
                   'fast-lucid_bf.L1', 'fast-latch_bf.L1', 'star-freak_bf.L1', 'star-brief_bf.L1', 'star-lucid_bf.L1', 'star-latch_bf.L1', 
                   'mser-freak_bf.L1', 'mser-brief_bf.L1', 'mser-lucid_bf.L1', 'mser-latch_bf.L1', 'sift_bf.L2', 'akaze_bf.L2', 'orb_bf.L2', 
                   'brisk_bf.L2', 'kaze_bf.L2', 'fast-freak_bf.L2', 'fast-brief_bf.L2', 'fast-lucid_bf.L2', 'fast-latch_bf.L2', 'star-freak_bf.L2', 
@@ -978,7 +978,7 @@ for i in range(len(Taux_sorted_Sén7)):
 
 # Display of the results in the table following the decreasing order of the rate of correct matched points  
 for i in coords_Sén7:
-    x_Sén7.add_row([DetectDescript[i], round(temps_execution_Sén7[i], 3), round(Nbre_matches_Sén7[i], 3), round(Taux_stereo_rect_Sén7[i], 3)])
+    x_Sén7.add_row([DetectDescriptLegend4[i], round(temps_execution_Sén7[i], 3), round(Nbre_matches_Sén7[i], 3), round(Taux_stereo_rect_Sén7[i], 3)])
 print(x_Sén7)
 
 ###################################################         END      ###################################################################################
