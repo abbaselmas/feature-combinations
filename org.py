@@ -309,7 +309,7 @@ def evaluate_scenario_5_6_7(KP1, KP2, Dspt1, Dspt2, mise_corresp):
     Outliers_Pts2 = points2[mask.ravel()==0]
     ## Creation of a vect (from zero to the number of homologous points of Outliers)  
     LenPts = len(Outliers_Pts2)
-    Vect_out = np.linspace(0, min(Outliers_Pts1.shape[0], Outliers_Pts2.shape[0])-1, LenPts, dtype=np.int) 
+    Vect_out = np.linspace(0, min(Outliers_Pts1.shape[0], Outliers_Pts2.shape[0])-1, LenPts, dtype=np.int32) 
     ## Convert the coordinates of the points of interest of Outliers for our 2 images to "KeyPoint 
     OutkeyPoint1 = [cv2.KeyPoint(x=P[0], y=P[1], size=1) for P in Outliers_Pts1[Vect_out]] 
     OutkeyPoint2 = [cv2.KeyPoint(x=P[0], y=P[1], size=1) for P in Outliers_Pts2[Vect_out]]
