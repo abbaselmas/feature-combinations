@@ -477,9 +477,9 @@ for r in range(len(rot)):
 # ..........................................................................................................................
 
 # Binary and non-binary methods used to set the legend
-DetectDescript = ['sift', 'akaze', 'orb', 'brisk', 'kaze']
-Detecteurs     = ['fast-', 'star-', 'mser-']
-Descripteurs   = ['freak', 'brief', 'lucid', 'latch']
+DetectDescriptLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze']
+DetecteursLegend     = ['fast-', 'star-', 'mser-']
+DescripteursLegend   = ['freak', 'brief', 'lucid', 'latch']
 
 c2 = 1 # for non-binary methods "DetectDescript" (c2=0 for bf.L1, c2=1 for bf.L2)
 c3 = 2 # for binary methods "Detectors with Descriptors" (c2=0 for bf.L1, c2=1 for bf.L2, c2=2 for bf.HAMMING)
@@ -511,10 +511,10 @@ for k in range(len(DetectDescript)):
     Taux1_S = Taux_scale1[:, c2, k]
     Taux1_R = Taux_rot1[:, c2, k]
 
-    lines_I1 = ax1.plot(val_b, Taux1_I1, linewidth=2, label = DetectDescript[k]) # for the figure of the intensity change results (I+b)
-    lines_I2 = ax2.plot(val_c, Taux1_I2, linewidth=2, label = DetectDescript[k]) # for the figure of intensity change results (I*c)
-    lines_S = ax3.plot(scale, Taux1_S, linewidth=2, label = DetectDescript[k]) # for the scaling results figure 
-    lines_R = ax4.plot(rot, Taux1_R, linewidth=2, label = DetectDescript[k]) # for the figure of the results of rotation change
+    lines_I1 = ax1.plot(val_b, Taux1_I1, linewidth=2, label = DetectDescriptLegend[k]) # for the figure of the intensity change results (I+b)
+    lines_I2 = ax2.plot(val_c, Taux1_I2, linewidth=2, label = DetectDescriptLegend[k]) # for the figure of intensity change results (I*c)
+    lines_S = ax3.plot(scale, Taux1_S, linewidth=2, label = DetectDescriptLegend[k]) # for the scaling results figure 
+    lines_R = ax4.plot(rot, Taux1_R, linewidth=2, label = DetectDescriptLegend[k]) # for the figure of the results of rotation change
 
     num += 1 # to take each time the loop turns a different color and curve style
     # for the color and style of the curve for the results of the 3 scenarios
@@ -535,10 +535,10 @@ for i in range(len(Detecteurs)):
         Taux2_S = Taux_scale2[:,c3,i,j]
         Taux2_R = Taux_rot2[:,c3,i,j]
        
-        lines_I1 = ax1.plot(val_b, Taux2_I1, linewidth=2, label = Detecteurs[i] + Descripteurs[j]) # for the figure of intensity change results (I+b)
-        lines_I2 = ax2.plot(val_c, Taux2_I2, linewidth=2, label = Detecteurs[i] + Descripteurs[j]) # for the figure of intensity change results (I*c)
-        lines_S = ax3.plot(scale, Taux2_S, linewidth=2, label = Detecteurs[i] + Descripteurs[j]) # for the figure of the results of scale change
-        lines_R = ax4.plot(rot, Taux2_R, linewidth=2, label = Detecteurs[i] + Descripteurs[j]) # for the figure of the results of rotation change
+        lines_I1 = ax1.plot(val_b, Taux2_I1, linewidth=2, label = DetecteursLegend[i] + DescripteursLegend[j]) # for the figure of intensity change results (I+b)
+        lines_I2 = ax2.plot(val_c, Taux2_I2, linewidth=2, label = DetecteursLegend[i] + DescripteursLegend[j]) # for the figure of intensity change results (I*c)
+        lines_S = ax3.plot(scale, Taux2_S, linewidth=2, label = DetecteursLegend[i] + DescripteursLegend[j]) # for the figure of the results of scale change
+        lines_R = ax4.plot(rot, Taux2_R, linewidth=2, label = DetecteursLegend[i] + DescripteursLegend[j]) # for the figure of the results of rotation change
 
         num += 1 # to take each time the loop turns a different style of curve
         # for the color and style of curve for the results of the 3 scenarios
