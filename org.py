@@ -20,7 +20,7 @@ import time # for the calculation of the execution time
 from prettytable import PrettyTable # To view the displayboards on the console
 
 ## Reading of our database composed of 50 images for 4 cameras 
-basedir = '.\\'
+basedir = './'
 date = '2011_09_26'
 drive = '0009'
 data = pykitti.raw(basedir, date, drive, frames=range(0, 50, 1))
