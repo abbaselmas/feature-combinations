@@ -299,8 +299,8 @@ def evaluate_scenario_5_6_7(KP1, KP2, Dspt1, Dspt2, mise_corresp):
     LenPts = len(Inliers_Pts2)
     Vect_in = np.linspace(0, min(Inliers_Pts1.shape[0], Inliers_Pts2.shape[0])-1, LenPts, dtype=np.int32) 
     # Convert the coordinates of the points of interest of Inliers for our 2 images to "KeyPoint  
-    InkeyPoint1 = [cv2.KeyPoint(x=P[0], y=P[1], _size=1) for P in Inliers_Pts1[Vect_in]] 
-    InkeyPoint2 = [cv2.KeyPoint(x=P[0], y=P[1], _size=1) for P in Inliers_Pts2[Vect_in]]
+    InkeyPoint1 = [cv2.KeyPoint(x=P[0], y=P[1], size=1) for P in Inliers_Pts1[Vect_in]] 
+    InkeyPoint2 = [cv2.KeyPoint(x=P[0], y=P[1], size=1) for P in Inliers_Pts2[Vect_in]]
     # Filter the coordinates of the homologous points of Inliers from the set of points
     Inliers_match = [cv2.DMatch(_imgIdx=0, _queryIdx=i, _trainIdx=i,_distance=0) for i in range(len(InkeyPoint2))]
 
@@ -311,8 +311,8 @@ def evaluate_scenario_5_6_7(KP1, KP2, Dspt1, Dspt2, mise_corresp):
     LenPts = len(Outliers_Pts2)
     Vect_out = np.linspace(0, min(Outliers_Pts1.shape[0], Outliers_Pts2.shape[0])-1, LenPts, dtype=np.int) 
     ## Convert the coordinates of the points of interest of Outliers for our 2 images to "KeyPoint 
-    OutkeyPoint1 = [cv2.KeyPoint(x=P[0], y=P[1], _size=1) for P in Outliers_Pts1[Vect_out]] 
-    OutkeyPoint2 = [cv2.KeyPoint(x=P[0], y=P[1], _size=1) for P in Outliers_Pts2[Vect_out]]
+    OutkeyPoint1 = [cv2.KeyPoint(x=P[0], y=P[1], size=1) for P in Outliers_Pts1[Vect_out]] 
+    OutkeyPoint2 = [cv2.KeyPoint(x=P[0], y=P[1], size=1) for P in Outliers_Pts2[Vect_out]]
     ## Filter the coordinates of the homologous points of Outliers from the set of points
     Outliers_match = [cv2.DMatch(_imgIdx=0, _queryIdx=i, _trainIdx=i,_distance=0) for i in range(len(OutkeyPoint2))]
 
