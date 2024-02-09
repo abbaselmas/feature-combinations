@@ -2,6 +2,7 @@ There are five different changes in imaging conditions:
  viewpoint changes,
 scale changes, image blur,
 JPEG compression, and illumination.
+
 In the cases of viewpoint change, scale change and blur, the
 same change in imaging conditions is applied to two different
 scene types. This means that the effect of changing the image conditions
