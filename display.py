@@ -18,7 +18,8 @@ DetectorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'aga
 DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
 line_styles = ['solid', 'dash', 'dot']  # Add more styles as needed
 
-Norm = ['L1', 'L2', 'L2SQR', 'HAM']
+#Norm = ['L1', 'L2', 'L2SQR', 'HAM']
+Norm = ['L2', 'HAM']
 
 fig = make_subplots(rows=2, cols=2, subplot_titles=['Scn. #1', 'Scn. #2', 'Scn. #3', 'Scn. #4'], shared_xaxes=False, shared_yaxes=False)
 
