@@ -1,7 +1,7 @@
 import cv2 # opencv
 import numpy as np # For numerical calculations
 
-basedir = './'
+basedir = './oxfordAffine'
 folder = '/graf'
 picture = '/img1.jpg'
 data = basedir + folder + picture
