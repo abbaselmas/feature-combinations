@@ -9,15 +9,15 @@ nbre_img = len(val_b) + len(val_c)
 scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈ [0.5 : 0.2 : 1.5]
 rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+maindir = os.path.abspath(os.path.dirname(__file__))
 # Rate_intensity = np.load(basedir + '/arrays/Rate_intensity.npy')
 # Rate_scale = np.load(basedir + '/arrays/Rate_scale.npy')
 # Rate_rot = np.load(basedir + '/arrays/Rate_rot.npy')
 
-Rate_graf  = np.load(basedir + '/arrays/Rate_graf.npy')
-Rate_wall  = np.load(basedir + '/arrays/Rate_wall.npy')
-Rate_trees = np.load(basedir + '/arrays/Rate_trees.npy')
-Rate_bikes = np.load(basedir + '/arrays/Rate_bikes.npy')
+Rate_graf  = np.load(maindir + '/arrays/Rate_graf.npy')
+Rate_wall  = np.load(maindir + '/arrays/Rate_wall.npy')
+Rate_trees = np.load(maindir + '/arrays/Rate_trees.npy')
+Rate_bikes = np.load(maindir + '/arrays/Rate_bikes.npy')
 
 DetectorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'agast', 'gftt', 'star', 'hl', 'msd', 'tbmr']
 DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']

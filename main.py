@@ -360,7 +360,7 @@ for g in range(len(img)):
                     Rate_graf[g, c3, i, j] = None
 # export numpy arrays
 np.save(maindir + "/arrays/Rate_graf.npy", Rate_graf)
-np.save(maindir + "/arrays/Execution_times.npy", Exec_time_graf)
+np.save(maindir + "/arrays/Exec_time_graf.npy", Exec_time_graf)
 ##########################################################
 
 ################ Scenario 5: wall ############################
