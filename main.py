@@ -210,7 +210,7 @@ hl    = cv2.xfeatures2d.HarrisLaplaceFeatureDetector_create(numOctaves=6, corn_t
 msd   = cv2.xfeatures2d.MSDDetector_create(m_patch_radius=3, m_search_area_radius=5, m_nms_radius=5, m_nms_scale_radius=0, m_th_saliency=250.0, m_kNN=4, m_scale_factor=1.25, m_n_scales=-1, m_compute_orientation=0)
 tbmr  = cv2.xfeatures2d.TBMR_create(min_area=60, max_area_relative=0.01, scale_factor=1.25, n_scales=-1)
 ### descriptors 9
-vgg   = cv2.xfeatures2d.VGG_create(cv2.VGG.VGG_64 ,isigma=1.4, img_normalize=True, use_scale_orientation=False, scale_factor=6.25, dsc_normalize=False)
+vgg   = cv2.xfeatures2d.VGG_create(desc=cv2.VGG_64 ,isigma=1.4, img_normalize=True, use_scale_orientation=False, scale_factor=6.25, dsc_normalize=False)
 daisy = cv2.xfeatures2d.DAISY_create(radius=15.0, q_radius=3, q_theta=8, q_hist=8, norm=cv2.xfeatures2d.DAISY_NRM_NONE, interpolation=True, use_orientation=False)
 freak = cv2.xfeatures2d.FREAK_create(orientationNormalized=False,scaleNormalized=False,patternScale=22.0,nOctaves=4)
 brief = cv2.xfeatures2d.BriefDescriptorExtractor_create(bytes=32, use_orientation=False)
