@@ -190,7 +190,7 @@ def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, match_method, rot, rot_matrix):
 ## Evaluation of scenario 4: graf: Function that takes as input the keypoints, the descriptors (of 2 images),
 #                            the type of matching, it returns the percentage of correct matched points
 def evaluate_scenario_4(KP1, KP2, Dspt1, Dspt2, match_method):
-    bf = cv2.BFMatcher(normType=match_method, crossCheck=True)
+    bf = cv2.BFMatcher(normType=match_method, crossCheck=False)
     matches = bf.knnMatch(Dspt1,Dspt2,k=2)
     good = []
     for m,n in matches:
