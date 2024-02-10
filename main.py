@@ -333,6 +333,7 @@ for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
             keypoints6 = method_dtect.detect(img6, None)
             print("Detector ", i, " is calculated for all images")
             for j in range(len(Descriptors)):
+                print("For loop continue with j=", j)
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img1, keypoints1)[1]
@@ -343,19 +344,14 @@ for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
                     descriptors6 = method_dscrpt.compute(img6, keypoints6)[1]
                     print("Descriptor ", j, " is calculated for all images")
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    print("Scenario 4 graf:", g, "Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints3, descriptors1, descriptors3, matching[c3])
-                    print("Scenario 4 graf:", g, "Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints4, descriptors1, descriptors4, matching[c3])
-                    print("Scenario 4 graf:", g, "Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints5, descriptors1, descriptors5, matching[c3])
-                    print("Scenario 4 graf:", g, "Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints6, descriptors1, descriptors6, matching[c3])
                     print("Scenario 4 graf:", g, "Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                 except Exception as e:
                     print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
                     Rate_graf[g, c3, i, j] = None
-                    print("Rate_graf[g, c3, i, j] = None çalıştı")
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_graf.npy', Rate_graf)
 ##########################################################
