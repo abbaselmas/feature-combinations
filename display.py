@@ -69,10 +69,10 @@ fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf', 'Wall', 'Trees', 'B
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         for c3 in range(len(Norm)):
-            Rate_G = Rate_graf[:,  c3, i, j]
-            Rate_W = Rate_wall[:,  c3, i, j]
-            Rate_T = Rate_trees[:, c3, i, j]
-            Rate_B = Rate_bikes[:, c3, i, j]
+            Rate_G = Rate_graf[1:,  c3, i, j]
+            Rate_W = Rate_wall[1:,  c3, i, j]
+            Rate_T = Rate_trees[1:, c3, i, j]
+            Rate_B = Rate_bikes[1:, c3, i, j]
 
             color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
