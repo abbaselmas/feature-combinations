@@ -96,96 +96,24 @@ def get_cam_rot(Img, r):
     return rotation_mat, couple_I_Ir  # it also returns the rotation matrix for further use in the rotation evaluation function
 # ................................................................................
 
-## Evaluation of scenario 1: Intensity change: Function that takes as input the keypoints, the descriptors (of 2 images),
-#                            the type of matching, it returns the percentage of correct matched points
-def evaluate_scenario_1(KP1, KP2, Dspt1, Dspt2, match_method):
-    bf = cv2.BFMatcher(normType=match_method, crossCheck=True)
-    matches = bf.match(Dspt1,Dspt2)
-    matches = sorted(matches, key = lambda x:x.distance)
-    Prob_P = 0
-    Prob_N = 1
-    # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points
-    for i in range(len(matches)):
-        m1 = matches[i].queryIdx
-        m2 = matches[i].trainIdx
-        if m1 >= len(KP1) or m2 >= len(KP2):
-            continue
-        # the coordinates (x,y) of the points detected in the image 1
-        X1 = int(KP1[m1].pt[0])
-        Y1 = int(KP1[m1].pt[1])
-        # the coordinates (x,y) of the points detected in the image 2
-        X2 = int(KP2[m2].pt[0])
-        Y2 = int(KP2[m2].pt[1])
-        # comparison between these coordinates (x,y)
-        if (abs(X1 - X2) <=5) and (abs(Y1 - Y2) <=5):   #  Tolerance allowance (∼ 1-2 pixels)
-            Prob_P += 1
+def evaluate_with_descriptor_distance(KP1, KP2, Dspt1, Dspt2, norm_type, max_distance_factor=1.0):
+    valid_match_count = 0
+    bf = cv2.BFMatcher(norm_type, crossCheck=False)
+    matches = bf.match(Dspt1, Dspt2)
+    matches = sorted(matches, key=lambda x: x.distance)
+    # Determine the appropriate maximum distance threshold based on the norm type
+    if norm_type == cv2.NORM_HAMMING:
+        max_distance = max_distance_factor * len(Dspt1[0])  # Number of bits in the descriptor
+    else:  # Assuming NORM_L2
+        max_distance = max_distance_factor * 100  # Adjust as needed based on descriptor space
+    # Iterate over matches until the distance exceeds the maximum allowed distance
+    for match in matches:
+        if match.distance <= max_distance:
+            valid_match_count += 1
         else:
-            Prob_N += 1
-    # Calculation of the rate (%) of correctly matched homologous points
-    Prob_True = (Prob_P / (Prob_P + Prob_N))*100
-    return Prob_True
-# ................................................................................
-
-## Evaluation of scenario 2: Scale change: Function that takes as input the keypoints, the descriptors (of 2 images),
-#                            the type of matching and the scale, it returns the percentage of correct matched points
-def evaluate_scenario_2(KP1, KP2, Dspt1, Dspt2, match_method,scale):
-    bf = cv2.BFMatcher(normType=match_method, crossCheck=True)
-    matches = bf.match(Dspt1,Dspt2)
-    matches = sorted(matches, key = lambda x:x.distance)
-    Prob_P = 0
-    Prob_N = 1
-    # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points
-    for i in range(len(matches)):
-        m1 = matches[i].queryIdx
-        m2 = matches[i].trainIdx
-        if m1 >= len(KP1) or m2 >= len(KP2):
-            continue
-        # the coordinates (x,y) of the points detected in the image 1
-        X1 = int(KP1[m1].pt[0])
-        Y1 = int(KP1[m1].pt[1])
-        # the coordinates (x,y) of the points detected in the image 2
-        X2 = int(KP2[m2].pt[0])
-        Y2 = int(KP2[m2].pt[1])
-        if (abs(X1*scale - X2) <=5) and (abs(Y1*scale - Y2) <=5):   #  Tolerance allowance 5 pixels
-            Prob_P += 1
-        else:
-            Prob_N += 1
-    # Calculation of the rate (%) of correctly matched homologous points
-    Prob_True = (Prob_P / (Prob_P + Prob_N))*100
-    return Prob_True
-# ................................................................................
-
-## Evaluation of scenario 3: Rotation change: Function that takes as input the keypoints, the descriptors (of 2 images),
-#                            the type of matching, the rotation angle and the rotation matrix, it returns the percentage of correct matched points
-def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, match_method, rot, rot_matrix):
-    bf = cv2.BFMatcher(normType=match_method, crossCheck=True)
-    matches = bf.match(Dspt1,Dspt2)
-    matches = sorted(matches, key = lambda x:x.distance)
-    Prob_P = 0
-    Prob_N = 1
-    theta = rot*(np.pi/180) # transformation of the degree of rotation into radian
-    # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points
-    for i in range(len(matches)):
-        m1 = matches[i].queryIdx
-        m2 = matches[i].trainIdx
-        if m1 >= len(KP1) or m2 >= len(KP2):
-            continue
-        # the coordinates (x,y) of the points detected in the image 1
-        X1 = int(KP1[m1].pt[0])
-        Y1 = int(KP1[m1].pt[1])
-        # the coordinates (x,y) of the points detected in the image 2
-        X2 = int(KP2[m2].pt[0])
-        Y2 = int(KP2[m2].pt[1])
-        X12 = X1*np.cos(theta) + Y1*np.sin(theta) + rot_matrix[0,2]
-        Y12 = -X1*np.sin(theta) + Y1*np.cos(theta) + rot_matrix[1,2]
-        if (abs(X12 - X2) <=5) and (abs(Y12 - Y2) <=5):   #  Tolerance allowance 5 pixels
-            Prob_P += 1
-        else:
-            Prob_N += 1
-    # Calculation of the rate (%) of correctly matched homologous points
-    Prob_True = (Prob_P / (Prob_P + Prob_N))*100
-    return Prob_True
-# ................................................................................
+            break  # No need to continue evaluating matches if distance exceeds the threshold
+    match_rate = valid_match_count / max(len(KP1), len(KP2)) * 100
+    return match_rate
 
 ## Evaluation of scenario 4: graf: Function that takes as input the keypoints, the descriptors (of 2 images),
 #                            the type of matching, it returns the percentage of correct matched points
@@ -231,127 +159,127 @@ Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, 
 #matching       = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_L2SQR, cv2.NORM_HAMMING]) # 4 matching methods
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 
-# ################ Scenario 1 (Intensity) ################
-# print("Scenario 1 Intensity")
-# val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
-# val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
-# nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> number of test images
+################ Scenario 1 (Intensity) ################
+print("Scenario 1 Intensity")
+val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
+val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
+nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> number of test images
 
-# Rate_intensity      = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors)))
-# Exec_time_intensity = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
-# img, List8Img = get_intensity_8Img(Image, val_b, val_c) # use the intensity change images (I+b and I*c)
-# for k in range(nbre_img):
-#     img2 = List8Img[k]
-#     for c3 in range(len(matching)): # for bf.L2 mapping
+Rate_intensity      = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors)))
+Exec_time_intensity = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
+img, List8Img = get_intensity_8Img(Image, val_b, val_c) # use the intensity change images (I+b and I*c)
+for k in range(nbre_img):
+    img2 = List8Img[k]
+    for c3 in range(len(matching)): # for bf.L2 mapping
+        for i in range(len(Detectors)):
+            method_dtect = Detectors[i]
+            keypoints1 = method_dtect.detect(img, None)
+            start_time = time.time()
+            keypoints2 = method_dtect.detect(img2, None)
+            end_time = time.time()
+            for j in range(len(Descriptors)):
+                Exec_time_intensity[k, c3, i, j, 0] = end_time - start_time
+                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_intensity[k, c3, i, j, 0])
+                method_dscrpt = Descriptors[j]
+                try:
+                    descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
+                    start_time = time.time()
+                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
+                    end_time = time.time()
+                    Exec_time_intensity[k, c3, i, j, 1] = end_time - start_time
+                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_intensity[k, c3, i, j, 1])
+                    start_time = time.time()
+                    Rate_intensity[k, c3, i, j] = evaluate_with_descriptor_distance(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                    end_time = time.time()
+                    Exec_time_intensity[k, c3, i, j, 2] = end_time - start_time
+                    mylogs.info("Scenario 1 Intensity %s | Detector %s Descriptor %s Matching %s is calculated within %f", k, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_intensity[k, c3, i, j, 2])
+                except Exception as e:
+                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
+                    Rate_intensity[k, c3, i, j] = None
+# export numpy arrays
+np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
+np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
+##########################################################
+
+# ################ Scenario 2: Scale ################
+# print("Scenario 2 Scale")
+# scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈]1.1 : 0.2 : 2.3]
+
+# Rate_scale      = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
+# Exec_time_scale = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
+
+# for s in range(len(scale)): # for the 7 scale images
+#     img = get_cam_scale(Image, scale[s])#[0] # image I
+#     for c3 in range(len(matching)): 
 #         for i in range(len(Detectors)):
 #             method_dtect = Detectors[i]
-#             keypoints1 = method_dtect.detect(img, None)
+#             keypoints1 = method_dtect.detect(img[0], None)
 #             start_time = time.time()
-#             keypoints2 = method_dtect.detect(img2, None)
+#             keypoints2 = method_dtect.detect(img[1], None)
 #             end_time = time.time()
 #             for j in range(len(Descriptors)):
-#                 Exec_time_intensity[k, c3, i, j, 0] = end_time - start_time
-#                 mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_intensity[k, c3, i, j, 0])
+#                 Exec_time_scale[s, c3, i, j, 0] = end_time - start_time
+#                 mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_scale[s, c3, i, j, 0])
 #                 method_dscrpt = Descriptors[j]
 #                 try:
-#                     descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
+#                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
 #                     start_time = time.time()
-#                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
+#                     descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
 #                     end_time = time.time()
-#                     Exec_time_intensity[k, c3, i, j, 1] = end_time - start_time
-#                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_intensity[k, c3, i, j, 1])
+#                     Exec_time_scale[s, c3, i, j, 1] = end_time - start_time
+#                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_scale[s, c3, i, j, 1])
 #                     start_time = time.time()
-#                     Rate_intensity[k, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+#                     Rate_scale[s, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
 #                     end_time = time.time()
-#                     Exec_time_intensity[k, c3, i, j, 2] = end_time - start_time
-#                     mylogs.info("Scenario 1 Intensity %s | Detector %s Descriptor %s Matching %s is calculated within %f", k, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_intensity[k, c3, i, j, 2])
+#                     Exec_time_scale[s, c3, i, j, 2] = end_time - start_time
+#                     mylogs.info("Scenario 2 Scale %s | Detector %s Descriptor %s Matching %s is calculated within %f", s, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_scale[s, c3, i, j, 2])
 #                 except Exception as e:
 #                     mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
-#                     Rate_intensity[k, c3, i, j] = None
+#                     Rate_scale[s, c3, i, j] = None
 # # export numpy arrays
-# np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
-# np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
+# np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
+# np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
 # ##########################################################
 
-################ Scenario 2: Scale ################
-print("Scenario 2 Scale")
-scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈]1.1 : 0.2 : 2.3]
+# ################ Scenario 3: Rotation ################
+# print("Scenario 3 Rotation")
+# rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
-Rate_scale      = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
-Exec_time_scale = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
+# Rate_rot       = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors)))
+# Exec_time_rot  = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
 
-for s in range(len(scale)): # for the 7 scale images
-    img = get_cam_scale(Image, scale[s])#[0] # image I
-    for c3 in range(len(matching)): 
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]
-            keypoints1 = method_dtect.detect(img[0], None)
-            start_time = time.time()
-            keypoints2 = method_dtect.detect(img[1], None)
-            end_time = time.time()
-            for j in range(len(Descriptors)):
-                Exec_time_scale[s, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_scale[s, c3, i, j, 0])
-                method_dscrpt = Descriptors[j]
-                try:
-                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                    start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                    end_time = time.time()
-                    Exec_time_scale[s, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_scale[s, c3, i, j, 1])
-                    start_time = time.time()
-                    Rate_scale[s, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
-                    end_time = time.time()
-                    Exec_time_scale[s, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 2 Scale %s | Detector %s Descriptor %s Matching %s is calculated within %f", s, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_scale[s, c3, i, j, 2])
-                except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
-                    Rate_scale[s, c3, i, j] = None
-# export numpy arrays
-np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
-np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
-##########################################################
-
-################ Scenario 3: Rotation ################
-print("Scenario 3 Rotation")
-rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
-
-Rate_rot       = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors)))
-Exec_time_rot  = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
-
-for r in range(len(rot)):
-    rot_matrix, img = get_cam_rot(Image, rot[r])
-    for c3 in range(len(matching)): # for bf.L1 and bf.L2 mapping
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]
-            keypoints1 = method_dtect.detect(img[0], None)
-            start_time = time.time()
-            keypoints2 = method_dtect.detect(img[1], None)
-            end_time = time.time()
-            for j in range(len(Descriptors)):
-                Exec_time_rot[r, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_rot[r, c3, i, j, 0])
-                method_dscrpt = Descriptors[j]
-                try:
-                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                    start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                    end_time = time.time()
-                    Exec_time_rot[r, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_rot[r, c3, i, j, 1])
-                    start_time = time.time()
-                    Rate_rot[r, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
-                    end_time = time.time()
-                    Exec_time_rot[r, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 3 Rotation %s | Detector %s Descriptor %s Matching %s is calculated within %f", r, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_rot[r, c3, i, j, 2])
-                except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
-                    Rate_rot[r, c3, i, j] = None
-# export numpy arrays
-np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
-np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
-##########################################################
+# for r in range(len(rot)):
+#     rot_matrix, img = get_cam_rot(Image, rot[r])
+#     for c3 in range(len(matching)): # for bf.L1 and bf.L2 mapping
+#         for i in range(len(Detectors)):
+#             method_dtect = Detectors[i]
+#             keypoints1 = method_dtect.detect(img[0], None)
+#             start_time = time.time()
+#             keypoints2 = method_dtect.detect(img[1], None)
+#             end_time = time.time()
+#             for j in range(len(Descriptors)):
+#                 Exec_time_rot[r, c3, i, j, 0] = end_time - start_time
+#                 mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_rot[r, c3, i, j, 0])
+#                 method_dscrpt = Descriptors[j]
+#                 try:
+#                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+#                     start_time = time.time()
+#                     descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
+#                     end_time = time.time()
+#                     Exec_time_rot[r, c3, i, j, 1] = end_time - start_time
+#                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_rot[r, c3, i, j, 1])
+#                     start_time = time.time()
+#                     Rate_rot[r, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+#                     end_time = time.time()
+#                     Exec_time_rot[r, c3, i, j, 2] = end_time - start_time
+#                     mylogs.info("Scenario 3 Rotation %s | Detector %s Descriptor %s Matching %s is calculated within %f", r, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_rot[r, c3, i, j, 2])
+#                 except Exception as e:
+#                     mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
+#                     Rate_rot[r, c3, i, j] = None
+# # export numpy arrays
+# np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
+# np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
+# ##########################################################
 
 # ################ Scenario 4: graf ############################
 # print("Scenario 4 graf")
