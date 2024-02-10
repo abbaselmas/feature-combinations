@@ -78,20 +78,20 @@ for i in range(len(DetectorsLegend)):
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
 
             legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
-            trace_G = go.Scatter(x=[2, 3, 4, 5, 6], y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}', legendgroup=legend_group, showlegend= True)
-            trace_W = go.Scatter(x=[2, 3, 4, 5, 6], y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-            trace_T = go.Scatter(x=[2, 3, 4, 5, 6], y=Rate_T, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-            trace_B = go.Scatter(x=[2, 3, 4, 5, 6], y=Rate_B, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            trace_G = go.Scatter(y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}', legendgroup=legend_group, showlegend= True)
+            trace_W = go.Scatter(y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            trace_T = go.Scatter(y=Rate_T, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            trace_B = go.Scatter(y=Rate_B, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
 
             fig2.add_trace(trace_G, row=1, col=1)
             fig2.add_trace(trace_W, row=1, col=2)
             fig2.add_trace(trace_T, row=2, col=1)
             fig2.add_trace(trace_B, row=2, col=2)
 
-fig2.update_layout(  xaxis = dict(tickmode = 'array', tickvals = [2, 3, 4, 5, 6]),
-                    xaxis2 = dict(tickmode = 'array', tickvals = [2, 3, 4, 5, 6]),
-                    xaxis3 = dict(tickmode = 'array', tickvals = [2, 3, 4, 5, 6]),
-                    xaxis4 = dict(tickmode = 'array', tickvals = [2, 3, 4, 5, 6]))
+fig2.update_layout(  xaxis = dict(tickmode = 'array'),
+                    xaxis2 = dict(tickmode = 'array'),
+                    xaxis3 = dict(tickmode = 'array'),
+                    xaxis4 = dict(tickmode = 'array'))
 
 fig2.update_xaxes(title_text="Graf",  row=1, col=1)
 fig2.update_xaxes(title_text="Wall",  row=1, col=2)
