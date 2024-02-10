@@ -266,6 +266,7 @@ for k in range(nbre_img):
                     Exec_time_intensity[k, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 1 Intensity %s | Detector %s Descriptor %s Matching %s is calculated within %f", k, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_intensity[k, c3, i, j, 2])
                 except Exception as e:
+                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_intensity[k, c3, i, j] = None
 # export numpy arrays
 np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
