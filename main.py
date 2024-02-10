@@ -1,9 +1,13 @@
 import cv2 # opencv
 import numpy as np # For numerical calculations
+import logging # For logging
+import time
 
-basedir = './oxfordAffine'
-folder = '/graf'
-picture = '/img1.jpg'
+logging.basicConfig(filename="log.txt", filemode="a", format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s", datefmt="%H:%M:%S", level=logging.DEBUG)
+
+basedir = "./oxfordAffine"
+folder = "/graf"
+picture = "/img1.jpg"
 data = basedir + folder + picture
 
 Image = cv2.imread(data)
@@ -214,7 +218,7 @@ vgg   = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=True, use
 daisy = cv2.xfeatures2d.DAISY_create(radius=15.0, q_radius=3, q_theta=8, q_hist=8, norm=cv2.xfeatures2d.DAISY_NRM_NONE, interpolation=True, use_orientation=False)
 freak = cv2.xfeatures2d.FREAK_create(orientationNormalized=False,scaleNormalized=False,patternScale=22.0,nOctaves=4)
 brief = cv2.xfeatures2d.BriefDescriptorExtractor_create(bytes=32, use_orientation=False)
-lucid = cv2.xfeatures2d.LUCID_create(lucid_kernel=5,blur_kernel=0)
+lucid = cv2.xfeatures2d.LUCID_create(lucid_kernel=1,blur_kernel=2)
 latch = cv2.xfeatures2d.LATCH_create(bytes=32,rotationInvariance=False,half_ssd_size=3,sigma=2.0)
 beblid= cv2.xfeatures2d.BEBLID_create(scale_factor=6.25, n_bits=100)
 teblid= cv2.xfeatures2d.TEBLID_create(scale_factor=6.25, n_bits=103)
@@ -253,7 +257,7 @@ matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 #                     print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
 #                     Rate_intensity[k, c3, i, j] = None
 # # export numpy arrays
-# np.save(basedir + 'arrays/Rate_intensity.npy', Rate_intensity)
+# np.save(basedir + "arrays/Rate_intensity.npy", Rate_intensity)
 # ##########################################################
 
 # ################ Scenario 2: Scale ################
@@ -279,7 +283,7 @@ matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 #                     print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
 #                     Rate_scale[s, c3, i, j] = None
 # # export numpy arrays
-# np.save(basedir + 'arrays/Rate_scale.npy', Rate_scale)
+# np.save(basedir + "arrays/Rate_scale.npy", Rate_scale)
 # ##########################################################
 
 # ################ Scenario 3: Rotation ################
@@ -305,190 +309,193 @@ matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 #                     print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
 #                     Rate_rot[r, c3, i, j] = None
 # # export numpy arrays
-# np.save(basedir + 'arrays/Rate_rot.npy', Rate_rot)
+# np.save(basedir + "arrays/Rate_rot.npy", Rate_rot)
 # ##########################################################
 
 ################ Scenario 4: graf ############################
 print("Scenario 4 graf")
 # Read the images
-folder = '/graf'
-img1 = cv2.imread(basedir + folder + '/img1.jpg')
-img2 = cv2.imread(basedir + folder + '/img2.jpg')
-img3 = cv2.imread(basedir + folder + '/img3.jpg')
-img4 = cv2.imread(basedir + folder + '/img4.jpg')
-img5 = cv2.imread(basedir + folder + '/img5.jpg')
-img6 = cv2.imread(basedir + folder + '/img6.jpg')
+folder = "/graf"
+img1 = cv2.imread(basedir + folder + "/img1.jpg")
+img2 = cv2.imread(basedir + folder + "/img2.jpg")
+img3 = cv2.imread(basedir + folder + "/img3.jpg")
+img4 = cv2.imread(basedir + folder + "/img4.jpg")
+img5 = cv2.imread(basedir + folder + "/img5.jpg")
+img6 = cv2.imread(basedir + folder + "/img6.jpg")
 
 # Detect the keypoints and compute the descriptors with the different detectors and descriptors
 Rate_graf = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
+Execution_times = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario
+
 for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
     for c3 in range(len(matching)): # for bf.L1 and bf.L2 mapping
         for i in range(len(Detectors)):
             method_dtect = Detectors[i]
+            start_time = time.time()
             keypoints1 = method_dtect.detect(img1, None)
             keypoints2 = method_dtect.detect(img2, None)
             keypoints3 = method_dtect.detect(img3, None)
             keypoints4 = method_dtect.detect(img4, None)
             keypoints5 = method_dtect.detect(img5, None)
             keypoints6 = method_dtect.detect(img6, None)
-            print("Detector ", i, " is calculated for all images")
+            Execution_times[g, c3, i, 0, 0] = time.time() - start_time
+            logging.debug("Detector ", method_dtect, " is calculated for all images within ", Execution_times[g, c3, i, 0, 0], " seconds.")
             for j in range(len(Descriptors)):
-                print("For loop continue with j=", j)
                 method_dscrpt = Descriptors[j]
-                print("Descriptor ", method_dscrpt)
+                logging.debug("Descriptor ", method_dscrpt)
                 try:
-                    print("Try is executed")
+                    start_time = time.time()
                     descriptors1 = method_dscrpt.compute(img1, keypoints1)[1]
                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
                     descriptors3 = method_dscrpt.compute(img3, keypoints3)[1]
                     descriptors4 = method_dscrpt.compute(img4, keypoints4)[1]
                     descriptors5 = method_dscrpt.compute(img5, keypoints5)[1]
                     descriptors6 = method_dscrpt.compute(img6, keypoints6)[1]
-                    print("Descriptor ", j, " is calculated for all images")
+                    Execution_times[g, c3, i, j, 1] = time.time() - start_time
+                    logging.debug("Descriptor ", method_dscrpt, " is calculated for all images within ", Execution_times[g, c3, i, j, 1], " seconds.")
+                    start_time = time.time()
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints3, descriptors1, descriptors3, matching[c3])
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints4, descriptors1, descriptors4, matching[c3])
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints5, descriptors1, descriptors5, matching[c3])
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints6, descriptors1, descriptors6, matching[c3])
-                    print("Scenario 4 graf:", g, "Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
+                    Execution_times[g, c3, i, j, 2] = time.time() - start_time
+                    logging.debug("Scenario 4 graf:", g, "Detector ", method_dtect, " Descriptor ", method_dscrpt, " Matching ", matching[c3], " is calculated within ", Execution_times[g, c3, i, j, 2], " seconds.")
                 except Exception as e:
-                    print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
+                    logging.warn("Combination of detector", method_dtect, ", descriptor ", method_dscrpt, " and matching", matching[c3], "is not possible.")
                     Rate_graf[g, c3, i, j] = None
+                    Execution_times[g, c3, i, j, 1] = None
+                    Execution_times[g, c3, i, j, 2] = None
 # export numpy arrays
-np.save(basedir + 'arrays/Rate_graf.npy', Rate_graf)
+np.save(basedir + "arrays/Rate_graf.npy", Rate_graf)
+np.save(basedir + "arrays/Execution_times.npy", Execution_times)
 ##########################################################
 
-################ Scenario 5: wall ############################
-print("Scenario 5 wall")
-# Read the images
-folder = '/wall'
-img1 = cv2.imread(basedir + folder + '/img1.jpg')
-img2 = cv2.imread(basedir + folder + '/img2.jpg')
-img3 = cv2.imread(basedir + folder + '/img3.jpg')
-img4 = cv2.imread(basedir + folder + '/img4.jpg')
-img5 = cv2.imread(basedir + folder + '/img5.jpg')
-img6 = cv2.imread(basedir + folder + '/img6.jpg')
+# ################ Scenario 5: wall ############################
+# print("Scenario 5 wall")
+# # Read the images
+# folder = "/wall"
+# img1 = cv2.imread(basedir + folder + "/img1.jpg")
+# img2 = cv2.imread(basedir + folder + "/img2.jpg")
+# img3 = cv2.imread(basedir + folder + "/img3.jpg")
+# img4 = cv2.imread(basedir + folder + "/img4.jpg")
+# img5 = cv2.imread(basedir + folder + "/img5.jpg")
+# img6 = cv2.imread(basedir + folder + "/img6.jpg")
 
-# Detect the keypoints and compute the descriptors with the different detectors and descriptors
-Rate_wall = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
-for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
-    for c3 in range(len(matching)): # for bf.L1 and bf.L2 mapping
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]
-            keypoints1 = method_dtect.detect(img1, None)
-            keypoints2 = method_dtect.detect(img2, None)
-            keypoints3 = method_dtect.detect(img3, None)
-            keypoints4 = method_dtect.detect(img4, None)
-            keypoints5 = method_dtect.detect(img5, None)
-            keypoints6 = method_dtect.detect(img6, None)
-            for j in range(len(Descriptors)):
-                method_dscrpt = Descriptors[j]
-                try:
-                    descriptors1 = method_dscrpt.compute(img1, keypoints1)[1]
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptors3 = method_dscrpt.compute(img3, keypoints3)[1]
-                    descriptors4 = method_dscrpt.compute(img4, keypoints4)[1]
-                    descriptors5 = method_dscrpt.compute(img5, keypoints5)[1]
-                    descriptors6 = method_dscrpt.compute(img6, keypoints6)[1]
-                    Rate_wall[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    Rate_wall[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints3, descriptors1, descriptors3, matching[c3])
-                    Rate_wall[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints4, descriptors1, descriptors4, matching[c3])
-                    Rate_wall[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints5, descriptors1, descriptors5, matching[c3])
-                    Rate_wall[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints6, descriptors1, descriptors6, matching[c3])
-                    print("Scenario 5 wall: Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
-                except Exception as e:
-                    print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
-                    Rate_wall[g, c3, i, j] = None
-# export numpy arrays
-np.save(basedir + 'arrays/Rate_wall.npy', Rate_wall)
-##########################################################
+# # Detect the keypoints and compute the descriptors with the different detectors and descriptors
+# Rate_wall = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
+# for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
+#     for c3 in range(len(matching)): # for bf.L1 and bf.L2 mapping
+#         for i in range(len(Detectors)):
+#             method_dtect = Detectors[i]
+#             keypoints1 = method_dtect.detect(img1, None)
+#             keypoints2 = method_dtect.detect(img2, None)
+#             keypoints3 = method_dtect.detect(img3, None)
+#             keypoints4 = method_dtect.detect(img4, None)
+#             keypoints5 = method_dtect.detect(img5, None)
+#             keypoints6 = method_dtect.detect(img6, None)
+#             for j in range(len(Descriptors)):
+#                 method_dscrpt = Descriptors[j]
+#                 try:
+#                     descriptors1 = method_dscrpt.compute(img1, keypoints1)[1]
+#                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
+#                     descriptors3 = method_dscrpt.compute(img3, keypoints3)[1]
+#                     descriptors4 = method_dscrpt.compute(img4, keypoints4)[1]
+#                     descriptors5 = method_dscrpt.compute(img5, keypoints5)[1]
+#                     descriptors6 = method_dscrpt.compute(img6, keypoints6)[1]
+#                     Rate_wall[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+#                     Rate_wall[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints3, descriptors1, descriptors3, matching[c3])
+#                     Rate_wall[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints4, descriptors1, descriptors4, matching[c3])
+#                     Rate_wall[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints5, descriptors1, descriptors5, matching[c3])
+#                     Rate_wall[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints6, descriptors1, descriptors6, matching[c3])
+#                 except Exception as e:
+#                     Rate_wall[g, c3, i, j] = None
+# # export numpy arrays
+# np.save(basedir + "arrays/Rate_wall.npy", Rate_wall)
+# ##########################################################
 
-################ Scenario 6: trees ############################
-print("Scenario 6 trees")
-# Read the images
-folder = '/trees'
-img1 = cv2.imread(basedir + folder + '/img1.jpg')
-img2 = cv2.imread(basedir + folder + '/img2.jpg')
-img3 = cv2.imread(basedir + folder + '/img3.jpg')
-img4 = cv2.imread(basedir + folder + '/img4.jpg')
-img5 = cv2.imread(basedir + folder + '/img5.jpg')
-img6 = cv2.imread(basedir + folder + '/img6.jpg')
+# ################ Scenario 6: trees ############################
+# print("Scenario 6 trees")
+# # Read the images
+# folder = "/trees"
+# img1 = cv2.imread(basedir + folder + "/img1.jpg")
+# img2 = cv2.imread(basedir + folder + "/img2.jpg")
+# img3 = cv2.imread(basedir + folder + "/img3.jpg")
+# img4 = cv2.imread(basedir + folder + "/img4.jpg")
+# img5 = cv2.imread(basedir + folder + "/img5.jpg")
+# img6 = cv2.imread(basedir + folder + "/img6.jpg")
 
-# Detect the keypoints and compute the descriptors with the different detectors and descriptors
-Rate_trees = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
-for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
-    for c3 in range(len(matching)): # for bf.L1 and bf.L2 mapping
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]
-            keypoints1 = method_dtect.detect(img1, None)
-            keypoints2 = method_dtect.detect(img2, None)
-            keypoints3 = method_dtect.detect(img3, None)
-            keypoints4 = method_dtect.detect(img4, None)
-            keypoints5 = method_dtect.detect(img5, None)
-            keypoints6 = method_dtect.detect(img6, None)
-            for j in range(len(Descriptors)):
-                method_dscrpt = Descriptors[j]
-                try:
-                    descriptors1 = method_dscrpt.compute(img1, keypoints1)[1]
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptors3 = method_dscrpt.compute(img3, keypoints3)[1]
-                    descriptors4 = method_dscrpt.compute(img4, keypoints4)[1]
-                    descriptors5 = method_dscrpt.compute(img5, keypoints5)[1]
-                    descriptors6 = method_dscrpt.compute(img6, keypoints6)[1]
-                    Rate_trees[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    Rate_trees[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints3, descriptors1, descriptors3, matching[c3])
-                    Rate_trees[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints4, descriptors1, descriptors4, matching[c3])
-                    Rate_trees[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints5, descriptors1, descriptors5, matching[c3])
-                    Rate_trees[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints6, descriptors1, descriptors6, matching[c3])
-                    print("Scenario 6 trees: Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
-                except Exception as e:
-                    print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
-                    Rate_trees[g, c3, i, j] = None
-# export numpy arrays
-np.save(basedir + 'arrays/Rate_trees.npy', Rate_trees)
-##########################################################
+# # Detect the keypoints and compute the descriptors with the different detectors and descriptors
+# Rate_trees = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
+# for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
+#     for c3 in range(len(matching)): # for bf.L1 and bf.L2 mapping
+#         for i in range(len(Detectors)):
+#             method_dtect = Detectors[i]
+#             keypoints1 = method_dtect.detect(img1, None)
+#             keypoints2 = method_dtect.detect(img2, None)
+#             keypoints3 = method_dtect.detect(img3, None)
+#             keypoints4 = method_dtect.detect(img4, None)
+#             keypoints5 = method_dtect.detect(img5, None)
+#             keypoints6 = method_dtect.detect(img6, None)
+#             for j in range(len(Descriptors)):
+#                 method_dscrpt = Descriptors[j]
+#                 try:
+#                     descriptors1 = method_dscrpt.compute(img1, keypoints1)[1]
+#                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
+#                     descriptors3 = method_dscrpt.compute(img3, keypoints3)[1]
+#                     descriptors4 = method_dscrpt.compute(img4, keypoints4)[1]
+#                     descriptors5 = method_dscrpt.compute(img5, keypoints5)[1]
+#                     descriptors6 = method_dscrpt.compute(img6, keypoints6)[1]
+#                     Rate_trees[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+#                     Rate_trees[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints3, descriptors1, descriptors3, matching[c3])
+#                     Rate_trees[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints4, descriptors1, descriptors4, matching[c3])
+#                     Rate_trees[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints5, descriptors1, descriptors5, matching[c3])
+#                     Rate_trees[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints6, descriptors1, descriptors6, matching[c3])
+#                 except Exception as e:
+#                     Rate_trees[g, c3, i, j] = None
+# # export numpy arrays
+# np.save(basedir + "arrays/Rate_trees.npy", Rate_trees)
+# ##########################################################
 
-################ Scenario 7: bikes ############################
-print("Scenario 7 bikes")
-# Read the images
-folder = '/bikes'
-img1 = cv2.imread(basedir + folder + '/img1.jpg')
-img2 = cv2.imread(basedir + folder + '/img2.jpg')
-img3 = cv2.imread(basedir + folder + '/img3.jpg')
-img4 = cv2.imread(basedir + folder + '/img4.jpg')
-img5 = cv2.imread(basedir + folder + '/img5.jpg')
-img6 = cv2.imread(basedir + folder + '/img6.jpg')
+# ################ Scenario 7: bikes ############################
+# print("Scenario 7 bikes")
+# # Read the images
+# folder = "/bikes"
+# img1 = cv2.imread(basedir + folder + "/img1.jpg")
+# img2 = cv2.imread(basedir + folder + "/img2.jpg")
+# img3 = cv2.imread(basedir + folder + "/img3.jpg")
+# img4 = cv2.imread(basedir + folder + "/img4.jpg")
+# img5 = cv2.imread(basedir + folder + "/img5.jpg")
+# img6 = cv2.imread(basedir + folder + "/img6.jpg")
 
-# Detect the keypoints and compute the descriptors with the different detectors and descriptors
-Rate_bikes = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
-for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
-    for c3 in range(len(matching)): # for bf.L1 and bf.L2 mapping
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]
-            keypoints1 = method_dtect.detect(img1, None)
-            keypoints2 = method_dtect.detect(img2, None)
-            keypoints3 = method_dtect.detect(img3, None)
-            keypoints4 = method_dtect.detect(img4, None)
-            keypoints5 = method_dtect.detect(img5, None)
-            keypoints6 = method_dtect.detect(img6, None)
-            for j in range(len(Descriptors)):
-                method_dscrpt = Descriptors[j]
-                try:
-                    descriptors1 = method_dscrpt.compute(img1, keypoints1)[1]
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptors3 = method_dscrpt.compute(img3, keypoints3)[1]
-                    descriptors4 = method_dscrpt.compute(img4, keypoints4)[1]
-                    descriptors5 = method_dscrpt.compute(img5, keypoints5)[1]
-                    descriptors6 = method_dscrpt.compute(img6, keypoints6)[1]
-                    Rate_bikes[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    Rate_bikes[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints3, descriptors1, descriptors3, matching[c3])
-                    Rate_bikes[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints4, descriptors1, descriptors4, matching[c3])
-                    Rate_bikes[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints5, descriptors1, descriptors5, matching[c3])
-                    Rate_bikes[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints6, descriptors1, descriptors6, matching[c3])
-                    print("Scenario 7 bikes: Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
-                except Exception as e:
-                    print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
-                    Rate_bikes[g, c3, i, j] = None
-# export numpy arrays
-np.save(basedir + 'arrays/Rate_bikes.npy', Rate_bikes)
-##########################################################
+# # Detect the keypoints and compute the descriptors with the different detectors and descriptors
+# Rate_bikes = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
+# for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
+#     for c3 in range(len(matching)): # for bf.L1 and bf.L2 mapping
+#         for i in range(len(Detectors)):
+#             method_dtect = Detectors[i]
+#             keypoints1 = method_dtect.detect(img1, None)
+#             keypoints2 = method_dtect.detect(img2, None)
+#             keypoints3 = method_dtect.detect(img3, None)
+#             keypoints4 = method_dtect.detect(img4, None)
+#             keypoints5 = method_dtect.detect(img5, None)
+#             keypoints6 = method_dtect.detect(img6, None)
+#             for j in range(len(Descriptors)):
+#                 method_dscrpt = Descriptors[j]
+#                 try:
+#                     descriptors1 = method_dscrpt.compute(img1, keypoints1)[1]
+#                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
+#                     descriptors3 = method_dscrpt.compute(img3, keypoints3)[1]
+#                     descriptors4 = method_dscrpt.compute(img4, keypoints4)[1]
+#                     descriptors5 = method_dscrpt.compute(img5, keypoints5)[1]
+#                     descriptors6 = method_dscrpt.compute(img6, keypoints6)[1]
+#                     Rate_bikes[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+#                     Rate_bikes[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints3, descriptors1, descriptors3, matching[c3])
+#                     Rate_bikes[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints4, descriptors1, descriptors4, matching[c3])
+#                     Rate_bikes[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints5, descriptors1, descriptors5, matching[c3])
+#                     Rate_bikes[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints6, descriptors1, descriptors6, matching[c3])
+#                 except Exception as e:
+#                     Rate_bikes[g, c3, i, j] = None
+# # export numpy arrays
+# np.save(basedir + "arrays/Rate_bikes.npy", Rate_bikes)
+# ##########################################################
