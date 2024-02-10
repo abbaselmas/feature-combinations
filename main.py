@@ -339,9 +339,9 @@ for g in range(len(img)):
             start_time = time.time()
             keypoints2 = method_dtect.detect(img[g], None)
             end_time = time.time()
-            mylogs.info("Detector %s is calculated for all images", method_dtect.getDefaultName())
             for j in range(len(Descriptors)):
                 Exec_time_graf[g, c3, i, j, 0] = end_time - start_time
+                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -349,12 +349,12 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_graf[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images", method_dscrpt.getDefaultName())
+                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_graf[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 4 graf %s | Detector %s Descriptor %s Matching %s is calculated", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
+                    mylogs.info("Scenario 4 graf %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_graf[g, c3, i, j, 2])
                 except Exception as e:
                     mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_graf[g, c3, i, j] = None
@@ -379,9 +379,9 @@ for g in range(len(img)):
             start_time = time.time()
             keypoints2 = method_dtect.detect(img[g], None)
             end_time = time.time()
-            mylogs.info("Detector %s is calculated for all images", method_dtect.getDefaultName())
             for j in range(len(Descriptors)):
                 Exec_time_wall[g, c3, i, j, 0] = end_time - start_time
+                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -389,12 +389,12 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_wall[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images", method_dscrpt.getDefaultName())
+                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_wall[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_wall[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 5 wall %s | Detector %s Descriptor %s Matching %s is calculated", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
+                    mylogs.info("Scenario 5 wall %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_wall[g, c3, i, j, 2])
                 except Exception as e:
                     mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_wall[g, c3, i, j] = None
@@ -419,9 +419,9 @@ for g in range(len(img)):
             start_time = time.time()
             keypoints2 = method_dtect.detect(img[g], None)
             end_time = time.time()
-            mylogs.info("Detector %s is calculated for all images", method_dtect.getDefaultName())
             for j in range(len(Descriptors)):
                 Exec_time_trees[g, c3, i, j, 0] = end_time - start_time
+                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -429,12 +429,12 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_trees[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images", method_dscrpt.getDefaultName())
+                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_trees[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_trees[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 6 trees %s | Detector %s Descriptor %s Matching %s is calculated", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
+                    mylogs.info("Scenario 6 trees %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_trees[g, c3, i, j, 2])
                 except Exception as e:
                     mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_trees[g, c3, i, j] = None
@@ -459,9 +459,9 @@ for g in range(len(img)):
             start_time = time.time()
             keypoints2 = method_dtect.detect(img[g], None)
             end_time = time.time()
-            mylogs.info("Detector %s is calculated for all images", method_dtect.getDefaultName())
             for j in range(len(Descriptors)):
                 Exec_time_bikes[g, c3, i, j, 0] = end_time - start_time
+                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -469,12 +469,12 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_bikes[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images", method_dscrpt.getDefaultName())
+                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_bikes[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_bikes[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 7 bikes %s | Detector %s Descriptor %s Matching %s is calculated", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
+                    mylogs.info("Scenario 7 bikes %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_bikes[g, c3, i, j, 2])
                 except Exception as e:
                     mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_bikes[g, c3, i, j] = None
