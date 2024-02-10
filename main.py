@@ -331,6 +331,7 @@ for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
             keypoints4 = method_dtect.detect(img4, None)
             keypoints5 = method_dtect.detect(img5, None)
             keypoints6 = method_dtect.detect(img6, None)
+            print("Detector ", i, " is calculated for all images")
             for j in range(len(Descriptors)):
                 method_dscrpt = Descriptors[j]
                 try:
@@ -340,12 +341,17 @@ for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
                     descriptors4 = method_dscrpt.compute(img4, keypoints4)[1]
                     descriptors5 = method_dscrpt.compute(img5, keypoints5)[1]
                     descriptors6 = method_dscrpt.compute(img6, keypoints6)[1]
+                    print("Descriptor ", j, " is calculated for all images")
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                    print("Scenario 4 graf:", g, "Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints3, descriptors1, descriptors3, matching[c3])
+                    print("Scenario 4 graf:", g, "Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints4, descriptors1, descriptors4, matching[c3])
+                    print("Scenario 4 graf:", g, "Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints5, descriptors1, descriptors5, matching[c3])
+                    print("Scenario 4 graf:", g, "Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints6, descriptors1, descriptors6, matching[c3])
-                    print("Scenario 4 graf: Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
+                    print("Scenario 4 graf:", g, "Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
                 except Exception as e:
                     print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
                     Rate_graf[g, c3, i, j] = None
