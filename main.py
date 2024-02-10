@@ -35,7 +35,7 @@ def get_intensity_8Img(Img, val_b, val_c): # val_b, val_c must be 2 vectors with
         List8Img[j+4] = np.array(List8Img[j+4], dtype=np.uint8) # transform image to uint8 (min value = 0, max value = 255)
     # Save the images to disk
     for i, img in enumerate(List8Img):
-        filename = f"{datasetdir}intensity/image_{i}.png"  # You can change the format and naming convention as needed
+        filename = f"{maindir}/intensity/image_{i}.png"  # You can change the format and naming convention as needed
         cv2.imwrite(filename, img)
     return Img, List8Img
 # ................................................................................
@@ -46,7 +46,7 @@ def get_cam_scale(Img, s):
     ImgScale = cv2.resize(Img, (0, 0), fx=s, fy=s, interpolation = cv2.INTER_NEAREST) # opencv resize function with INTER_NEAREST interpolation
     I_Is = list([Img, ImgScale]) # list of 2 images (original image and scaled image)
     # Save the images to disk
-    filename = f"{datasetdir}scale/image_{s}.png"
+    filename = f"{maindir}/scale/image_{s}.png"
     cv2.imwrite(filename, ImgScale)
     return I_Is
 # ................................................................................
@@ -75,7 +75,7 @@ def get_cam_rot(Img, r):
     couple_I_Ir = [Img, rotated_image]  # list of 2 images (original image and image with rotation change)
 
     # Save the images to disk
-    filename = f"{datasetdir}rotation/image_{r}.png"  # You can change the format and naming convention as needed
+    filename = f"{maindir}/rotation/image_{r}.png"  # You can change the format and naming convention as needed
     cv2.imwrite(filename, rotated_image)
 
     return rotation_mat, couple_I_Ir  # it also returns the rotation matrix for further use in the rotation evaluation function
@@ -253,13 +253,11 @@ matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 #                 try:
 #                     descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
 #                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-#                     print("Scenario 1 Intensity: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
 #                     Rate_intensity[k, c3, i, j] = evaluate_scenario_1(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
 #                 except Exception as e:
-#                     print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
 #                     Rate_intensity[k, c3, i, j] = None
 # # export numpy arrays
-# np.save(basedir + "arrays/Rate_intensity.npy", Rate_intensity)
+# np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
 # ##########################################################
 
 # ################ Scenario 2: Scale ################
@@ -279,13 +277,11 @@ matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 #                 try:
 #                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
 #                     descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-#                     print("Scenario 2 Scale: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
 #                     Rate_scale[s, c3, i, j] = evaluate_scenario_2(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[s])
 #                 except Exception as e:
-#                     print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
 #                     Rate_scale[s, c3, i, j] = None
 # # export numpy arrays
-# np.save(basedir + "arrays/Rate_scale.npy", Rate_scale)
+# np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
 # ##########################################################
 
 # ################ Scenario 3: Rotation ################
@@ -305,16 +301,12 @@ matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 #                 try:
 #                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
 #                     descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-#                     print("Scenario 3 Rotation: image ", k, " Detector ", i, " Descriptor ", j, " Matching ", matching[c3], " is calculated")
 #                     Rate_rot[r, c3, i, j] = evaluate_scenario_3(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[r], rot_matrix)
 #                 except Exception as e:
-#                     print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
 #                     Rate_rot[r, c3, i, j] = None
 # # export numpy arrays
-# np.save(basedir + "arrays/Rate_rot.npy", Rate_rot)
+# np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
 # ##########################################################
-
-print("Maindir: ", maindir)
 
 ################ Scenario 4: graf ############################
 print("Scenario 4 graf")
@@ -329,7 +321,6 @@ img6 = cv2.imread(datasetdir + folder + "/img6.jpg")
 img = list([img1, img2, img3, img4, img5, img6])
 
 Rate_graf = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
-np.save(maindir + "./arrays/Rate_graf.npy", Rate_graf)
 
 for g in range(len(img)):
     for c3 in range(len(matching)):
@@ -337,20 +328,20 @@ for g in range(len(img)):
             method_dtect = Detectors[i]
             keypoints1 = method_dtect.detect(img[0], None)
             keypoints2 = method_dtect.detect(img[g], None)
-            logging.info(print("Detector ", method_dtect.getDefaultName(), " is calculated for all images"))
+            logging.info("Detector %s is calculated for all images", method_dtect.getDefaultName())
             for j in range(len(Descriptors)):
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-                    logging.info(print("Descriptor ", method_dscrpt.getDefaultName()," is calculated for all images"))
+                    logging.info("Descriptor %s is calculated for all images", method_dscrpt.getDefaultName())
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    logging.info(print("Scenario 4 graf:" , g , "Detector ", method_dtect.getDefaultName() , " Descriptor " , method_dscrpt.getDefaultName() , " Matching " , matching[c3] , " is calculated"))
+                    logging.info("Scenario 4 graf %s | Detector %s Descriptor %s Matching %s is calculated", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                 except Exception as e:
                     logging.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_graf[g, c3, i, j] = None
 # export numpy arrays
-np.save(maindir + "./arrays/Rate_graf.npy", Rate_graf)
+np.save(maindir + "/arrays/Rate_graf.npy", Rate_graf)
 ##########################################################
 
 ################ Scenario 5: wall ############################
@@ -372,20 +363,20 @@ for g in range(len(img)):
             method_dtect = Detectors[i]
             keypoints1 = method_dtect.detect(img[0], None)
             keypoints2 = method_dtect.detect(img[g], None)
-            logging.info(print("Detector ", method_dtect.getDefaultName(), " is calculated for all images"))
+            logging.info("Detector %s is calculated for all images", method_dtect.getDefaultName())
             for j in range(len(Descriptors)):
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-                    logging.info(print("Descriptor ", method_dscrpt.getDefaultName()," is calculated for all images"))
+                    logging.info("Descriptor %s is calculated for all images", method_dscrpt.getDefaultName())
                     Rate_wall[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    logging.info(print("Scenario 4 graf:" , g , "Detector ", method_dtect.getDefaultName() , " Descriptor " , method_dscrpt.getDefaultName() , " Matching " , matching[c3] , " is calculated"))
+                    logging.info("Scenario 5 wall %s | Detector %s Descriptor %s Matching %s is calculated", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                 except Exception as e:
                     logging.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_wall[g, c3, i, j] = None
 # export numpy arrays
-np.save(maindir + "arrays/Rate_wall.npy", Rate_wall)
+np.save(maindir + "/arrays/Rate_wall.npy", Rate_wall)
 ##########################################################
 
 ################ Scenario 6: trees ############################
@@ -407,20 +398,20 @@ for g in range(len(img)):
             method_dtect = Detectors[i]
             keypoints1 = method_dtect.detect(img[0], None)
             keypoints2 = method_dtect.detect(img[g], None)
-            logging.info(print("Detector ", method_dtect.getDefaultName(), " is calculated for all images"))
+            logging.info("Detector %s is calculated for all images", method_dtect.getDefaultName())
             for j in range(len(Descriptors)):
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-                    logging.info(print("Descriptor ", method_dscrpt.getDefaultName()," is calculated for all images"))
+                    logging.info("Descriptor %s is calculated for all images", method_dscrpt.getDefaultName())
                     Rate_trees[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    logging.info(print("Scenario 4 graf:" , g , "Detector ", method_dtect.getDefaultName() , " Descriptor " , method_dscrpt.getDefaultName() , " Matching " , matching[c3] , " is calculated"))
+                    logging.info("Scenario 6 trees %s | Detector %s Descriptor %s Matching %s is calculated", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                 except Exception as e:
                     logging.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_trees[g, c3, i, j] = None
 # export numpy arrays
-np.save(maindir + "arrays/Rate_trees.npy", Rate_trees)
+np.save(maindir + "/arrays/Rate_trees.npy", Rate_trees)
 ##########################################################
 
 ################ Scenario 7: bikes ############################
@@ -442,18 +433,18 @@ for g in range(len(img)):
             method_dtect = Detectors[i]
             keypoints1 = method_dtect.detect(img[0], None)
             keypoints2 = method_dtect.detect(img[g], None)
-            logging.info(print("Detector ", method_dtect.getDefaultName(), " is calculated for all images"))
+            logging.info("Detector %s is calculated for all images", method_dtect.getDefaultName())
             for j in range(len(Descriptors)):
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-                    logging.info(print("Descriptor ", method_dscrpt.getDefaultName()," is calculated for all images"))
+                    logging.info("Descriptor %s is calculated for all images", method_dscrpt.getDefaultName())
                     Rate_bikes[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    logging.info(print("Scenario 7 bikes :" , g , "Detector ", method_dtect.getDefaultName() , " Descriptor " , method_dscrpt.getDefaultName() , " Matching " , matching[c3] , " is calculated"))
+                    logging.info("Scenario 7 bikes %s | Detector %s Descriptor %s Matching %s is calculated", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                 except Exception as e:
                     logging.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_bikes[g, c3, i, j] = None
 # export numpy arrays
-np.save(maindir + "arrays/Rate_bikes.npy", Rate_bikes)
+np.save(maindir + "/arrays/Rate_bikes.npy", Rate_bikes)
 ##########################################################
