@@ -216,7 +216,7 @@ freak = cv2.xfeatures2d.FREAK.create()
 brief = cv2.xfeatures2d.BriefDescriptorExtractor.create()
 lucid = cv2.xfeatures2d.LUCID.create()
 latch = cv2.xfeatures2d.LATCH.create()
-beblid= cv2.xfeatures2d.BEBLID.create()
+beblid= cv2.xfeatures2d.BEBLID.create(scale_factor=6.25)
 teblid= cv2.xfeatures2d.TEBLID.create()
 boost = cv2.xfeatures2d.BoostDesc.create()
 
