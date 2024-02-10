@@ -4,7 +4,7 @@ import logging # For logging
 import time
 import os
 
-logging.basicConfig(filename="log.txt", filemode="w", level=logging.DEBUG)
+logging.basicConfig(filename="log.txt", filemode="w", level=logging.INFO)
 
 maindir = os.path.abspath(os.path.dirname(__file__))
 datasetdir = "./oxfordAffine"
