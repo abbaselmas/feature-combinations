@@ -323,49 +323,31 @@ img4 = cv2.imread(basedir + folder + "/img4.jpg")
 img5 = cv2.imread(basedir + folder + "/img5.jpg")
 img6 = cv2.imread(basedir + folder + "/img6.jpg")
 
-# Detect the keypoints and compute the descriptors with the different detectors and descriptors
-Rate_graf = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
-Execution_times = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario
+img = list([img1, img2, img3, img4, img5, img6])
 
-for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
-    for c3 in range(len(matching)): # for bf.L1 and bf.L2 mapping
+# Detect the keypoints and compute the descriptors with the different detectors and descriptors
+Rate_graf = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
+
+for g in range(1,len(img)):
+    for c3 in range(len(matching)):
         for i in range(len(Detectors)):
             method_dtect = Detectors[i]
-            start_time = time.time()
-            keypoints1 = method_dtect.detect(img1, None)
-            keypoints2 = method_dtect.detect(img2, None)
-            keypoints3 = method_dtect.detect(img3, None)
-            keypoints4 = method_dtect.detect(img4, None)
-            keypoints5 = method_dtect.detect(img5, None)
-            keypoints6 = method_dtect.detect(img6, None)
-            Execution_times[g, c3, i, 0, 0] = time.time() - start_time
-            logging.info(print("Detector ", method_dtect.getDefaultName(), " is calculated for all images within ", Execution_times[g, c3, i, 0, 0], " seconds."))
+            keypoints1 = method_dtect.detect(img[0], None)
+            keypoints2 = method_dtect.detect(img[g], None)
+            logging.info(print("Detector ", method_dtect.getDefaultName(), " is calculated for all images"))
             for j in range(len(Descriptors)):
                 method_dscrpt = Descriptors[j]
                 try:
-                    start_time = time.time()
-                    descriptors1 = method_dscrpt.compute(img1, keypoints1)[1]
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptors3 = method_dscrpt.compute(img3, keypoints3)[1]
-                    descriptors4 = method_dscrpt.compute(img4, keypoints4)[1]
-                    descriptors5 = method_dscrpt.compute(img5, keypoints5)[1]
-                    descriptors6 = method_dscrpt.compute(img6, keypoints6)[1]
-                    Execution_times[g, c3, i, j, 1] = time.time() - start_time
-                    logging.info(print("Descriptor ", method_dscrpt.getDefaultName()," is calculated for all images within ",Execution_times[g, c3, i, j, 1], " seconds."))
-                    start_time = time.time()
+                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                    descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
+                    logging.info(print("Descriptor ", method_dscrpt.getDefaultName()," is calculated for all images"))
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints3, descriptors1, descriptors3, matching[c3])
-                    Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints4, descriptors1, descriptors4, matching[c3])
-                    Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints5, descriptors1, descriptors5, matching[c3])
-                    Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints6, descriptors1, descriptors6, matching[c3])
-                    Execution_times[g, c3, i, j, 2] = time.time() - start_time
-                    logging.info(print("Scenario 4 graf:" , g , "Detector ", method_dtect.getDefaultName() , " Descriptor " , method_dscrpt.getDefaultName() , " Matching " , matching[c3] , " is calculated within " , Execution_times[g, c3, i, j, 2] , " seconds."))
+                    logging.info(print("Scenario 4 graf:" , g , "Detector ", method_dtect.getDefaultName() , " Descriptor " , method_dscrpt.getDefaultName() , " Matching " , matching[c3] , " is calculated"))
                 except Exception as e:
                     logging.info(print("Combination of detector", method_dtect.getDefaultName(), ", descriptor ", method_dscrpt.getDefaultName(), " and matching",matching[c3], "is not possible."))
                     Rate_graf[g, c3, i, j] = None
 # export numpy arrays
 np.save(basedir + "arrays/Rate_graf.npy", Rate_graf)
-np.save(basedir + "arrays/Execution_times.npy", Execution_times)
 ##########################################################
 
 # ################ Scenario 5: wall ############################
