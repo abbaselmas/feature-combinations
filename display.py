@@ -10,9 +10,9 @@ scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈ [0.5 : 0.2 : 1.5]
 rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
 maindir = os.path.abspath(os.path.dirname(__file__))
-Rate_intensity = np.load(maindir + '/arrays/Rate_intensity.npy')
-Rate_scale = np.load(maindir + '/arrays/Rate_scale.npy')
-Rate_rot = np.load(maindir + '/arrays/Rate_rot.npy')
+Rate_intensity  = np.load(maindir + '/arrays/Rate_intensity.npy')
+Rate_scale      = np.load(maindir + '/arrays/Rate_scale.npy')
+Rate_rot        = np.load(maindir + '/arrays/Rate_rot.npy')
 
 Rate_graf  = np.load(maindir + '/arrays/Rate_graf.npy')
 Rate_wall  = np.load(maindir + '/arrays/Rate_wall.npy')
@@ -32,8 +32,8 @@ for i in range(len(DetectorsLegend)):
         for c3 in range(len(Norm)):
             Rate2_I1 = Rate_intensity[:len(val_b), c3, i, j]
             Rate2_I2 = Rate_intensity[len(val_c):, c3, i, j]
-            Rate2_S = Rate_scale[:, c3, i, j]
-            Rate2_R = Rate_rot[:, c3, i, j]
+            Rate2_S  = Rate_scale[:, c3, i, j]
+            Rate2_R  = Rate_rot[:, c3, i, j]
 
             color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
@@ -49,7 +49,7 @@ for i in range(len(DetectorsLegend)):
             fig.add_trace(trace_S,  row=2, col=1)
             fig.add_trace(trace_R,  row=2, col=2)
 
-fig.update_layout(  xaxis = dict(tickvals = val_b),
+fig.update_layout(   xaxis = dict(tickvals = val_b),
                     xaxis2 = dict(tickvals = val_c),
                     xaxis3 = dict(tickvals = scale),
                     xaxis4 = dict(tickvals = rot))
@@ -69,34 +69,35 @@ fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf', 'Wall', 'Trees', 'B
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         for c3 in range(len(Norm)):
-            Rate_G = Rate_graf[1:, c3, i, j]
-            Rate_W = Rate_wall[1:, c3, i, j]
-            Rate_T = Rate_trees[1:, c3, i, j]
-            Rate_B = Rate_bikes[1:, c3, i, j]
+            Rate_G = Rate_graf[:,  c3, i, j]
+            Rate_W = Rate_wall[:,  c3, i, j]
+            Rate_T = Rate_trees[:, c3, i, j]
+            Rate_B = Rate_bikes[:, c3, i, j]
 
             color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
-
+            x = ["Img1", "Img2", "Img3", "Img4", "Img5", "Img6"]
             legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
-            trace_G = go.Scatter(x=[1,2,3,4,5], y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}', legendgroup=legend_group, showlegend= True)
-            trace_W = go.Scatter(x=[1,2,3,4,5], y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-            trace_T = go.Scatter(x=[1,2,3,4,5], y=Rate_T, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-            trace_B = go.Scatter(x=[1,2,3,4,5], y=Rate_B, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            trace_G = go.Scatter(x=x, y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}', legendgroup=legend_group, showlegend= True)
+            trace_W = go.Scatter(x=x, y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            trace_T = go.Scatter(x=x, y=Rate_T, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            trace_B = go.Scatter(x=x, y=Rate_B, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
 
             fig2.add_trace(trace_G, row=1, col=1)
             fig2.add_trace(trace_W, row=1, col=2)
             fig2.add_trace(trace_T, row=2, col=1)
             fig2.add_trace(trace_B, row=2, col=2)
 
-fig2.update_layout(  xaxis = dict(tickmode = 'array', tickvals = [1,2,3,4,5]),
-                    xaxis2 = dict(tickmode = 'array', tickvals = [1,2,3,4,5]),
-                    xaxis3 = dict(tickmode = 'array', tickvals = [1,2,3,4,5]),
-                    xaxis4 = dict(tickmode = 'array', tickvals = [1,2,3,4,5]))
+x = ["Img1", "Img2", "Img3", "Img4", "Img5", "Img6"]
+fig2.update_layout(  xaxis = dict(tickmode = 'array', tickvals = x),
+                    xaxis2 = dict(tickmode = 'array', tickvals = x),
+                    xaxis3 = dict(tickmode = 'array', tickvals = x),
+                    xaxis4 = dict(tickmode = 'array', tickvals = x))
 
-fig2.update_xaxes(title_text="Graf",  row=1, col=1)
-fig2.update_xaxes(title_text="Wall",  row=1, col=2)
-fig2.update_xaxes(title_text="Trees", row=2, col=1)
-fig2.update_xaxes(title_text="Bikes", row=2, col=2)
+fig2.update_xaxes(title_text="Compared to Img1", row=1, col=1)
+fig2.update_xaxes(title_text="Compared to Img1", row=1, col=2)
+fig2.update_xaxes(title_text="Compared to Img1", row=2, col=1)
+fig2.update_xaxes(title_text="Compared to Img1", row=2, col=2)
 
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
