@@ -65,42 +65,42 @@ fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 
 fig.write_html("PhD_knn.html")
 
-# fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf', 'Wall', 'Trees', 'Bikes'], shared_xaxes=False, shared_yaxes=False)
-# for i in range(len(DetectorsLegend)):
-#     for j in range(len(DescriptorsLegend)):
-#         for c3 in range(len(Norm)):
-#             Rate_G = Rate_graf[1:, c3, i, j]
-#             Rate_W = Rate_wall[1:, c3, i, j]
-#             Rate_T = Rate_trees[1:, c3, i, j]
-#             Rate_B = Rate_bikes[1:, c3, i, j]
+fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf', 'Wall', 'Trees', 'Bikes'], shared_xaxes=False, shared_yaxes=False)
+for i in range(len(DetectorsLegend)):
+    for j in range(len(DescriptorsLegend)):
+        for c3 in range(len(Norm)):
+            Rate_G = Rate_graf[1:, c3, i, j]
+            Rate_W = Rate_wall[1:, c3, i, j]
+            Rate_T = Rate_trees[1:, c3, i, j]
+            Rate_B = Rate_bikes[1:, c3, i, j]
 
-#             color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
-#             style = line_styles[j % len(line_styles)]  # Cycle through line styles
+            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
+            style = line_styles[j % len(line_styles)]  # Cycle through line styles
 
-#             legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
-#             trace_G = go.Scatter(x=[1, 2, 3, 4, 5, 6], y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}', legendgroup=legend_group, showlegend= True)
-#             trace_W = go.Scatter(x=[1, 2, 3, 4, 5, 6], y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-#             trace_T = go.Scatter(x=[1, 2, 3, 4, 5, 6], y=Rate_T, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-#             trace_B = go.Scatter(x=[1, 2, 3, 4, 5, 6], y=Rate_B, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
+            trace_G = go.Scatter(x=[2, 3, 4, 5, 6], y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}', legendgroup=legend_group, showlegend= True)
+            trace_W = go.Scatter(x=[2, 3, 4, 5, 6], y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            trace_T = go.Scatter(x=[2, 3, 4, 5, 6], y=Rate_T, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            trace_B = go.Scatter(x=[2, 3, 4, 5, 6], y=Rate_B, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
 
-#             fig2.add_trace(trace_G, row=1, col=1)
-#             fig2.add_trace(trace_W, row=1, col=2)
-#             fig2.add_trace(trace_T, row=2, col=1)
-#             fig2.add_trace(trace_B, row=2, col=2)
+            fig2.add_trace(trace_G, row=1, col=1)
+            fig2.add_trace(trace_W, row=1, col=2)
+            fig2.add_trace(trace_T, row=2, col=1)
+            fig2.add_trace(trace_B, row=2, col=2)
 
-# fig2.update_layout(  xaxis = dict(tickmode = 'array', tickvals = [1, 2, 3, 4, 5, 6]),
-#                     xaxis2 = dict(tickmode = 'array', tickvals = [1, 2, 3, 4, 5, 6]),
-#                     xaxis3 = dict(tickmode = 'array', tickvals = [1, 2, 3, 4, 5, 6]),
-#                     xaxis4 = dict(tickmode = 'array', tickvals = [1, 2, 3, 4, 5, 6]))
+fig2.update_layout(  xaxis = dict(tickmode = 'array', tickvals = [2, 3, 4, 5, 6]),
+                    xaxis2 = dict(tickmode = 'array', tickvals = [2, 3, 4, 5, 6]),
+                    xaxis3 = dict(tickmode = 'array', tickvals = [2, 3, 4, 5, 6]),
+                    xaxis4 = dict(tickmode = 'array', tickvals = [2, 3, 4, 5, 6]))
 
-# fig2.update_xaxes(title_text="Graf",  row=1, col=1)
-# fig2.update_xaxes(title_text="Wall",  row=1, col=2)
-# fig2.update_xaxes(title_text="Trees", row=2, col=1)
-# fig2.update_xaxes(title_text="Bikes", row=2, col=2)
+fig2.update_xaxes(title_text="Graf",  row=1, col=1)
+fig2.update_xaxes(title_text="Wall",  row=1, col=2)
+fig2.update_xaxes(title_text="Trees", row=2, col=1)
+fig2.update_xaxes(title_text="Bikes", row=2, col=2)
 
-# fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
-# fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
-# fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
-# fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
+fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
+fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
+fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
+fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 
-# fig2.write_html("PhD_oxford.html")
+fig2.write_html("PhD_oxford.html")
