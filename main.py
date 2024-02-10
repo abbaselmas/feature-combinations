@@ -339,10 +339,10 @@ for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
             keypoints5 = method_dtect.detect(img5, None)
             keypoints6 = method_dtect.detect(img6, None)
             Execution_times[g, c3, i, 0, 0] = time.time() - start_time
-            logging.info("Detector ", method_dtect, " is calculated for all images within ", Execution_times[g, c3, i, 0, 0], " seconds.")
+            # logging.info("Detector ", method_dtect, " is calculated for all images within ", Execution_times[g, c3, i, 0, 0], " seconds.")
             for j in range(len(Descriptors)):
                 method_dscrpt = Descriptors[j]
-                logging.info("Descriptor ", method_dscrpt)
+                # logging.info("Descriptor ", method_dscrpt)
                 try:
                     start_time = time.time()
                     descriptors1 = method_dscrpt.compute(img1, keypoints1)[1]
@@ -352,7 +352,7 @@ for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
                     descriptors5 = method_dscrpt.compute(img5, keypoints5)[1]
                     descriptors6 = method_dscrpt.compute(img6, keypoints6)[1]
                     Execution_times[g, c3, i, j, 1] = time.time() - start_time
-                    logging.info("Descriptor ", method_dscrpt, " is calculated for all images within ", Execution_times[g, c3, i, j, 1], " seconds.")
+                    # logging.info("Descriptor ", method_dscrpt, " is calculated for all images within ", Execution_times[g, c3, i, j, 1], " seconds.")
                     start_time = time.time()
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints3, descriptors1, descriptors3, matching[c3])
@@ -360,9 +360,9 @@ for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints5, descriptors1, descriptors5, matching[c3])
                     Rate_graf[g, c3, i, j] = evaluate_scenario_4(keypoints1, keypoints6, descriptors1, descriptors6, matching[c3])
                     Execution_times[g, c3, i, j, 2] = time.time() - start_time
-                    logging.info("Scenario 4 graf:", g, "Detector ", method_dtect, " Descriptor ", method_dscrpt, " Matching ", matching[c3], " is calculated within ", Execution_times[g, c3, i, j, 2], " seconds.")
+                    # logging.info("Scenario 4 graf:", g, "Detector ", method_dtect, " Descriptor ", method_dscrpt, " Matching ", matching[c3], " is calculated within ", Execution_times[g, c3, i, j, 2], " seconds.")
                 except Exception as e:
-                    logging.info("Combination of detector", method_dtect, ", descriptor ", method_dscrpt, " and matching", matching[c3], "is not possible.")
+                    # logging.info("Combination of detector", method_dtect, ", descriptor ", method_dscrpt, " and matching", matching[c3], "is not possible.")
                     Rate_graf[g, c3, i, j] = None
                     Execution_times[g, c3, i, j, 1] = None
                     Execution_times[g, c3, i, j, 2] = None
