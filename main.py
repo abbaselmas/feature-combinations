@@ -217,7 +217,7 @@ brief = cv2.xfeatures2d.BriefDescriptorExtractor.create()
 lucid = cv2.xfeatures2d.LUCID.create()
 latch = cv2.xfeatures2d.LATCH.create()
 beblid= cv2.xfeatures2d.BEBLID.create(scale_factor=6.25)
-teblid= cv2.xfeatures2d.TEBLID.create()
+teblid= cv2.xfeatures2d.TEBLID.create(scale_factor=6.25)
 boost = cv2.xfeatures2d.BoostDesc.create()
 
 # lists of the different detectors, descriptors and matching methods
