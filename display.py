@@ -76,7 +76,7 @@ for i in range(len(DetectorsLegend)):
 
             color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
-            x = ["Img1", "Img2", "Img3", "Img4", "Img5", "Img6"]
+            x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
             legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
             trace_G = go.Scatter(x=x, y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}', legendgroup=legend_group, showlegend= True)
             trace_W = go.Scatter(x=x, y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
@@ -88,7 +88,7 @@ for i in range(len(DetectorsLegend)):
             fig2.add_trace(trace_T, row=2, col=1)
             fig2.add_trace(trace_B, row=2, col=2)
 
-x = ["Img1", "Img2", "Img3", "Img4", "Img5", "Img6"]
+x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
 fig2.update_layout(  xaxis = dict(tickmode = 'array', tickvals = x),
                     xaxis2 = dict(tickmode = 'array', tickvals = x),
                     xaxis3 = dict(tickmode = 'array', tickvals = x),

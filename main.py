@@ -194,7 +194,7 @@ def evaluate_ratio(Dspt1, Dspt2, match_method):
     matches = bf.knnMatch(Dspt1,Dspt2,k=2)
     good = []
     for m,n in matches:
-        if m.distance < 0.75*n.distance:
+        if m.distance < 0.8*n.distance:
             good.append([m])
     return len(good) / len(matches) * 100
 
