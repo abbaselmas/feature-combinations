@@ -355,6 +355,7 @@ for g in range(6): # for the 6 images (img1, img2, img3, img4, img5, img6
                 except Exception as e:
                     print("Combination of detector", Detectors[i], ", descriptor ", Descriptors[j], " and matching", matching[c3], "is not possible.")
                     Rate_graf[g, c3, i, j] = None
+                    print("Rate_graf[g, c3, i, j] = None çalıştı")
 # export numpy arrays
 np.save(basedir + 'arrays/Rate_graf.npy', Rate_graf)
 ##########################################################
