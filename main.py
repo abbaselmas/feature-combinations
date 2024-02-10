@@ -189,7 +189,7 @@ def evaluate_scenario_3(KP1, KP2, Dspt1, Dspt2, match_method, rot, rot_matrix):
 
 ## Evaluation of scenario 4: graf: Function that takes as input the keypoints, the descriptors (of 2 images),
 #                            the type of matching, it returns the percentage of correct matched points
-def evaluate_ratio(KP1, KP2, Dspt1, Dspt2, match_method):
+def evaluate_ratio(Dspt1, Dspt2, match_method):
     bf = cv2.BFMatcher(normType=match_method, crossCheck=False)
     matches = bf.knnMatch(Dspt1,Dspt2,k=2)
     good = []
@@ -231,47 +231,47 @@ Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, 
 #matching       = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_L2SQR, cv2.NORM_HAMMING]) # 4 matching methods
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 
-################ Scenario 1 (Intensity) ################
-print("Scenario 1 Intensity")
-val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
-val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
-nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> number of test images
+# ################ Scenario 1 (Intensity) ################
+# print("Scenario 1 Intensity")
+# val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
+# val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
+# nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> number of test images
 
-Rate_intensity      = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors)))
-Exec_time_intensity = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
-img, List8Img = get_intensity_8Img(Image, val_b, val_c) # use the intensity change images (I+b and I*c)
-for k in range(nbre_img):
-    img2 = List8Img[k]
-    for c3 in range(len(matching)): # for bf.L2 mapping
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]
-            keypoints1 = method_dtect.detect(img, None)
-            start_time = time.time()
-            keypoints2 = method_dtect.detect(img2, None)
-            end_time = time.time()
-            for j in range(len(Descriptors)):
-                Exec_time_intensity[k, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_intensity[k, c3, i, j, 0])
-                method_dscrpt = Descriptors[j]
-                try:
-                    descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
-                    start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    end_time = time.time()
-                    Exec_time_intensity[k, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_intensity[k, c3, i, j, 1])
-                    start_time = time.time()
-                    Rate_intensity[k, c3, i, j] = evaluate_ratio(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    end_time = time.time()
-                    Exec_time_intensity[k, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 1 Intensity %s | Detector %s Descriptor %s Matching %s is calculated within %f", k, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_intensity[k, c3, i, j, 2])
-                except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
-                    Rate_intensity[k, c3, i, j] = None
-# export numpy arrays
-np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
-np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
-##########################################################
+# Rate_intensity      = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors)))
+# Exec_time_intensity = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
+# img, List8Img = get_intensity_8Img(Image, val_b, val_c) # use the intensity change images (I+b and I*c)
+# for k in range(nbre_img):
+#     img2 = List8Img[k]
+#     for c3 in range(len(matching)): # for bf.L2 mapping
+#         for i in range(len(Detectors)):
+#             method_dtect = Detectors[i]
+#             keypoints1 = method_dtect.detect(img, None)
+#             start_time = time.time()
+#             keypoints2 = method_dtect.detect(img2, None)
+#             end_time = time.time()
+#             for j in range(len(Descriptors)):
+#                 Exec_time_intensity[k, c3, i, j, 0] = end_time - start_time
+#                 mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_intensity[k, c3, i, j, 0])
+#                 method_dscrpt = Descriptors[j]
+#                 try:
+#                     descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
+#                     start_time = time.time()
+#                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
+#                     end_time = time.time()
+#                     Exec_time_intensity[k, c3, i, j, 1] = end_time - start_time
+#                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_intensity[k, c3, i, j, 1])
+#                     start_time = time.time()
+#                     Rate_intensity[k, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+#                     end_time = time.time()
+#                     Exec_time_intensity[k, c3, i, j, 2] = end_time - start_time
+#                     mylogs.info("Scenario 1 Intensity %s | Detector %s Descriptor %s Matching %s is calculated within %f", k, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_intensity[k, c3, i, j, 2])
+#                 except Exception as e:
+#                     mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
+#                     Rate_intensity[k, c3, i, j] = None
+# # export numpy arrays
+# np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
+# np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
+# ##########################################################
 
 ################ Scenario 2: Scale ################
 print("Scenario 2 Scale")
@@ -301,7 +301,7 @@ for s in range(len(scale)): # for the 7 scale images
                     Exec_time_scale[s, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_scale[s, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_scale[s, c3, i, j] = evaluate_ratio(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[s])
+                    Rate_scale[s, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_scale[s, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 2 Scale %s | Detector %s Descriptor %s Matching %s is calculated within %f", s, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_scale[s, c3, i, j, 2])
@@ -341,7 +341,7 @@ for r in range(len(rot)):
                     Exec_time_rot[r, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_rot[r, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_rot[r, c3, i, j] = evaluate_ratio(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[r], rot_matrix)
+                    Rate_rot[r, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_rot[r, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 3 Rotation %s | Detector %s Descriptor %s Matching %s is calculated within %f", r, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_rot[r, c3, i, j, 2])
@@ -353,162 +353,162 @@ np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
 np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
 ##########################################################
 
-################ Scenario 4: graf ############################
-print("Scenario 4 graf")
-folder = "/graf"
-img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
+# ################ Scenario 4: graf ############################
+# print("Scenario 4 graf")
+# folder = "/graf"
+# img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
-Rate_graf       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
-Exec_time_graf  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
+# Rate_graf       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
+# Exec_time_graf  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
 
-for g in range(len(img)):
-    for c3 in range(len(matching)):
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]
-            keypoints1 = method_dtect.detect(img[0], None)
-            start_time = time.time()
-            keypoints2 = method_dtect.detect(img[g], None)
-            end_time = time.time()
-            for j in range(len(Descriptors)):
-                Exec_time_graf[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
-                method_dscrpt = Descriptors[j]
-                try:
-                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                    start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-                    end_time = time.time()
-                    Exec_time_graf[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
-                    start_time = time.time()
-                    Rate_graf[g, c3, i, j] = evaluate_ratio(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    end_time = time.time()
-                    Exec_time_graf[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 4 graf %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_graf[g, c3, i, j, 2])
-                except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
-                    Rate_graf[g, c3, i, j] = None
-# export numpy arrays
-np.save(maindir + "/arrays/Rate_graf.npy", Rate_graf)
-np.save(maindir + "/arrays/Exec_time_graf.npy", Exec_time_graf)
-##########################################################
+# for g in range(len(img)):
+#     for c3 in range(len(matching)):
+#         for i in range(len(Detectors)):
+#             method_dtect = Detectors[i]
+#             keypoints1 = method_dtect.detect(img[0], None)
+#             start_time = time.time()
+#             keypoints2 = method_dtect.detect(img[g], None)
+#             end_time = time.time()
+#             for j in range(len(Descriptors)):
+#                 Exec_time_graf[g, c3, i, j, 0] = end_time - start_time
+#                 mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
+#                 method_dscrpt = Descriptors[j]
+#                 try:
+#                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+#                     start_time = time.time()
+#                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
+#                     end_time = time.time()
+#                     Exec_time_graf[g, c3, i, j, 1] = end_time - start_time
+#                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
+#                     start_time = time.time()
+#                     Rate_graf[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+#                     end_time = time.time()
+#                     Exec_time_graf[g, c3, i, j, 2] = end_time - start_time
+#                     mylogs.info("Scenario 4 graf %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_graf[g, c3, i, j, 2])
+#                 except Exception as e:
+#                     mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
+#                     Rate_graf[g, c3, i, j] = None
+# # export numpy arrays
+# np.save(maindir + "/arrays/Rate_graf.npy", Rate_graf)
+# np.save(maindir + "/arrays/Exec_time_graf.npy", Exec_time_graf)
+# ##########################################################
 
-################ Scenario 5: wall ############################
-print("Scenario 5 wall")
-# Read the images
-folder = "/wall"
-img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
+# ################ Scenario 5: wall ############################
+# print("Scenario 5 wall")
+# # Read the images
+# folder = "/wall"
+# img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
-Rate_wall       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
-Exec_time_wall  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
-for g in range(len(img)):
-    for c3 in range(len(matching)):
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]
-            keypoints1 = method_dtect.detect(img[0], None)
-            start_time = time.time()
-            keypoints2 = method_dtect.detect(img[g], None)
-            end_time = time.time()
-            for j in range(len(Descriptors)):
-                Exec_time_wall[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
-                method_dscrpt = Descriptors[j]
-                try:
-                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                    start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-                    end_time = time.time()
-                    Exec_time_wall[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
-                    start_time = time.time()
-                    Rate_wall[g, c3, i, j] = evaluate_ratio(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    end_time = time.time()
-                    Exec_time_wall[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 5 wall %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_wall[g, c3, i, j, 2])
-                except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
-                    Rate_wall[g, c3, i, j] = None
-# export numpy arrays
-np.save(maindir + "/arrays/Rate_wall.npy", Rate_wall)
-np.save(maindir + "/arrays/Exec_time_wall.npy", Exec_time_wall)
-##########################################################
+# Rate_wall       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
+# Exec_time_wall  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
+# for g in range(len(img)):
+#     for c3 in range(len(matching)):
+#         for i in range(len(Detectors)):
+#             method_dtect = Detectors[i]
+#             keypoints1 = method_dtect.detect(img[0], None)
+#             start_time = time.time()
+#             keypoints2 = method_dtect.detect(img[g], None)
+#             end_time = time.time()
+#             for j in range(len(Descriptors)):
+#                 Exec_time_wall[g, c3, i, j, 0] = end_time - start_time
+#                 mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
+#                 method_dscrpt = Descriptors[j]
+#                 try:
+#                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+#                     start_time = time.time()
+#                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
+#                     end_time = time.time()
+#                     Exec_time_wall[g, c3, i, j, 1] = end_time - start_time
+#                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
+#                     start_time = time.time()
+#                     Rate_wall[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+#                     end_time = time.time()
+#                     Exec_time_wall[g, c3, i, j, 2] = end_time - start_time
+#                     mylogs.info("Scenario 5 wall %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_wall[g, c3, i, j, 2])
+#                 except Exception as e:
+#                     mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
+#                     Rate_wall[g, c3, i, j] = None
+# # export numpy arrays
+# np.save(maindir + "/arrays/Rate_wall.npy", Rate_wall)
+# np.save(maindir + "/arrays/Exec_time_wall.npy", Exec_time_wall)
+# ##########################################################
 
-################ Scenario 6: trees ############################
-print("Scenario 6 trees")
-# Read the images
-folder = "/trees"
-img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
+# ################ Scenario 6: trees ############################
+# print("Scenario 6 trees")
+# # Read the images
+# folder = "/trees"
+# img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
-Rate_trees       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
-Exec_time_trees  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
-for g in range(len(img)):
-    for c3 in range(len(matching)):
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]
-            keypoints1 = method_dtect.detect(img[0], None)
-            start_time = time.time()
-            keypoints2 = method_dtect.detect(img[g], None)
-            end_time = time.time()
-            for j in range(len(Descriptors)):
-                Exec_time_trees[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
-                method_dscrpt = Descriptors[j]
-                try:
-                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                    start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-                    end_time = time.time()
-                    Exec_time_trees[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
-                    start_time = time.time()
-                    Rate_trees[g, c3, i, j] = evaluate_ratio(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    end_time = time.time()
-                    Exec_time_trees[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 6 trees %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_trees[g, c3, i, j, 2])
-                except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
-                    Rate_trees[g, c3, i, j] = None
-# export numpy arrays
-np.save(maindir + "/arrays/Rate_trees.npy", Rate_trees)
-np.save(maindir + "/arrays/Exec_time_trees.npy", Exec_time_trees)
-##########################################################
+# Rate_trees       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
+# Exec_time_trees  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
+# for g in range(len(img)):
+#     for c3 in range(len(matching)):
+#         for i in range(len(Detectors)):
+#             method_dtect = Detectors[i]
+#             keypoints1 = method_dtect.detect(img[0], None)
+#             start_time = time.time()
+#             keypoints2 = method_dtect.detect(img[g], None)
+#             end_time = time.time()
+#             for j in range(len(Descriptors)):
+#                 Exec_time_trees[g, c3, i, j, 0] = end_time - start_time
+#                 mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
+#                 method_dscrpt = Descriptors[j]
+#                 try:
+#                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+#                     start_time = time.time()
+#                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
+#                     end_time = time.time()
+#                     Exec_time_trees[g, c3, i, j, 1] = end_time - start_time
+#                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
+#                     start_time = time.time()
+#                     Rate_trees[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+#                     end_time = time.time()
+#                     Exec_time_trees[g, c3, i, j, 2] = end_time - start_time
+#                     mylogs.info("Scenario 6 trees %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_trees[g, c3, i, j, 2])
+#                 except Exception as e:
+#                     mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
+#                     Rate_trees[g, c3, i, j] = None
+# # export numpy arrays
+# np.save(maindir + "/arrays/Rate_trees.npy", Rate_trees)
+# np.save(maindir + "/arrays/Exec_time_trees.npy", Exec_time_trees)
+# ##########################################################
 
-################ Scenario 7: bikes ############################
-print("Scenario 7 bikes")
-# Read the images
-folder = "/bikes"
-img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
+# ################ Scenario 7: bikes ############################
+# print("Scenario 7 bikes")
+# # Read the images
+# folder = "/bikes"
+# img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
-Rate_bikes       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
-Exec_time_bikes  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
-for g in range(len(img)):
-    for c3 in range(len(matching)):
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]
-            keypoints1 = method_dtect.detect(img[0], None)
-            start_time = time.time()
-            keypoints2 = method_dtect.detect(img[g], None)
-            end_time = time.time()
-            for j in range(len(Descriptors)):
-                Exec_time_bikes[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
-                method_dscrpt = Descriptors[j]
-                try:
-                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                    start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-                    end_time = time.time()
-                    Exec_time_bikes[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
-                    start_time = time.time()
-                    Rate_bikes[g, c3, i, j] = evaluate_ratio(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    end_time = time.time()
-                    Exec_time_bikes[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 7 bikes %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_bikes[g, c3, i, j, 2])
-                except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
-                    Rate_bikes[g, c3, i, j] = None
-# export numpy arrays
-np.save(maindir + "/arrays/Rate_bikes.npy", Rate_bikes)
-np.save(maindir + "/arrays/Exec_time_bikes.npy", Exec_time_bikes)
-##########################################################
+# Rate_bikes       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
+# Exec_time_bikes  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
+# for g in range(len(img)):
+#     for c3 in range(len(matching)):
+#         for i in range(len(Detectors)):
+#             method_dtect = Detectors[i]
+#             keypoints1 = method_dtect.detect(img[0], None)
+#             start_time = time.time()
+#             keypoints2 = method_dtect.detect(img[g], None)
+#             end_time = time.time()
+#             for j in range(len(Descriptors)):
+#                 Exec_time_bikes[g, c3, i, j, 0] = end_time - start_time
+#                 mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
+#                 method_dscrpt = Descriptors[j]
+#                 try:
+#                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+#                     start_time = time.time()
+#                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
+#                     end_time = time.time()
+#                     Exec_time_bikes[g, c3, i, j, 1] = end_time - start_time
+#                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
+#                     start_time = time.time()
+#                     Rate_bikes[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+#                     end_time = time.time()
+#                     Exec_time_bikes[g, c3, i, j, 2] = end_time - start_time
+#                     mylogs.info("Scenario 7 bikes %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_bikes[g, c3, i, j, 2])
+#                 except Exception as e:
+#                     mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
+#                     Rate_bikes[g, c3, i, j] = None
+# # export numpy arrays
+# np.save(maindir + "/arrays/Rate_bikes.npy", Rate_bikes)
+# np.save(maindir + "/arrays/Exec_time_bikes.npy", Exec_time_bikes)
+# ##########################################################
