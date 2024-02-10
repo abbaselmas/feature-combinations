@@ -96,7 +96,34 @@ def get_cam_rot(Img, r):
     return rotation_mat, couple_I_Ir  # it also returns the rotation matrix for further use in the rotation evaluation function
 # ................................................................................
 
-def evaluate_with_descriptor_distance(KP1, KP2, Dspt1, Dspt2, norm_type, max_distance_factor=1.0):
+import cv2
+import numpy as np
+
+def evaluate_with_geometric_verification(KP1, KP2, Dspt1, Dspt2, norm_type, threshold=10):
+    bf = cv2.BFMatcher(norm_type, crossCheck=False)
+    matches = bf.match(Dspt1, Dspt2)
+
+    pts1 = np.float32([KP1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
+    pts2 = np.float32([KP2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+    # Estimate homography using RANSAC
+    H, _ = cv2.findHomography(pts1, pts2, cv2.RANSAC, threshold)
+    # Calculate Euclidean distances between transformed keypoints and keypoints from img2
+    pts1_transformed = cv2.perspectiveTransform(pts1, H)
+    # Calculate distances based on norm type
+    if norm_type == cv2.NORM_L2:
+        distances = np.linalg.norm(pts1_transformed - pts2, axis=2)
+    elif norm_type == cv2.NORM_HAMMING:
+        # For NORM_HAMMING, we need to convert keypoints to integers
+        pts1_transformed = pts1_transformed.astype(np.int32)
+        pts2 = pts2.astype(np.int32)
+        distances = np.sum(pts1_transformed != pts2, axis=2)
+    # Count inliers (matches with distances below threshold)
+    inliers = np.sum(distances < threshold)
+    # Calculate match rate based on inlier count
+    match_rate = (inliers / len(matches)) * 100
+    return match_rate
+
+def evaluate_with_descriptor_distance(KP1, KP2, Dspt1, Dspt2, norm_type, max_distance_factor=1.0): #TODO: 100 constant to be parameterized or adjusted
     valid_match_count = 0
     bf = cv2.BFMatcher(norm_type, crossCheck=False)
     matches = bf.match(Dspt1, Dspt2)
@@ -189,7 +216,7 @@ for k in range(nbre_img):
                     Exec_time_intensity[k, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_intensity[k, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_intensity[k, c3, i, j] = evaluate_with_descriptor_distance(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                    Rate_intensity[k, c3, i, j] = evaluate_with_geometric_verification(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_intensity[k, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 1 Intensity %s | Detector %s Descriptor %s Matching %s is calculated within %f", k, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_intensity[k, c3, i, j, 2])
