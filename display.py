@@ -38,7 +38,8 @@ for i in range(len(DetectorsLegend)):
             color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
 
-            legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
+            if not Rate_intensity[:, c3, i, j].any(np.nan) and not Rate_scale[:, c3, i, j].any(np.nan) and not Rate_rot[:, c3, i, j].any(np.nan):
+                legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
             trace_I1 = go.Scatter(x=val_b, y=Rate2_I1, mode='lines', line=dict(color=color, dash=style), name=f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}', legendgroup=legend_group, showlegend= True)
             trace_I2 = go.Scatter(x=val_c, y=Rate2_I2, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
             trace_S  = go.Scatter(x=scale, y=Rate2_S,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
@@ -63,7 +64,9 @@ fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 
-fig.write_html("PhD_knn.html")
+fig.write_html("PhD_first4_available_all.html")
+
+############################################################################################################
 
 fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf', 'Wall', 'Trees', 'Bikes'], shared_xaxes=False, shared_yaxes=False)
 for i in range(len(DetectorsLegend)):
@@ -77,7 +80,8 @@ for i in range(len(DetectorsLegend)):
             color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
             x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
-            legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
+            if not Rate_graf[:, c3, i, j].any(np.nan) and not Rate_wall[:, c3, i, j].any(np.nan) and not Rate_trees[:, c3, i, j].any(np.nan) and not Rate_bikes[:, c3, i, j].any(np.nan):
+                legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
             trace_G = go.Scatter(x=x, y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}', legendgroup=legend_group, showlegend= True)
             trace_W = go.Scatter(x=x, y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
             trace_T = go.Scatter(x=x, y=Rate_T, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
@@ -104,4 +108,4 @@ fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 
-fig2.write_html("PhD_oxford.html")
+fig2.write_html("PhD_oxford_available_all.html")
