@@ -71,20 +71,27 @@ Exec_time_rot = np.load(maindir + '/arrays/Exec_time_rot.npy')
 
 # There are Exec_time_* numpy arrays for each of the 4 scenes, each containing the execution time for each method
 # subplots are for average execution time for each method with bar charts
-fig1 = make_subplots(rows=1, cols=3, subplot_titles=['Detection', 'Description', 'Matching'], shared_xaxes=False, shared_yaxes=False)
+
+fig1 = make_subplots(rows=2, cols=2, subplot_titles=['Detectors', 'Descriptors', 'Evaluation(matching)'], shared_xaxes=False, shared_yaxes=False, specs=[[{}, {}],[{"colspan": 2}, None]],)
+for i in range(len(DetectorsLegend)):
+    mean_detector_time = np.mean(Exec_time_intensity[:, :, i,: , 0])
+    if not (np.any(mean_detector_time <= 0)):
+        trace_detect = go.Bar(x=[DetectorsLegend[i]], y=[mean_detector_time], name=DetectorsLegend[i], showlegend=True, text=[f'{mean_detector_time:.4f}'], textposition='auto')
+        fig1.add_trace(trace_detect, row=1, col=1)
+            
+# for i in range(len(DetectorsLegend)):
+for j in range(len(DescriptorsLegend)):
+    mean_descriptor_time = np.mean(Exec_time_intensity[:, :,: , j, 1])
+    if not (np.any(mean_descriptor_time <= 0)):
+        trace_descr = go.Bar(x=[DescriptorsLegend[j]], y=[mean_descriptor_time], name=DescriptorsLegend[j], showlegend=True, text=[f'{mean_descriptor_time:.4f}'], textposition='auto')
+        fig1.add_trace(trace_descr, row=1, col=2)
+
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
-        for c3 in range(len(Norm)):
-            mean_detector_time = np.mean(Exec_time_intensity[:, c3, i, j, 0])
-            mean_descriptor_time = np.mean(Exec_time_intensity[:, c3, i, j, 1])
-            mean_matching_time = np.mean(Exec_time_intensity[:, c3, i, j, 2])
-
-            trace_detect = go.Bar(x=[DetectorsLegend[i]], y=[mean_detector_time], name=DetectorsLegend[i], showlegend=True)
-            trace_descr  = go.Bar(x=[DescriptorsLegend[j]], y=[mean_descriptor_time], name=DescriptorsLegend[j], showlegend=True)
-            trace_match  = go.Bar(x=[DetectorsLegend[i] + '-' + DescriptorsLegend[j]], y=[mean_matching_time], name=DetectorsLegend[i] + '-' + DescriptorsLegend[j], showlegend=True)
-            fig1.add_trace(trace_detect, row=1, col=1)
-            fig1.add_trace(trace_descr,  row=1, col=2)
-            fig1.add_trace(trace_match,  row=1, col=3)
+        mean_matching_time = np.mean(Exec_time_intensity[:, :, i, j, 2])
+        if not (np.any(mean_matching_time <= 0)):
+            trace_match = go.Bar(x=[DetectorsLegend[i] + '-' + DescriptorsLegend[j]], y=[mean_matching_time], name=DetectorsLegend[i] + '-' + DescriptorsLegend[j], showlegend=True, text=[f'{mean_matching_time:.4f}'], textposition='auto')
+            fig1.add_trace(trace_match, row=2, col=1)
 
 fig1.write_html("PhD_first4_exec_time.html")
 
