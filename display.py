@@ -21,54 +21,54 @@ line_styles = ['solid', 'dash', 'dot']  # Add more styles as needed
 #Norm = ['L1', 'L2', 'L2SQR', 'HAM']
 Norm = ['L2', 'HAM']
 
-############################################################################################################
+###########################################################################################################
 
-# fig = make_subplots(rows=2, cols=2, subplot_titles=['Scn. #1', 'Scn. #2', 'Scn. #3', 'Scn. #4'], shared_xaxes=False, shared_yaxes=False)
-# for i in range(len(DetectorsLegend)):
-#     for j in range(len(DescriptorsLegend)):
-#         for c3 in range(len(Norm)):
-#             Rate2_I1 = Rate_intensity[:len(val_b), c3, i, j]
-#             Rate2_I2 = Rate_intensity[len(val_c):, c3, i, j]
-#             Rate2_S  = Rate_scale[:, c3, i, j]
-#             Rate2_R  = Rate_rot[:, c3, i, j]
+fig = make_subplots(rows=2, cols=2, subplot_titles=['Scn. #1', 'Scn. #2', 'Scn. #3', 'Scn. #4'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.05)
+for i in range(len(DetectorsLegend)):
+    for j in range(len(DescriptorsLegend)):
+        for c3 in range(len(Norm)):
+            Rate2_I1 = Rate_intensity[:len(val_b), c3, i, j]
+            Rate2_I2 = Rate_intensity[len(val_c):, c3, i, j]
+            Rate2_S  = Rate_scale[:, c3, i, j]
+            Rate2_R  = Rate_rot[:, c3, i, j]
 
-#             color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
-#             style = line_styles[j % len(line_styles)]  # Cycle through line styles
+            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
+            style = line_styles[j % len(line_styles)]  # Cycle through line styles
 
-#             if not np.isnan(Rate_intensity[:, c3, i, j]).any(): # single array check is enough since all arrays have the same method combination
-#                 legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace  
-#                 trace_I1 = go.Scatter(x=val_b, y=Rate2_I1, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
-#                 trace_I2 = go.Scatter(x=val_c, y=Rate2_I2, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-#                 trace_S  = go.Scatter(x=scale, y=Rate2_S,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-#                 trace_R  = go.Scatter(x=rot,   y=Rate2_R,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-#                 fig.add_trace(trace_I1, row=1, col=1)
-#                 fig.add_trace(trace_I2, row=1, col=2)
-#                 fig.add_trace(trace_S,  row=2, col=1)
-#                 fig.add_trace(trace_R,  row=2, col=2)
+            if not np.isnan(Rate_intensity[:, c3, i, j]).any(): # single array check is enough since all arrays have the same method combination
+                legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace  
+                trace_I1 = go.Scatter(x=val_b, y=Rate2_I1, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
+                trace_I2 = go.Scatter(x=val_c, y=Rate2_I2, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+                trace_S  = go.Scatter(x=scale, y=Rate2_S,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+                trace_R  = go.Scatter(x=rot,   y=Rate2_R,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+                fig.add_trace(trace_I1, row=1, col=1)
+                fig.add_trace(trace_I2, row=1, col=2)
+                fig.add_trace(trace_S,  row=2, col=1)
+                fig.add_trace(trace_R,  row=2, col=2)
 
-# fig.update_layout(   xaxis = dict(tickvals = val_b),
-#                     xaxis2 = dict(tickvals = val_c),
-#                     xaxis3 = dict(tickvals = scale),
-#                     xaxis4 = dict(tickvals = rot))
+fig.update_layout(   xaxis = dict(tickvals = val_b),
+                    xaxis2 = dict(tickvals = val_c),
+                    xaxis3 = dict(tickvals = scale),
+                    xaxis4 = dict(tickvals = rot))
 
-# fig.update_xaxes(title_text="Intensity changing I+b", row=1, col=1)
-# fig.update_xaxes(title_text="Intensity changing Ixc", row=1, col=2)
-# fig.update_xaxes(title_text="Scale changing", row=2, col=1)
-# fig.update_xaxes(title_text="Rotation changing", row=2, col=2)
-# fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
-# fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
-# fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
-# fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
+fig.update_xaxes(title_text="Intensity changing I+b", row=1, col=1)
+fig.update_xaxes(title_text="Intensity changing Ixc", row=1, col=2)
+fig.update_xaxes(title_text="Scale changing", row=2, col=1)
+fig.update_xaxes(title_text="Rotation changing", row=2, col=2)
+fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
+fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
+fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
+fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 
-# fig.write_html("PhD_first4_available_all.html")
+fig.write_html("PhD_first4.html")
 
-############################################################################################################
+###########################################################################################################
 
 Exec_time_intensity = np.load(maindir + '/arrays/Exec_time_intensity.npy')
 Exec_time_scale = np.load(maindir + '/arrays/Exec_time_scale.npy')
 Exec_time_rot = np.load(maindir + '/arrays/Exec_time_rot.npy')
 
-fig1 = make_subplots(rows=2, cols=2, subplot_titles=['Detectors', 'Descriptors', 'Evaluation(matching)'], shared_xaxes=False, shared_yaxes=False, specs=[[{}, {}],[{"colspan": 2}, None]],)
+fig1 = make_subplots(rows=2, cols=2, subplot_titles=['Detectors', 'Descriptors', 'Evaluation(matching)'], shared_xaxes=False, shared_yaxes=False, specs=[[{}, {}],[{"colspan": 2}, None]],horizontal_spacing=0.05, vertical_spacing=0.05)
 for i in range(len(DetectorsLegend)):
     mean_intensity  = np.mean(Exec_time_intensity[:, :, i, :, 0])
     mean_scale      = np.mean(Exec_time_scale[:, :, i, :, 0])
@@ -96,66 +96,68 @@ for i in range(len(DetectorsLegend)):
         if not (np.any(mean_matching_time <= 0)):
             trace_match = go.Bar(x=[DetectorsLegend[i] + '-' + DescriptorsLegend[j]], y=[mean_matching_time], name=DetectorsLegend[i] + '-' + DescriptorsLegend[j], showlegend=True, text=[f'{mean_matching_time:.4f}'], textposition='auto')
             fig1.add_trace(trace_match, row=2, col=1)
-
+fig1.update_yaxes(title_text="milliseconds", row=1, col=1)
+fig1.update_yaxes(title_text="milliseconds", row=1, col=2)
+fig1.update_yaxes(title_text="milliseconds", row=2, col=1)
 fig1.write_html("PhD_first4_aver_exec_time.html")
 
-############################################################################################################
+###########################################################################################################
 
-# Rate_graf  = np.load(maindir + '/arrays/Rate_graf.npy')
-# Rate_wall  = np.load(maindir + '/arrays/Rate_wall.npy')
-# Rate_trees = np.load(maindir + '/arrays/Rate_trees.npy')
-# Rate_bikes = np.load(maindir + '/arrays/Rate_bikes.npy')
+Rate_graf  = np.load(maindir + '/arrays/Rate_graf.npy')
+Rate_wall  = np.load(maindir + '/arrays/Rate_wall.npy')
+Rate_trees = np.load(maindir + '/arrays/Rate_trees.npy')
+Rate_bikes = np.load(maindir + '/arrays/Rate_bikes.npy')
 
-# fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf', 'Wall', 'Trees', 'Bikes'], shared_xaxes=False, shared_yaxes=False)
-# for i in range(len(DetectorsLegend)):
-#     for j in range(len(DescriptorsLegend)):
-#         for c3 in range(len(Norm)):
-#             Rate_G = Rate_graf[1:,  c3, i, j]
-#             Rate_W = Rate_wall[1:,  c3, i, j]
-#             Rate_T = Rate_trees[1:, c3, i, j]
-#             Rate_B = Rate_bikes[1:, c3, i, j]
+fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf', 'Wall', 'Trees', 'Bikes'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.05)
+for i in range(len(DetectorsLegend)):
+    for j in range(len(DescriptorsLegend)):
+        for c3 in range(len(Norm)):
+            Rate_G = Rate_graf[1:,  c3, i, j]
+            Rate_W = Rate_wall[1:,  c3, i, j]
+            Rate_T = Rate_trees[1:, c3, i, j]
+            Rate_B = Rate_bikes[1:, c3, i, j]
 
-#             color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
-#             style = line_styles[j % len(line_styles)]  # Cycle through line styles
-#             x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
+            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
+            style = line_styles[j % len(line_styles)]  # Cycle through line styles
+            x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
 
-#             if not np.isnan(Rate_graf[:, c3, i, j]).any():
-#                 legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
-#                 trace_G = go.Scatter(x=x, y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
-#                 trace_W = go.Scatter(x=x, y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-#                 trace_T = go.Scatter(x=x, y=Rate_T, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-#                 trace_B = go.Scatter(x=x, y=Rate_B, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-#                 fig2.add_trace(trace_G, row=1, col=1)
-#                 fig2.add_trace(trace_W, row=1, col=2)
-#                 fig2.add_trace(trace_T, row=2, col=1)
-#                 fig2.add_trace(trace_B, row=2, col=2)
+            if not np.isnan(Rate_graf[:, c3, i, j]).any():
+                legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
+                trace_G = go.Scatter(x=x, y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
+                trace_W = go.Scatter(x=x, y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+                trace_T = go.Scatter(x=x, y=Rate_T, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+                trace_B = go.Scatter(x=x, y=Rate_B, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+                fig2.add_trace(trace_G, row=1, col=1)
+                fig2.add_trace(trace_W, row=1, col=2)
+                fig2.add_trace(trace_T, row=2, col=1)
+                fig2.add_trace(trace_B, row=2, col=2)
 
-# x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
-# fig2.update_layout(  xaxis = dict(tickmode = 'array', tickvals = x),
-#                     xaxis2 = dict(tickmode = 'array', tickvals = x),
-#                     xaxis3 = dict(tickmode = 'array', tickvals = x),
-#                     xaxis4 = dict(tickmode = 'array', tickvals = x))
+x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
+fig2.update_layout(  xaxis = dict(tickmode = 'array', tickvals = x),
+                    xaxis2 = dict(tickmode = 'array', tickvals = x),
+                    xaxis3 = dict(tickmode = 'array', tickvals = x),
+                    xaxis4 = dict(tickmode = 'array', tickvals = x))
 
-# fig2.update_xaxes(title_text="Compared to Img1", row=1, col=1)
-# fig2.update_xaxes(title_text="Compared to Img1", row=1, col=2)
-# fig2.update_xaxes(title_text="Compared to Img1", row=2, col=1)
-# fig2.update_xaxes(title_text="Compared to Img1", row=2, col=2)
+fig2.update_xaxes(title_text="Compared to Img1", row=1, col=1)
+fig2.update_xaxes(title_text="Compared to Img1", row=1, col=2)
+fig2.update_xaxes(title_text="Compared to Img1", row=2, col=1)
+fig2.update_xaxes(title_text="Compared to Img1", row=2, col=2)
 
-# fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
-# fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
-# fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
-# fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
+fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
+fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
+fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
+fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 
-# fig2.write_html("PhD_oxford_available_all.html")
+fig2.write_html("PhD_oxford.html")
 
-############################################################################################################
+###########################################################################################################
 
 Exec_time_graf = np.load(maindir + '/arrays/Exec_time_graf.npy')
 Exec_time_wall = np.load(maindir + '/arrays/Exec_time_wall.npy')
 Exec_time_trees = np.load(maindir + '/arrays/Exec_time_trees.npy')
 Exec_time_bikes = np.load(maindir + '/arrays/Exec_time_bikes.npy')
 
-fig3 = make_subplots(rows=2, cols=2, subplot_titles=['Detectors', 'Descriptors', 'Evaluation(matching)'], shared_xaxes=False, shared_yaxes=False, specs=[[{}, {}],[{"colspan": 2}, None]],)
+fig3 = make_subplots(rows=2, cols=2, subplot_titles=['Detectors', 'Descriptors', 'Evaluation(matching)'], shared_xaxes=False, shared_yaxes=False, specs=[[{}, {}],[{"colspan": 2}, None]], horizontal_spacing=0.05, vertical_spacing=0.05)
 for i in range(len(DetectorsLegend)):
     mean_graf  = np.mean(Exec_time_graf[:, :, i, :, 0])
     mean_wall  = np.mean(Exec_time_wall[:, :, i, :, 0])
