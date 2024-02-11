@@ -68,17 +68,15 @@ Exec_time_intensity = np.load(maindir + '/arrays/Exec_time_intensity.npy')
 Exec_time_scale = np.load(maindir + '/arrays/Exec_time_scale.npy')
 Exec_time_rot = np.load(maindir + '/arrays/Exec_time_rot.npy')
 
+
 # There are Exec_time_* numpy arrays for each of the 4 scenes, each containing the execution time for each method
 # subplots are for average execution time for each method with bar charts
 fig1 = make_subplots(rows=1, cols=3, subplot_titles=['Detection', 'Description', 'Matching'], shared_xaxes=False, shared_yaxes=False)
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         for c3 in range(len(Norm)):
-            #Detector times
             mean_detector_time = np.mean(Exec_time_intensity[:, c3, i, j, 0])
-            #Descritor times
             mean_descriptor_time = np.mean(Exec_time_intensity[:, c3, i, j, 1])
-            #Matching times
             mean_matching_time = np.mean(Exec_time_intensity[:, c3, i, j, 2])
 
             trace_detect = go.Bar(x=[DetectorsLegend[i]], y=[mean_detector_time], name=DetectorsLegend[i], showlegend=True)
@@ -87,6 +85,8 @@ for i in range(len(DetectorsLegend)):
             fig1.add_trace(trace_detect, row=1, col=1)
             fig1.add_trace(trace_descr,  row=1, col=2)
             fig1.add_trace(trace_match,  row=1, col=3)
+
+fig1.write_html("PhD_first4_exec_time.html")
 
 ############################################################################################################
 
