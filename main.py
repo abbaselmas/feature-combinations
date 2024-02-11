@@ -167,8 +167,12 @@ beblid= cv2.xfeatures2d.BEBLID_create(scale_factor=5.00, n_bits=101)
 teblid= cv2.xfeatures2d.TEBLID_create(scale_factor=5.00, n_bits=102)
 boost = cv2.xfeatures2d.BoostDesc_create(desc=300, use_scale_orientation=False, scale_factor=5.00)
 
-# lists of the different detectors, descriptors and matching methods
 # DetectDescript = list([sift, akaze, orb, brisk, kaze])
+# binary_detectors = [orb, brisk]
+# non_binary_detectors = [sift, akaze, kaze, fast, mser, agast, gftt, star, hl, msd, tbmr]
+# binary_descriptors = [orb, brisk, freak, brief, latch, beblid, teblid, boost]
+# non_binary_descriptors = [sift, akaze, kaze, vgg, daisy, lucid]
+
 Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, star, hl, msd, tbmr]) # 13 detectors
 Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost]) # 14 descriptors
 #matching       = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_L2SQR, cv2.NORM_HAMMING]) # 4 matching methods
