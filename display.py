@@ -38,7 +38,7 @@ for i in range(len(DetectorsLegend)):
             color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
 
-            if not np.isnan(Rate_intensity[:, c3, i, j]).any() and not np.isnan(Rate_scale[:, c3, i, j]).any() and not np.isnan(Rate_rot[:, c3, i, j]).any():
+            if not np.isnan(Rate_intensity[:, c3, i, j]).any(): # single array check is enough since all arrays have the same method combination
                 legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
             trace_I1 = go.Scatter(x=val_b, y=Rate2_I1, mode='lines', line=dict(color=color, dash=style), name=f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}', legendgroup=legend_group, showlegend= True)
             trace_I2 = go.Scatter(x=val_c, y=Rate2_I2, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
@@ -80,7 +80,7 @@ for i in range(len(DetectorsLegend)):
             color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
             x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
-            if not np.isnan(Rate_graf[:, c3, i, j]).any() and not np.isnan(Rate_wall[:, c3, i, j]).any() and not np.isnan(Rate_trees[:, c3, i, j]).any() and not np.isnan(Rate_bikes[:, c3, i, j]).any():
+            if not np.isnan(Rate_graf[:, c3, i, j]).any():
                 legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
             trace_G = go.Scatter(x=x, y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}', legendgroup=legend_group, showlegend= True)
             trace_W = go.Scatter(x=x, y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
