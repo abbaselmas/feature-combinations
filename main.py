@@ -102,24 +102,12 @@ import numpy as np
 def evaluate_with_geometric_verification(KP1, KP2, Dspt1, Dspt2, norm_type, threshold=10):
     bf = cv2.BFMatcher(norm_type, crossCheck=False)
     matches = bf.match(Dspt1, Dspt2)
-
     pts1 = np.float32([KP1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
     pts2 = np.float32([KP2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
-    # Estimate homography using RANSAC
     H, _ = cv2.findHomography(pts1, pts2, cv2.RANSAC, threshold)
-    # Calculate Euclidean distances between transformed keypoints and keypoints from img2
     pts1_transformed = cv2.perspectiveTransform(pts1, H)
-    # Calculate distances based on norm type
-    if norm_type == cv2.NORM_L2:
-        distances = np.linalg.norm(pts1_transformed - pts2, axis=2)
-    elif norm_type == cv2.NORM_HAMMING:
-        # For NORM_HAMMING, we need to convert keypoints to integers
-        pts1_transformed = pts1_transformed.astype(np.int32)
-        pts2 = pts2.astype(np.int32)
-        distances = np.sum(pts1_transformed != pts2, axis=2)
-    # Count inliers (matches with distances below threshold)
+    distances = np.linalg.norm(pts1_transformed - pts2, axis=2)
     inliers = np.sum(distances < threshold)
-    # Calculate match rate based on inlier count
     match_rate = (inliers / len(matches)) * 100
     return match_rate
 
