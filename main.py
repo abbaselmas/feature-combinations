@@ -72,23 +72,16 @@ def get_cam_scale(Img, s):
 def get_cam_rot(Img, r):
     # Get the height and width of the image
     height, width = Img.shape[:2]
-
     image_center = (width/2, height/2)
     rotation_mat = cv2.getRotationMatrix2D(image_center, r, 1.)
-
     abs_cos = abs(rotation_mat[0,0])
     abs_sin = abs(rotation_mat[0,1])
-
     bound_w = int(height * abs_sin + width * abs_cos)
     bound_h = int(height * abs_cos + width * abs_sin)
-
     rotation_mat[0, 2] += bound_w/2 - image_center[0]
     rotation_mat[1, 2] += bound_h/2 - image_center[1]
-
     rotated_image = cv2.warpAffine(Img, rotation_mat, (bound_w, bound_h))
-
     couple_I_Ir = [Img, rotated_image]  # list of 2 images (original image and image with rotation change)
-
     # Save the images to disk
     filename = f"{maindir}/rotation/image_{r}.png"  # You can change the format and naming convention as needed
     cv2.imwrite(filename, rotated_image)
@@ -175,7 +168,6 @@ boost = cv2.xfeatures2d.BoostDesc_create(desc=300, use_scale_orientation=False, 
 
 Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, star, hl, msd, tbmr]) # 13 detectors
 Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost]) # 14 descriptors
-#matching       = list([cv2.NORM_L1, cv2.NORM_L2, cv2.NORM_L2SQR, cv2.NORM_HAMMING]) # 4 normalization methods
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 
 ################ Scenario 1 (Intensity) ################
