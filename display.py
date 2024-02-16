@@ -23,7 +23,8 @@ Rate_intensity  = np.load(maindir + '/arrays/Rate_intensity.npy')
 Rate_scale      = np.load(maindir + '/arrays/Rate_scale.npy')
 Rate_rot        = np.load(maindir + '/arrays/Rate_rot.npy')
 
-fig = make_subplots(rows=2, cols=2, shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.05)
+fig = make_subplots(rows=2, cols=2, shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
+fig.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         for c3 in range(len(Norm)):
@@ -67,7 +68,8 @@ Exec_time_intensity = np.load(maindir + '/arrays/Exec_time_intensity.npy')
 Exec_time_scale = np.load(maindir + '/arrays/Exec_time_scale.npy')
 Exec_time_rot = np.load(maindir + '/arrays/Exec_time_rot.npy')
 
-fig1 = make_subplots(rows=2, cols=2, subplot_titles=['Detectors', 'Descriptors', 'Evaluation(matching)'], shared_xaxes=False, shared_yaxes=False, specs=[[{}, {}],[{"colspan": 2}, None]],horizontal_spacing=0.05, vertical_spacing=0.05)
+fig1 = make_subplots(rows=2, cols=2, subplot_titles=['Detectors', 'Descriptors', 'Evaluation(matching)'], shared_xaxes=False, shared_yaxes=False, specs=[[{}, {}],[{"colspan": 2}, None]],horizontal_spacing=0.05, vertical_spacing=0.1)
+fig1.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 for i in range(len(DetectorsLegend)):
     mean_intensity  = np.mean(Exec_time_intensity[:, :, i, :, 0])
     mean_scale      = np.mean(Exec_time_scale[:, :, i, :, 0])
@@ -108,7 +110,8 @@ Rate_wall  = np.load(maindir + '/arrays/Rate_wall.npy')
 Rate_trees = np.load(maindir + '/arrays/Rate_trees.npy')
 Rate_bikes = np.load(maindir + '/arrays/Rate_bikes.npy')
 
-fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf', 'Wall', 'Trees', 'Bikes'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.05)
+fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf', 'Wall', 'Trees', 'Bikes'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
+fig2.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         for c3 in range(len(Norm)):
@@ -151,7 +154,8 @@ Exec_time_wall = np.load(maindir + '/arrays/Exec_time_wall.npy')
 Exec_time_trees = np.load(maindir + '/arrays/Exec_time_trees.npy')
 Exec_time_bikes = np.load(maindir + '/arrays/Exec_time_bikes.npy')
 
-fig3 = make_subplots(rows=2, cols=2, subplot_titles=['Detectors', 'Descriptors', 'Evaluation(matching)'], shared_xaxes=False, shared_yaxes=False, specs=[[{}, {}],[{"colspan": 2}, None]], horizontal_spacing=0.05, vertical_spacing=0.05)
+fig3 = make_subplots(rows=2, cols=2, subplot_titles=['Detectors', 'Descriptors', 'Evaluation(matching)'], shared_xaxes=False, shared_yaxes=False, specs=[[{}, {}],[{"colspan": 2}, None]], horizontal_spacing=0.05, vertical_spacing=0.1)
+fig3.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 for i in range(len(DetectorsLegend)):
     mean_detector_time  = np.mean(Exec_time_graf[:, :, i, :, 0] + Exec_time_wall[:, :, i, :, 0] + Exec_time_trees[:, :, i, :, 0] + Exec_time_bikes[:, :, i, :, 0])/4
     if not (np.any(mean_detector_time <= 0)):
