@@ -471,7 +471,7 @@ for g in range(len(img)):
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_bark[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
+                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_bark[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -479,7 +479,7 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_bark[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
+                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_bark[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_bark[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
@@ -512,7 +512,7 @@ for g in range(len(img)):
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_boat[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
+                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_boat[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -520,7 +520,7 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_boat[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
+                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_boat[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_boat[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
@@ -553,7 +553,7 @@ for g in range(len(img)):
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_leuven[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
+                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_leuven[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -561,7 +561,7 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_leuven[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
+                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_leuven[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_leuven[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
@@ -594,7 +594,7 @@ for g in range(len(img)):
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_ubc[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
+                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_ubc[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -602,7 +602,7 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_ubc[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
+                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_ubc[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_ubc[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
