@@ -18,7 +18,7 @@ line_styles = ['solid', 'dash', 'dot']  # Add more styles as needed
 
 Norm = ['L2', 'HAM']
 
-#################################First Four###############################################################
+#################################Synthetic Data###############################################################
 Rate_intensity  = np.load(maindir + '/arrays/Rate_intensity.npy')
 Rate_scale      = np.load(maindir + '/arrays/Rate_scale.npy')
 Rate_rot        = np.load(maindir + '/arrays/Rate_rot.npy')
@@ -61,9 +61,10 @@ fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 
-fig.write_html("PhD_first4.html")
-
+fig.write_html("SyntheticData.html")
 ###########################################################################################################
+
+################################Synthetic Data Timing######################################################
 Exec_time_intensity = np.load(maindir + '/arrays/Exec_time_intensity.npy')
 Exec_time_scale = np.load(maindir + '/arrays/Exec_time_scale.npy')
 Exec_time_rot = np.load(maindir + '/arrays/Exec_time_rot.npy')
@@ -100,17 +101,17 @@ for i in range(len(DetectorsLegend)):
 fig1.update_yaxes(title_text="milliseconds", row=1, col=1)
 fig1.update_yaxes(title_text="milliseconds", row=1, col=2)
 fig1.update_yaxes(title_text="milliseconds", row=2, col=1)
-fig1.write_html("PhD_first4_aver_exec_time.html")
+fig1.write_html("SyntheticData_timing.html")
 
 ###########################################################################################################
 
-######################OXFORD AFFINE########################################################################
+######################OXFORD AFFINE 1,2,3,4################################################################
 Rate_graf  = np.load(maindir + '/arrays/Rate_graf.npy')
 Rate_wall  = np.load(maindir + '/arrays/Rate_wall.npy')
 Rate_trees = np.load(maindir + '/arrays/Rate_trees.npy')
 Rate_bikes = np.load(maindir + '/arrays/Rate_bikes.npy')
 
-fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf', 'Wall', 'Trees', 'Bikes'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
+fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf(Viewpoint)', 'Wall(Viewpoint)', 'Trees(Blur)', 'Bikes(Blur)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig2.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
@@ -146,9 +147,54 @@ fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 
-fig2.write_html("PhD_oxford.html")
-
+fig2.write_html("oxfordAffineData1234.html")
 ###########################################################################################################
+
+#######OXFORD AFFINE 5,6,7,8#################################################################################
+Rate_bark   = np.load(maindir + '/arrays/Rate_bark.npy')
+Rate_boat   = np.load(maindir + '/arrays/Rate_boat.npy')
+Rate_leuven = np.load(maindir + '/arrays/Rate_leuven.npy')
+Rate_ubc    = np.load(maindir + '/arrays/Rate_ubc.npy')
+
+fig4 = make_subplots(rows=2, cols=2, subplot_titles=['Bark(Zoom+Rotation)', 'Boat(Zoom+Rotation)', 'Leuven(Light)', 'UBC(JPEG Compression)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
+fig4.update_layout(margin=dict(l=20, r=20, t=25, b=25))
+for i in range(len(DetectorsLegend)):
+    for j in range(len(DescriptorsLegend)):
+        for c3 in range(len(Norm)):
+            Rate_B  = Rate_bark[1:,  c3, i, j]
+            Rate_Bo = Rate_boat[1:,  c3, i, j]
+            Rate_L  = Rate_leuven[1:, c3, i, j]
+            Rate_U  = Rate_ubc[1:,    c3, i, j]
+
+            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
+            style = line_styles[j % len(line_styles)]  # Cycle through line styles
+            x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
+
+            if not np.isnan(Rate_bark[:, c3, i, j]).any():
+                legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
+                trace_B = go.Scatter(x=x, y=Rate_B, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
+                trace_Bo = go.Scatter(x=x, y=Rate_Bo, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+                trace_L = go.Scatter(x=x, y=Rate_L, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+                trace_U = go.Scatter(x=x, y=Rate_U, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+                fig4.add_trace(trace_B, row=1, col=1)
+                fig4.add_trace(trace_Bo, row=1, col=2)
+                fig4.add_trace(trace_L, row=2, col=1)
+                fig4.add_trace(trace_U, row=2, col=2)
+
+x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
+fig4.update_layout(  xaxis = dict(tickmode = 'array', tickvals = x),
+                    xaxis2 = dict(tickmode = 'array', tickvals = x),
+                    xaxis3 = dict(tickmode = 'array', tickvals = x),
+                    xaxis4 = dict(tickmode = 'array', tickvals = x))
+
+fig4.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
+fig4.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
+fig4.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
+fig4.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
+
+fig4.write_html("oxfordAffineData5678.html")
+
+#########################OXFORD AFFINE TIMING ###############################################################
 Exec_time_graf = np.load(maindir + '/arrays/Exec_time_graf.npy')
 Exec_time_wall = np.load(maindir + '/arrays/Exec_time_wall.npy')
 Exec_time_trees = np.load(maindir + '/arrays/Exec_time_trees.npy')
@@ -156,18 +202,19 @@ Exec_time_bikes = np.load(maindir + '/arrays/Exec_time_bikes.npy')
 
 fig3 = make_subplots(rows=2, cols=2, subplot_titles=['Detectors', 'Descriptors', 'Evaluation(matching)'], shared_xaxes=False, shared_yaxes=False, specs=[[{}, {}],[{"colspan": 2}, None]], horizontal_spacing=0.05, vertical_spacing=0.1)
 fig3.update_layout(margin=dict(l=20, r=20, t=25, b=25))
+# detector time
 for i in range(len(DetectorsLegend)):
     mean_detector_time  = np.mean(Exec_time_graf[:, :, i, :, 0] + Exec_time_wall[:, :, i, :, 0] + Exec_time_trees[:, :, i, :, 0] + Exec_time_bikes[:, :, i, :, 0])/4
     if not (np.any(mean_detector_time <= 0)):
         trace_detect = go.Bar(x=[DetectorsLegend[i]], y=[mean_detector_time], name=DetectorsLegend[i], showlegend=True, text=[f'{mean_detector_time:.4f}'], textposition='auto')
         fig3.add_trace(trace_detect, row=1, col=1)
-
+# descriptor time
 for j in range(len(DescriptorsLegend)):
     mean_descriptor_time  = np.mean(Exec_time_graf[:, :, :, j, 1]+Exec_time_wall[:, :, :, j, 1]+Exec_time_trees[:, :, :, j, 1]+Exec_time_bikes[:, :, :, j, 1])/4
     if not (np.any(mean_descriptor_time <= 0)):
         trace_descr = go.Bar(x=[DescriptorsLegend[j]], y=[mean_descriptor_time], name=DescriptorsLegend[j], showlegend=True, text=[f'{mean_descriptor_time:.4f}'], textposition='auto')
         fig3.add_trace(trace_descr, row=1, col=2)
-
+# matching time
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         mean_matching_time  = np.mean(Exec_time_graf[:, :, i, j, 2]+Exec_time_wall[:, :, i, j, 2]+Exec_time_trees[:, :, i, j, 2]+Exec_time_bikes[:, :, i, j, 2])/4
@@ -175,6 +222,6 @@ for i in range(len(DetectorsLegend)):
             trace_match = go.Bar(x=[DetectorsLegend[i] + '-' + DescriptorsLegend[j]], y=[mean_matching_time], name=DetectorsLegend[i] + '-' + DescriptorsLegend[j], showlegend=True, text=[f'{mean_matching_time:.4f}'], textposition='auto')
             fig3.add_trace(trace_match, row=2, col=1)
 
-fig3.write_html("PhD_oxford_aver_exec_time.html")
+fig3.write_html("oxfordAffine_timing.html")
 
 ############################################################################################################
