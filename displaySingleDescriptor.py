@@ -36,6 +36,7 @@ fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
+fig.update_layout(hovermode="x unified")
 for j in range(len(DescriptorsLegend)):
     for i in range(len(DetectorsLegend)):
         for c3 in range(len(Norm)):
@@ -84,7 +85,7 @@ fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
-
+fig2.update_layout(hovermode="x unified")
 for j in range(len(DescriptorsLegend)):
     for i in range(len(DetectorsLegend)):
         for c3 in range(len(Norm)):
@@ -136,7 +137,7 @@ fig3.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
 fig3.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig3.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig3.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
-
+fig3.update_layout(hovermode="x unified")
 for j in range(len(DescriptorsLegend)):
     for i in range(len(DetectorsLegend)):
         for c3 in range(len(Norm)):
