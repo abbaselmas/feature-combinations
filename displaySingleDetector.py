@@ -9,14 +9,12 @@ nbre_img = len(val_b) + len(val_c)
 scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈ [0.5 : 0.2 : 1.5]
 rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
-maindir = os.path.abspath(os.path.dirname(__file__))
-
-
 DetectorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'agast', 'gftt', 'star', 'hl', 'msd', 'tbmr']
 DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
 line_styles = ['solid', 'dash', 'dot']  # Add more styles as needed
-
 Norm = ['L2', 'HAM']
+
+maindir = os.path.abspath(os.path.dirname(__file__))
 
 #################################Synthetic Data###############################################################
 Rate_intensity  = np.load(maindir + '/arrays/Rate_intensity.npy')

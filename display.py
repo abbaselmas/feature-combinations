@@ -9,14 +9,12 @@ nbre_img = len(val_b) + len(val_c)
 scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈ [0.5 : 0.2 : 1.5]
 rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
-maindir = os.path.abspath(os.path.dirname(__file__))
-
-
 DetectorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'agast', 'gftt', 'star', 'hl', 'msd', 'tbmr']
 DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
 line_styles = ['solid', 'dash', 'dot']  # Add more styles as needed
-
 Norm = ['L2', 'HAM']
+
+maindir = os.path.abspath(os.path.dirname(__file__))
 
 #################################Synthetic Data###############################################################
 Rate_intensity  = np.load(maindir + '/arrays/Rate_intensity.npy')
@@ -37,15 +35,15 @@ for i in range(len(DetectorsLegend)):
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
 
             if not np.isnan(Rate_intensity[:, c3, i, j]).any(): # single array check is enough since all arrays have the same method combination
-                legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace  
-                trace_I1 = go.Scatter(x=val_b, y=Rate2_I1, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
-                trace_I2 = go.Scatter(x=val_c, y=Rate2_I2, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-                trace_S  = go.Scatter(x=scale, y=Rate2_S,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-                trace_R  = go.Scatter(x=rot,   y=Rate2_R,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+                legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
+                trace_I1 = go.Scatter(x=val_b, y=Rate2_I1, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend=True)
+                trace_I2 = go.Scatter(x=val_c, y=Rate2_I2, mode='lines', line=dict(color=color, dash=style), name='',           legendgroup=legend_group, showlegend=False)
+                trace_S  = go.Scatter(x=scale, y=Rate2_S,  mode='lines', line=dict(color=color, dash=style), name='',           legendgroup=legend_group, showlegend=False)
+                trace_R  = go.Scatter(x=rot,   y=Rate2_R,  mode='lines', line=dict(color=color, dash=style), name='',           legendgroup=legend_group, showlegend=False)
                 fig.add_trace(trace_I1, row=1, col=1)
                 fig.add_trace(trace_I2, row=1, col=2)
                 fig.add_trace(trace_S,  row=2, col=1)
-                fig.add_trace(trace_R,  row=2, col=2)
+                fig.add_trace(trace_R,  row=2, col=2)               
 
 fig.update_layout(   xaxis = dict(tickvals = val_b),
                     xaxis2 = dict(tickvals = val_c),
@@ -223,5 +221,4 @@ for i in range(len(DetectorsLegend)):
             fig3.add_trace(trace_match, row=2, col=1)
 
 fig3.write_html("oxfordAffine_timing.html")
-
 ############################################################################################################
