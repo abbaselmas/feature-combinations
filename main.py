@@ -89,9 +89,6 @@ def get_cam_rot(Img, r):
     return rotation_mat, couple_I_Ir  # it also returns the rotation matrix for further use in the rotation evaluation function
 # ................................................................................
 
-import cv2
-import numpy as np
-
 def evaluate_with_geometric_verification(KP1, KP2, Dspt1, Dspt2, norm_type, threshold=10):
     bf = cv2.BFMatcher(norm_type, crossCheck=False)
     matches = bf.match(Dspt1, Dspt2)
@@ -123,9 +120,7 @@ def evaluate_with_descriptor_distance(KP1, KP2, Dspt1, Dspt2, norm_type, max_dis
     match_rate = valid_match_count / max(len(KP1), len(KP2)) * 100
     return match_rate
 
-## Evaluation of scenario 4: graf: Function that takes as input the keypoints, the descriptors (of 2 images),
-#                            the type of matching, it returns the percentage of correct matched points
-def evaluate_ratio(Dspt1, Dspt2, match_method):
+def evaluate_with_ratio(Dspt1, Dspt2, match_method):
     bf = cv2.BFMatcher(normType=match_method, crossCheck=False)
     matches = bf.knnMatch(Dspt1,Dspt2,k=2)
     good = []
@@ -200,7 +195,7 @@ for k in range(nbre_img):
                     Exec_time_intensity[k, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_intensity[k, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_intensity[k, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+                    Rate_intensity[k, c3, i, j] = evaluate_with_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_intensity[k, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 1 Intensity %s | Detector %s Descriptor %s Matching %s is calculated within %f", k, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_intensity[k, c3, i, j, 2])
@@ -240,7 +235,7 @@ for s in range(len(scale)): # for the 7 scale images
                     Exec_time_scale[s, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_scale[s, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_scale[s, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+                    Rate_scale[s, c3, i, j] = evaluate_with_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_scale[s, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 2 Scale %s | Detector %s Descriptor %s Matching %s is calculated within %f", s, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_scale[s, c3, i, j, 2])
@@ -280,7 +275,7 @@ for r in range(len(rot)):
                     Exec_time_rot[r, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_rot[r, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_rot[r, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+                    Rate_rot[r, c3, i, j] = evaluate_with_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_rot[r, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 3 Rotation %s | Detector %s Descriptor %s Matching %s is calculated within %f", r, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_rot[r, c3, i, j, 2])
@@ -320,7 +315,7 @@ for g in range(len(img)):
                     Exec_time_graf[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_graf[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+                    Rate_graf[g, c3, i, j] = evaluate_with_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_graf[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 4 graf %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_graf[g, c3, i, j, 2])
@@ -360,7 +355,7 @@ for g in range(len(img)):
                     Exec_time_wall[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_wall[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+                    Rate_wall[g, c3, i, j] = evaluate_with_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_wall[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 5 wall %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_wall[g, c3, i, j, 2])
@@ -400,7 +395,7 @@ for g in range(len(img)):
                     Exec_time_trees[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_trees[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+                    Rate_trees[g, c3, i, j] = evaluate_with_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_trees[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 6 trees %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_trees[g, c3, i, j, 2])
@@ -440,7 +435,7 @@ for g in range(len(img)):
                     Exec_time_bikes[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_bikes[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+                    Rate_bikes[g, c3, i, j] = evaluate_with_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_bikes[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 7 bikes %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_bikes[g, c3, i, j, 2])
@@ -481,7 +476,7 @@ for g in range(len(img)):
                     Exec_time_bark[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_bark[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_bark[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+                    Rate_bark[g, c3, i, j] = evaluate_with_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_bark[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 8 bark %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_bark[g, c3, i, j, 2])
@@ -522,7 +517,7 @@ for g in range(len(img)):
                     Exec_time_boat[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_boat[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_boat[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+                    Rate_boat[g, c3, i, j] = evaluate_with_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_boat[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 9 boat %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_boat[g, c3, i, j, 2])
@@ -563,7 +558,7 @@ for g in range(len(img)):
                     Exec_time_leuven[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_leuven[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_leuven[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+                    Rate_leuven[g, c3, i, j] = evaluate_with_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_leuven[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 10 leuven %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_leuven[g, c3, i, j, 2])
@@ -604,7 +599,7 @@ for g in range(len(img)):
                     Exec_time_ubc[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_ubc[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_ubc[g, c3, i, j] = evaluate_ratio(descriptors1, descriptors2, matching[c3])
+                    Rate_ubc[g, c3, i, j] = evaluate_with_ratio(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_ubc[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 11 ubc %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_ubc[g, c3, i, j, 2])
