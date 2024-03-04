@@ -42,16 +42,16 @@ def get_intensity_8Img(Img, val_b, val_c): # val_b, val_c must be 2 vectors with
         List8Img[i][List8Img[i] > 255] = 255 # set pixels with intensity > 255 to 255
         List8Img[i][List8Img[i] < 0] = 0 # set the pixels with intensity < 0 to the value of 0
         List8Img[i] = np.array(List8Img[i], dtype=np.uint8) # image transformation to uint8
+        filename = f"{maindir}/intensity/image_I+{val_b[i]}.png"
+        cv2.imwrite(filename, List8Img[i])
     for j in range(len(val_c)): # for I ∗ c, with: c ∈ [0.7 : 0.2 : 1.3].
         I =  image * val_c[j]
         List8Img[j+4] = I.astype(int)
         List8Img[j+4][List8Img[j+4] > 255] = 255 # set pixels with intensity > 255 to 255
         List8Img[j+4][List8Img[j+4] < 0] = 0 # set the pixels with intensity < 0 to the value of 0
         List8Img[j+4] = np.array(List8Img[j+4], dtype=np.uint8) # transform image to uint8 (min value = 0, max value = 255)
-    # Save the images to disk
-    for i, img in enumerate(List8Img):
-        filename = f"{maindir}/intensity/image_{i}.png"  # You can change the format and naming convention as needed
-        cv2.imwrite(filename, img)
+        filename = f"{maindir}/intensity/image_Ix{val_c[j]}.png"
+        cv2.imwrite(filename, List8Img[j+4])
     return Img, List8Img
 # ................................................................................
 
