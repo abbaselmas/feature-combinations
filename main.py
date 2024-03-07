@@ -1,8 +1,6 @@
 import cv2 # opencv
 import numpy as np # For numerical calculations
-import logging # For logging
-import time
-import os
+import logging, time, os
 
 # Creating logger
 mylogs = logging.getLogger(__name__)
@@ -138,7 +136,7 @@ kaze  = cv2.KAZE_create(extended=False, upright=False, threshold=0.00005,  nOcta
 ### detectors 8
 fast  = cv2.FastFeatureDetector_create(threshold=50, nonmaxSuppression=True, type=cv2.FastFeatureDetector_TYPE_9_16)
 mser  = cv2.MSER_create(delta=1, min_area=30, max_area=1440, max_variation=0.025, min_diversity=0.8, max_evolution=200, area_threshold=1.01, min_margin=0.003, edge_blur_size=3)
-agast = cv2.AgastFeatureDetector_create(threshold=5,nonmaxSuppression=True,type=cv2.AgastFeatureDetector_OAST_9_16)
+agast = cv2.AgastFeatureDetector_create(threshold=5,nonmaxSuppression=True,type=cv2.AgastFeatureDetector_AGAST_5_8)
 gftt  = cv2.GFTTDetector_create(maxCorners=20000, qualityLevel=0.002, minDistance=1.0, blockSize=3, useHarrisDetector=False, k=0.04)
 star  = cv2.xfeatures2d.StarDetector_create(maxSize=15, responseThreshold=1, lineThresholdProjected=10, lineThresholdBinarized=8, suppressNonmaxSize=3)
 hl    = cv2.xfeatures2d.HarrisLaplaceFeatureDetector_create(numOctaves=6, corn_thresh=0.01, DOG_thresh=0.01, maxCorners=20000, num_layers=4)
@@ -154,12 +152,6 @@ latch = cv2.xfeatures2d.LATCH_create(bytes=32,rotationInvariance=False,half_ssd_
 beblid= cv2.xfeatures2d.BEBLID_create(scale_factor=5.00, n_bits=101)
 teblid= cv2.xfeatures2d.TEBLID_create(scale_factor=5.00, n_bits=102)
 boost = cv2.xfeatures2d.BoostDesc_create(desc=300, use_scale_orientation=False, scale_factor=5.00)
-
-# DetectDescript = list([sift, akaze, orb, brisk, kaze])
-# binary_detectors = [orb, brisk]
-# non_binary_detectors = [sift, akaze, kaze, fast, mser, agast, gftt, star, hl, msd, tbmr]
-# binary_descriptors = [orb, brisk, freak, brief, latch, beblid, teblid, boost]
-# non_binary_descriptors = [sift, akaze, kaze, vgg, daisy, lucid]
 
 Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, star, hl, msd, tbmr]) # 13 detectors
 Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost]) # 14 descriptors
