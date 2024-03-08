@@ -59,7 +59,7 @@ for j in range(len(DescriptorsLegend)):
                 fig.add_trace(trace_S,  row=2, col=1)
                 fig.add_trace(trace_R,  row=2, col=2)
                 
-    fig.write_html(f'SyntheticData_Descriptor_{DescriptorsLegend[j]}.html')
+    fig.write_html(f'./html/SyntheticData_Descriptor_{DescriptorsLegend[j]}.html')
     fig.data = []
     trace_I1 = None
     trace_I2 = None
@@ -110,7 +110,7 @@ for j in range(len(DescriptorsLegend)):
                 fig2.add_trace(trace_B, row=2, col=2)
 
 
-    fig2.write_html(f'oxfordAffine1234_Descriptor_{DescriptorsLegend[j]}.html')
+    fig2.write_html(f'./html/oxfordAffine1234_Descriptor_{DescriptorsLegend[j]}.html')
     fig2.data = []
     trace_G = None
     trace_W = None
@@ -162,7 +162,7 @@ for j in range(len(DescriptorsLegend)):
                 fig3.add_trace(trace_U, row=2, col=2)
 
 
-    fig3.write_html(f'oxfordAffine5678_Descriptor_{DescriptorsLegend[j]}.html')
+    fig3.write_html(f'./html/oxfordAffine5678_Descriptor_{DescriptorsLegend[j]}.html')
     fig3.data = []
     trace_B = None
     trace_Bo = None

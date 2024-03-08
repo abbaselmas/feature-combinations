@@ -59,7 +59,7 @@ fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 
-fig.write_html("SyntheticData.html")
+fig.write_html("./html/SyntheticData.html")
 ###########################################################################################################
 
 ################################Synthetic Data Timing######################################################
@@ -99,7 +99,7 @@ for i in range(len(DetectorsLegend)):
 fig1.update_yaxes(title_text="milliseconds", row=1, col=1)
 fig1.update_yaxes(title_text="milliseconds", row=1, col=2)
 fig1.update_yaxes(title_text="milliseconds", row=2, col=1)
-fig1.write_html("SyntheticData_timing.html")
+fig1.write_html("./html/SyntheticData_timing.html")
 
 ###########################################################################################################
 
@@ -145,7 +145,7 @@ fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 
-fig2.write_html("oxfordAffineData1234.html")
+fig2.write_html("./html/oxfordAffineData1234.html")
 ###########################################################################################################
 
 #######OXFORD AFFINE 5,6,7,8#################################################################################
@@ -220,5 +220,5 @@ for i in range(len(DetectorsLegend)):
             trace_match = go.Bar(x=[DetectorsLegend[i] + '-' + DescriptorsLegend[j]], y=[mean_matching_time], name=DetectorsLegend[i] + '-' + DescriptorsLegend[j], showlegend=True, text=[f'{mean_matching_time:.4f}'], textposition='auto')
             fig3.add_trace(trace_match, row=2, col=1)
 
-fig3.write_html("oxfordAffine_timing.html")
+fig3.write_html("./html/oxfordAffine_timing.html")
 ############################################################################################################
