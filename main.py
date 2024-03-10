@@ -1,5 +1,5 @@
-import cv2 # opencv
-import numpy as np # For numerical calculations
+import cv2
+import numpy as np
 import logging, time, os
 
 # Creating logger
@@ -146,49 +146,35 @@ def match_with_flannbased_NNDR(Dspt1, Dspt2, norm_type, threshold_ratio=0.7):
     return match_rate
 
 ### detectors/descriptors 5
-sift  = cv2.SIFT_create(nOctaveLayers=3, contrastThreshold=0.04, edgeThreshold=100.0, sigma=1.6)
-akaze = cv2.AKAZE_create(descriptor_type=cv2.AKAZE_DESCRIPTOR_KAZE, descriptor_size=0, descriptor_channels=3, threshold=0.00005, nOctaves=4, nOctaveLayers=3, diffusivity=cv2.KAZE_DIFF_PM_G1)
-orb   = cv2.ORB_create(nfeatures=500, scaleFactor=1.2, nlevels=4, edgeThreshold=31, firstLevel=0, WTA_K=2, scoreType=cv2.ORB_HARRIS_SCORE, patchSize=31, fastThreshold=12)
-brisk = cv2.BRISK_create(thresh=50, octaves=1, patternScale=1.2)
-kaze  = cv2.KAZE_create(extended=False, upright=False, threshold=0.00005,  nOctaves=4, nOctaveLayers=3, diffusivity=cv2.KAZE_DIFF_PM_G2)
-# kaze  = cv2.KAZE_create(extended=False, upright=False, threshold=1e-9,  nOctaves=4, nOctaveLayers=3, diffusivity=cv2.KAZE_DIFF_PM_G2)
-# sift  = cv2.SIFT_create(nOctaveLayers=4, contrastThreshold=1e-9, edgeThreshold=100.0, sigma=0.5) # Full Potential
-# akaze = cv2.AKAZE_create(descriptor_type=cv2.AKAZE_DESCRIPTOR_MLDB, descriptor_size=0, descriptor_channels=3, threshold=1e-9, nOctaves=4, nOctaveLayers=3, diffusivity=cv2.KAZE_DIFF_PM_G1)
-# orb   = cv2.ORB_create(nfeatures=500000, scaleFactor=1.2, nlevels=4, edgeThreshold=31, firstLevel=0, WTA_K=2, scoreType=cv2.ORB_HARRIS_SCORE, patchSize=31, fastThreshold=1)
-# brisk = cv2.BRISK_create(thresh=1, octaves=4, patternScale=1.2)
+sift   = cv2.SIFT_create(nOctaveLayers=3, contrastThreshold=0.1, edgeThreshold=10.0, sigma=1.6) #best with layer=3 contrastThreshold=0.1 
+akaze  = cv2.AKAZE_create(descriptor_type=cv2.AKAZE_DESCRIPTOR_MLDB, descriptor_size=0, descriptor_channels=3, threshold=0.01, nOctaves=4, nOctaveLayers=4, diffusivity=cv2.KAZE_DIFF_PM_G2)
+orb    = cv2.ORB_create(nfeatures=5000, scaleFactor=1.1, nlevels=6, edgeThreshold=60, firstLevel=1, WTA_K=2, scoreType=cv2.ORB_HARRIS_SCORE, patchSize=5, fastThreshold=60)
+brisk = cv2.BRISK_create(thresh=130, octaves=1, patternScale=1.1)
+kaze   = cv2.KAZE_create(extended=False, upright=False, threshold=0.01,  nOctaves=4, nOctaveLayers=4, diffusivity=cv2.KAZE_DIFF_PM_G2)
 
-### detectors 8
-# fast  = cv2.FastFeatureDetector_create(threshold=1, nonmaxSuppression=False, type=cv2.FAST_FEATURE_DETECTOR_TYPE_9_16)
-# mser  = cv2.MSER_create(delta=1, min_area=30, max_area=1440, max_variation=0.025, min_diversity=0.8, max_evolution=10000, area_threshold=1.01, min_margin=0.003, edge_blur_size=3)
-# agast = cv2.AgastFeatureDetector_create(threshold=1,nonmaxSuppression=False,type=cv2.AGAST_FEATURE_DETECTOR_AGAST_7_12D)
-# gftt  = cv2.GFTTDetector_create(maxCorners=500000, qualityLevel=0.000001, minDistance=0.1, blockSize=3, useHarrisDetector=False, k=0.04)
-# gftt_harris = cv2.GFTTDetector_create(maxCorners=500000, qualityLevel=0.000001, minDistance=0.1, blockSize=3, useHarrisDetector=True, k=0.04)
-# star  = cv2.xfeatures2d.StarDetector_create(maxSize=15, responseThreshold=0.001, lineThresholdProjected=50, lineThresholdBinarized=50, suppressNonmaxSize=0)
-# hl    = cv2.xfeatures2d.HarrisLaplaceFeatureDetector_create(numOctaves=6, corn_thresh=0.000001, DOG_thresh=0.000001, maxCorners=500000, num_layers=4)
-# msd   = cv2.xfeatures2d.MSDDetector_create(m_patch_radius=3, m_search_area_radius=5, m_nms_radius=5, m_nms_scale_radius=0, m_th_saliency=1, m_kNN=4, m_scale_factor=1.25, m_n_scales=3, m_compute_orientation=1)
-# tbmr  = cv2.xfeatures2d.TBMR_create(min_area=60, max_area_relative=0.01, scale_factor=1.25, n_scales=-1)
+### detectors 9
+fast  = cv2.FastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_5_8)
+mser  = cv2.MSER_create(delta=5, min_area=60, max_area=14400, max_variation=0.25, min_diversity=0.95, max_evolution=10, area_threshold=1.01, min_margin=0.003, edge_blur_size=5)
+agast = cv2.AgastFeatureDetector_create(threshold=5,nonmaxSuppression=True,type=cv2.AGAST_FEATURE_DETECTOR_AGAST_7_12D)
+gftt  = cv2.GFTTDetector_create(maxCorners=20000, qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=False, k=0.04)
+gftt_harris = cv2.GFTTDetector_create(maxCorners=20000, qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=True, k=0.04)
+star  = cv2.xfeatures2d.StarDetector_create(maxSize=20, responseThreshold=5, lineThresholdProjected=100, lineThresholdBinarized=30, suppressNonmaxSize=3)
+hl    = cv2.xfeatures2d.HarrisLaplaceFeatureDetector_create(numOctaves=4, corn_thresh=0.01, DOG_thresh=0.01, maxCorners=20000, num_layers=4)
+msd   = cv2.xfeatures2d.MSDDetector_create(m_patch_radius=7, m_search_area_radius=5, m_nms_radius=5, m_nms_scale_radius=0, m_th_saliency=350.0, m_kNN=4, m_scale_factor=1.25, m_n_scales=-1, m_compute_orientation=0)
+tbmr  = cv2.xfeatures2d.TBMR_create(min_area=40, max_area_relative=0.01, scale_factor=1.25, n_scales=-1)
 
-fast  = cv2.FastFeatureDetector_create(threshold=50, nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_9_16)
-mser  = cv2.MSER_create(delta=1, min_area=30, max_area=1440, max_variation=0.025, min_diversity=0.8, max_evolution=200, area_threshold=1.01, min_margin=0.003, edge_blur_size=3)
-agast = cv2.AgastFeatureDetector_create(threshold=5,nonmaxSuppression=True,type=cv2.AGAST_FEATURE_DETECTOR_AGAST_5_8)
-gftt  = cv2.GFTTDetector_create(maxCorners=20000, qualityLevel=0.002, minDistance=1.0, blockSize=3, useHarrisDetector=False, k=0.04)
-gftt_harris = cv2.GFTTDetector_create(maxCorners=20000, qualityLevel=0.002, minDistance=1.0, blockSize=3, useHarrisDetector=True, k=0.04)
-star  = cv2.xfeatures2d.StarDetector_create(maxSize=15, responseThreshold=1, lineThresholdProjected=10, lineThresholdBinarized=8, suppressNonmaxSize=3)
-hl    = cv2.xfeatures2d.HarrisLaplaceFeatureDetector_create(numOctaves=6, corn_thresh=0.01, DOG_thresh=0.01, maxCorners=20000, num_layers=4)
-msd   = cv2.xfeatures2d.MSDDetector_create(m_patch_radius=3, m_search_area_radius=5, m_nms_radius=5, m_nms_scale_radius=0, m_th_saliency=250.0, m_kNN=4, m_scale_factor=1.25, m_n_scales=-1, m_compute_orientation=0)
-tbmr  = cv2.xfeatures2d.TBMR_create(min_area=60, max_area_relative=0.01, scale_factor=1.25, n_scales=-1)
 ### descriptors 9
-vgg   = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=5.00, dsc_normalize=False)
-daisy = cv2.xfeatures2d.DAISY_create(radius=15.0, q_radius=3, q_theta=8, q_hist=8, norm=cv2.xfeatures2d.DAISY_NRM_NONE, interpolation=True, use_orientation=False)
-freak = cv2.xfeatures2d.FREAK_create(orientationNormalized=False,scaleNormalized=False,patternScale=22.0,nOctaves=4)
-brief = cv2.xfeatures2d.BriefDescriptorExtractor_create(bytes=32, use_orientation=False)
-lucid = cv2.xfeatures2d.LUCID_create(lucid_kernel=1,blur_kernel=2)
-latch = cv2.xfeatures2d.LATCH_create(bytes=32,rotationInvariance=False,half_ssd_size=3,sigma=2.0)
-beblid= cv2.xfeatures2d.BEBLID_create(scale_factor=5.00, n_bits=101)
-teblid= cv2.xfeatures2d.TEBLID_create(scale_factor=5.00, n_bits=102)
-boost = cv2.xfeatures2d.BoostDesc_create(desc=300, use_scale_orientation=False, scale_factor=5.00)
+vgg   = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=6.75, dsc_normalize=False)
+daisy = cv2.xfeatures2d.DAISY_create(radius=1.0, q_radius=7, q_theta=1, q_hist=1, norm=cv2.xfeatures2d.DAISY_NRM_FULL, interpolation=False, use_orientation=False)
+freak = cv2.xfeatures2d.FREAK_create(orientationNormalized=True,scaleNormalized=False,patternScale=22.0,nOctaves=3)
+brief = cv2.xfeatures2d.BriefDescriptorExtractor_create(bytes=16, use_orientation=True)
+lucid = cv2.xfeatures2d.LUCID_create(lucid_kernel=3,blur_kernel=6)
+latch = cv2.xfeatures2d.LATCH_create(bytes=2,rotationInvariance=True,half_ssd_size=1,sigma=1.4)
+beblid= cv2.xfeatures2d.BEBLID_create(scale_factor=6.75, n_bits=100)
+teblid= cv2.xfeatures2d.TEBLID_create(scale_factor=6.75, n_bits=102)
+boost = cv2.xfeatures2d.BoostDesc_create(desc=300, use_scale_orientation=True, scale_factor=0.75)
 
-Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, star, hl, msd, tbmr]) # 13 detectors
+Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, gftt_harris, star, hl, msd, tbmr]) # 14 detectors
 Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost]) # 14 descriptors
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 
