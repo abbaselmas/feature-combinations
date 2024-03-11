@@ -2,23 +2,6 @@ import cv2
 import numpy as np
 import logging, time, os
 
-# Creating logger
-mylogs = logging.getLogger(__name__)
-mylogs.setLevel(logging.INFO)
-# Handler - 1
-file = logging.FileHandler("log.txt")
-fileformat = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
-file.setLevel(logging.INFO)
-file.setFormatter(fileformat)
-# Handler - 2
-stream = logging.StreamHandler()
-streamformat = logging.Formatter("%(levelname)s:%(module)s:%(message)s")
-stream.setLevel(logging.INFO)
-stream.setFormatter(streamformat)
-# Adding all handlers to the logs
-mylogs.addHandler(file)
-mylogs.addHandler(stream)
-
 maindir = os.path.abspath(os.path.dirname(__file__))
 datasetdir = "./oxfordAffine"
 folder = "/graf"
@@ -51,7 +34,6 @@ def get_intensity_8Img(Img, val_b, val_c): # val_b, val_c must be 2 vectors with
         filename = f"{maindir}/intensity/image_Ix{val_c[j]}.png"
         cv2.imwrite(filename, List8Img[j+4])
     return Img, List8Img
-# ................................................................................
 
 ## Scenario 2 (Scale): Function that takes as input the index of the camera, the index of the image n, and a scale, it returns a couple (I, Iscale). In the following, we will work with 7 images with a scale change Is : s ∈]1.1 : 0.2 : 2.3].
 def get_cam_scale(Img, s):
@@ -61,7 +43,6 @@ def get_cam_scale(Img, s):
     filename = f"{maindir}/scale/image_{s}.png"
     cv2.imwrite(filename, ImgScale)
     return I_Is
-# ................................................................................
 
 ## Scenario 3 (Rotation): Function that takes as input the index of the camera, the index of the image n, and a rotation angle, it returns a couple (I, Irot), and the rotation matrix. In the following, we will work with 9 images with a change of scale For an image I, we will create 9 images (I10, I20...I90) with change of rotation from 10 to 90 with a step of 10.
 def get_cam_rot(Img, r):
@@ -82,65 +63,38 @@ def get_cam_rot(Img, r):
     cv2.imwrite(filename, rotated_image)
 
     return rotation_mat, couple_I_Ir  # it also returns the rotation matrix for further use in the rotation evaluation function
-# ................................................................................
 
-def match_with_geometric_verification(KP1, KP2, Dspt1, Dspt2, norm_type, threshold=10):
-    bf = cv2.BFMatcher(norm_type, crossCheck=False)
-    matches = bf.match(Dspt1, Dspt2)
-    pts1 = np.float32([KP1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
-    pts2 = np.float32([KP2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
-    H, _ = cv2.findHomography(pts1, pts2, cv2.RANSAC, threshold)
-    pts1_transformed = cv2.perspectiveTransform(pts1, H)
-    distances = np.linalg.norm(pts1_transformed - pts2, axis=2)
-    inliers = np.sum(distances < threshold)
-    match_rate = (inliers / len(matches)) * 100
-    return match_rate
-
-def match_with_descriptor_distance(KP1, KP2, Dspt1, Dspt2, norm_type, max_distance_factor=1.0): #TODO: 100 constant to be parameterized or adjusted
-    valid_match_count = 0
-    bf = cv2.BFMatcher(norm_type, crossCheck=False)
-    matches = bf.match(Dspt1, Dspt2)
-    matches = sorted(matches, key=lambda x: x.distance)
-    # Determine the appropriate maximum distance threshold based on the norm type
-    if norm_type == cv2.NORM_HAMMING:
-        max_distance = max_distance_factor * len(Dspt1[0])  # Number of bits in the descriptor
-    else:  # Assuming NORM_L2
-        max_distance = max_distance_factor * 100  # Adjust as needed based on descriptor space
-    # Iterate over matches until the distance exceeds the maximum allowed distance
-    for match in matches:
-        if match.distance <= max_distance:
-            valid_match_count += 1
-        else:
-            break  # No need to continue evaluating matches if distance exceeds the threshold
-    match_rate = valid_match_count / max(len(KP1), len(KP2)) * 100
-    return match_rate
-
-def match_with_ratio_test(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
+def match_with_bf_ratio_test(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
     bf = cv2.BFMatcher(normType=norm_type, crossCheck=False)
     matches = bf.knnMatch(Dspt1,Dspt2,k=2)
-    good_matches = [match[0] for match in matches if match[0].distance < threshold_ratio * match[1].distance]
-    match_rate = len(good_matches) / len(matches) * 100
+    good = []
+    for m,n in matches:
+        if m.distance < threshold_ratio*n.distance:
+            good.append([m]) 
+    good = sorted(good, key = lambda x:x[0].distance)                
+    match_rate = len(good) / len(matches) * 100
     return match_rate
 
-def match_with_flannbased_NNDR(Dspt1, Dspt2, norm_type, threshold_ratio=0.7):
+def match_with_flannbased_NNDR(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
     if norm_type == cv2.NORM_L2:
-        index_params = dict(algorithm=1, trees=4)
-        search_params = dict(checks=32)
+        index_params = dict(algorithm=1, trees=5)
+        search_params = dict(checks=50)
         matcher = cv2.FlannBasedMatcher(index_params, search_params)
     elif norm_type == cv2.NORM_HAMMING:
-        index_params = dict(algorithm=6, table_number=6, key_size=15, multi_probe_level=1)
-        search_params = dict(checks=32)
+        index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
+        search_params = dict(checks=50)
         matcher = cv2.FlannBasedMatcher(index_params, search_params)
     else:
         matcher = cv2.DescriptorMatcher_create(cv2.DescriptorMatcher_FLANNBASED)
 
     matches = matcher.knnMatch(Dspt1, Dspt2, 2)
-    # Rejecting matches which don't have two neighbors
-    if norm_type == cv2.NORM_HAMMING:
-        matches = [match for match in matches if len(match) == 2]
-    good_matches = [match[0] for match in matches if match[0].distance < threshold_ratio * match[1].distance]
+    good_matches = []
+    for m, n in matches:
+        if m.distance < threshold_ratio * n.distance:
+            good_matches.append([m])
+    good_matches = sorted(good_matches, key=lambda x: x[0].distance)            
     match_rate = len(good_matches) / len(matches) * 100
-    return match_rate
+    return match_rate, good_matches
 
 ### detectors/descriptors 5
 sift   = cv2.SIFT_create(nOctaveLayers=3, contrastThreshold=0.1, edgeThreshold=10.0, sigma=1.6) #best with layer=3 contrastThreshold=0.1 
@@ -195,7 +149,6 @@ for k in range(nbre_img):
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_intensity[k, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_intensity[k, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
@@ -203,14 +156,11 @@ for k in range(nbre_img):
                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
                     end_time = time.time()
                     Exec_time_intensity[k, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_intensity[k, c3, i, j, 1])
                     start_time = time.time()
                     Rate_intensity[k, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_intensity[k, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 1 Intensity %s | Detector %s Descriptor %s Matching %s is calculated within %f", k, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_intensity[k, c3, i, j, 2])
                 except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_intensity[k, c3, i, j] = None
 # export numpy arrays
 np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
@@ -235,7 +185,6 @@ for s in range(len(scale)): # for the 7 scale images
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_scale[s, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_scale[s, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -243,14 +192,11 @@ for s in range(len(scale)): # for the 7 scale images
                     descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_scale[s, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_scale[s, c3, i, j, 1])
                     start_time = time.time()
                     Rate_scale[s, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_scale[s, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 2 Scale %s | Detector %s Descriptor %s Matching %s is calculated within %f", s, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_scale[s, c3, i, j, 2])
                 except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_scale[s, c3, i, j] = None
 # export numpy arrays
 np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
@@ -275,7 +221,6 @@ for r in range(len(rot)):
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_rot[r, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_rot[r, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -283,14 +228,11 @@ for r in range(len(rot)):
                     descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_rot[r, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_rot[r, c3, i, j, 1])
                     start_time = time.time()
                     Rate_rot[r, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_rot[r, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 3 Rotation %s | Detector %s Descriptor %s Matching %s is calculated within %f", r, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_rot[r, c3, i, j, 2])
                 except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_rot[r, c3, i, j] = None
 # export numpy arrays
 np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
@@ -315,7 +257,6 @@ for g in range(len(img)):
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_graf[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -323,14 +264,11 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_graf[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_graf[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_graf[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 4 graf %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_graf[g, c3, i, j, 2])
                 except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_graf[g, c3, i, j] = None
 # export numpy arrays
 np.save(maindir + "/arrays/Rate_graf.npy", Rate_graf)
@@ -355,7 +293,6 @@ for g in range(len(img)):
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_wall[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -363,14 +300,11 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_wall[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_wall[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_wall[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 5 wall %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_wall[g, c3, i, j, 2])
                 except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_wall[g, c3, i, j] = None
 # export numpy arrays
 np.save(maindir + "/arrays/Rate_wall.npy", Rate_wall)
@@ -395,7 +329,6 @@ for g in range(len(img)):
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_trees[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -403,14 +336,11 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_trees[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_trees[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_trees[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 6 trees %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_trees[g, c3, i, j, 2])
                 except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_trees[g, c3, i, j] = None
 # export numpy arrays
 np.save(maindir + "/arrays/Rate_trees.npy", Rate_trees)
@@ -435,7 +365,6 @@ for g in range(len(img)):
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_bikes[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_graf[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -443,14 +372,11 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_bikes[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_bikes[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_bikes[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 7 bikes %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_bikes[g, c3, i, j, 2])
                 except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_bikes[g, c3, i, j] = None
 # export numpy arrays
 np.save(maindir + "/arrays/Rate_bikes.npy", Rate_bikes)
@@ -476,7 +402,6 @@ for g in range(len(img)):
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_bark[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_bark[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -484,14 +409,11 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_bark[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_bark[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_bark[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_bark[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 8 bark %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_bark[g, c3, i, j, 2])
                 except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_bark[g, c3, i, j] = None
 # export numpy arrays
 np.save(maindir + "/arrays/Rate_bark.npy", Rate_bark)
@@ -517,7 +439,6 @@ for g in range(len(img)):
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_boat[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_boat[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -525,14 +446,11 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_boat[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_boat[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_boat[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_boat[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 9 boat %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_boat[g, c3, i, j, 2])
                 except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_boat[g, c3, i, j] = None
 # export numpy arrays
 np.save(maindir + "/arrays/Rate_boat.npy", Rate_boat)
@@ -558,7 +476,6 @@ for g in range(len(img)):
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_leuven[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_leuven[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -566,14 +483,11 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_leuven[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_leuven[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_leuven[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_leuven[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 10 leuven %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_leuven[g, c3, i, j, 2])
                 except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_leuven[g, c3, i, j] = None
 # export numpy arrays
 np.save(maindir + "/arrays/Rate_leuven.npy", Rate_leuven)
@@ -599,7 +513,6 @@ for g in range(len(img)):
             end_time = time.time()
             for j in range(len(Descriptors)):
                 Exec_time_ubc[g, c3, i, j, 0] = end_time - start_time
-                mylogs.info("Detector %s is calculated for all images within %f", method_dtect.getDefaultName(), Exec_time_ubc[g, c3, i, j, 0])
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
@@ -607,14 +520,11 @@ for g in range(len(img)):
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
                     end_time = time.time()
                     Exec_time_ubc[g, c3, i, j, 1] = end_time - start_time
-                    mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_ubc[g, c3, i, j, 1])
                     start_time = time.time()
                     Rate_ubc[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_ubc[g, c3, i, j, 2] = end_time - start_time
-                    mylogs.info("Scenario 11 ubc %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_ubc[g, c3, i, j, 2])
                 except Exception as e:
-                    mylogs.info("Combination of detector %s, descriptor %s and matching %s is not possible.", method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3])
                     Rate_ubc[g, c3, i, j] = None
 # export numpy arrays
 np.save(maindir + "/arrays/Rate_ubc.npy", Rate_ubc)
