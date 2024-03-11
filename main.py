@@ -53,8 +53,7 @@ def get_intensity_8Img(Img, val_b, val_c): # val_b, val_c must be 2 vectors with
     return Img, List8Img
 # ................................................................................
 
-## Scenario 2 (Scale): Function that takes as input the index of the camera, the index of the image n, and a scale, it returns
-#                      a couple (I, Iscale). In the following, we will work with 7 images with a scale change Is : s ∈]1.1 : 0.2 : 2.3].
+## Scenario 2 (Scale): Function that takes as input the index of the camera, the index of the image n, and a scale, it returns a couple (I, Iscale). In the following, we will work with 7 images with a scale change Is : s ∈]1.1 : 0.2 : 2.3].
 def get_cam_scale(Img, s):
     ImgScale = cv2.resize(Img, (0, 0), fx=s, fy=s, interpolation = cv2.INTER_NEAREST) # opencv resize function with INTER_NEAREST interpolation
     I_Is = list([Img, ImgScale]) # list of 2 images (original image and scaled image)
@@ -64,9 +63,7 @@ def get_cam_scale(Img, s):
     return I_Is
 # ................................................................................
 
-## Scenario 3 (Rotation): Function that takes as input the index of the camera, the index of the image n, and a rotation angle, it returns a
-#                         couple (I, Irot), and the rotation matrix. In the following, we will work with 9 images with a change of scale For
-#                         an image I, we will create 9 images (I10, I20...I90) with change of rotation from 10 to 90 with a step of 10.
+## Scenario 3 (Rotation): Function that takes as input the index of the camera, the index of the image n, and a rotation angle, it returns a couple (I, Irot), and the rotation matrix. In the following, we will work with 9 images with a change of scale For an image I, we will create 9 images (I10, I20...I90) with change of rotation from 10 to 90 with a step of 10.
 def get_cam_rot(Img, r):
     # Get the height and width of the image
     height, width = Img.shape[:2]
@@ -208,7 +205,7 @@ for k in range(nbre_img):
                     Exec_time_intensity[k, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_intensity[k, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_intensity[k, c3, i, j] = match_with_ratio_test(descriptors1, descriptors2, matching[c3])
+                    Rate_intensity[k, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_intensity[k, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 1 Intensity %s | Detector %s Descriptor %s Matching %s is calculated within %f", k, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_intensity[k, c3, i, j, 2])
@@ -248,7 +245,7 @@ for s in range(len(scale)): # for the 7 scale images
                     Exec_time_scale[s, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_scale[s, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_scale[s, c3, i, j] = match_with_ratio_test(descriptors1, descriptors2, matching[c3])
+                    Rate_scale[s, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_scale[s, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 2 Scale %s | Detector %s Descriptor %s Matching %s is calculated within %f", s, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_scale[s, c3, i, j, 2])
@@ -288,7 +285,7 @@ for r in range(len(rot)):
                     Exec_time_rot[r, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_rot[r, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_rot[r, c3, i, j] = match_with_ratio_test(descriptors1, descriptors2, matching[c3])
+                    Rate_rot[r, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_rot[r, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 3 Rotation %s | Detector %s Descriptor %s Matching %s is calculated within %f", r, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_rot[r, c3, i, j, 2])
@@ -328,7 +325,7 @@ for g in range(len(img)):
                     Exec_time_graf[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_graf[g, c3, i, j] = match_with_ratio_test(descriptors1, descriptors2, matching[c3])
+                    Rate_graf[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_graf[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 4 graf %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_graf[g, c3, i, j, 2])
@@ -368,7 +365,7 @@ for g in range(len(img)):
                     Exec_time_wall[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_wall[g, c3, i, j] = match_with_ratio_test(descriptors1, descriptors2, matching[c3])
+                    Rate_wall[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_wall[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 5 wall %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_wall[g, c3, i, j, 2])
@@ -408,7 +405,7 @@ for g in range(len(img)):
                     Exec_time_trees[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_trees[g, c3, i, j] = match_with_ratio_test(descriptors1, descriptors2, matching[c3])
+                    Rate_trees[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_trees[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 6 trees %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_trees[g, c3, i, j, 2])
@@ -448,7 +445,7 @@ for g in range(len(img)):
                     Exec_time_bikes[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_graf[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_bikes[g, c3, i, j] = match_with_ratio_test(descriptors1, descriptors2, matching[c3])
+                    Rate_bikes[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_bikes[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 7 bikes %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_bikes[g, c3, i, j, 2])
@@ -489,7 +486,7 @@ for g in range(len(img)):
                     Exec_time_bark[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_bark[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_bark[g, c3, i, j] = match_with_ratio_test(descriptors1, descriptors2, matching[c3])
+                    Rate_bark[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_bark[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 8 bark %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_bark[g, c3, i, j, 2])
@@ -530,7 +527,7 @@ for g in range(len(img)):
                     Exec_time_boat[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_boat[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_boat[g, c3, i, j] = match_with_ratio_test(descriptors1, descriptors2, matching[c3])
+                    Rate_boat[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_boat[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 9 boat %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_boat[g, c3, i, j, 2])
@@ -571,7 +568,7 @@ for g in range(len(img)):
                     Exec_time_leuven[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_leuven[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_leuven[g, c3, i, j] = match_with_ratio_test(descriptors1, descriptors2, matching[c3])
+                    Rate_leuven[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_leuven[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 10 leuven %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_leuven[g, c3, i, j, 2])
@@ -612,7 +609,7 @@ for g in range(len(img)):
                     Exec_time_ubc[g, c3, i, j, 1] = end_time - start_time
                     mylogs.info("Descriptor %s is calculated for all images within %f", method_dscrpt.getDefaultName(), Exec_time_ubc[g, c3, i, j, 1])
                     start_time = time.time()
-                    Rate_ubc[g, c3, i, j] = match_with_ratio_test(descriptors1, descriptors2, matching[c3])
+                    Rate_ubc[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_ubc[g, c3, i, j, 2] = end_time - start_time
                     mylogs.info("Scenario 11 ubc %s | Detector %s Descriptor %s Matching %s is calculated within %f", g, method_dtect.getDefaultName(), method_dscrpt.getDefaultName(), matching[c3], Exec_time_ubc[g, c3, i, j, 2])
@@ -623,3 +620,5 @@ for g in range(len(img)):
 np.save(maindir + "/arrays/Rate_ubc.npy", Rate_ubc)
 np.save(maindir + "/arrays/Exec_time_ubc.npy", Exec_time_ubc)
 ##########################################################
+
+print("End of the program")

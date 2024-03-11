@@ -9,7 +9,7 @@ nbre_img = len(val_b) + len(val_c)
 scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈ [0.5 : 0.2 : 1.5]
 rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
-DetectorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'agast', 'gftt', 'star', 'hl', 'msd', 'tbmr']
+DetectorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'agast', 'gftt', 'gftt_harris' 'star', 'hl', 'msd', 'tbmr']
 DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
 line_styles = ['solid', 'dash', 'dot']  # Add more styles as needed
 Norm = ['L2', 'HAM']
@@ -190,7 +190,7 @@ fig4.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig4.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig4.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 
-fig4.write_html("oxfordAffineData5678.html")
+fig4.write_html("./html/oxfordAffineData5678.html")
 
 #########################OXFORD AFFINE TIMING ###############################################################
 Exec_time_graf = np.load(maindir + '/arrays/Exec_time_graf.npy')
