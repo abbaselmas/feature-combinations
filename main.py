@@ -129,6 +129,8 @@ Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, g
 Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost]) # 14 descriptors
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 
+# insert timestampt here
+print("Start time: ", time.ctime())
 ################ Scenario 1 (Intensity) ################
 print("Scenario 1 Intensity")
 val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
@@ -157,7 +159,7 @@ for k in range(nbre_img):
                     end_time = time.time()
                     Exec_time_intensity[k, c3, i, j, 1] = end_time - start_time
                     start_time = time.time()
-                    Rate_intensity[k, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_intensity[k, c3, i, j], _ = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_intensity[k, c3, i, j, 2] = end_time - start_time
                 except Exception as e:
@@ -193,7 +195,7 @@ for s in range(len(scale)): # for the 7 scale images
                     end_time = time.time()
                     Exec_time_scale[s, c3, i, j, 1] = end_time - start_time
                     start_time = time.time()
-                    Rate_scale[s, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_scale[s, c3, i, j], _ = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_scale[s, c3, i, j, 2] = end_time - start_time
                 except Exception as e:
@@ -229,7 +231,7 @@ for r in range(len(rot)):
                     end_time = time.time()
                     Exec_time_rot[r, c3, i, j, 1] = end_time - start_time
                     start_time = time.time()
-                    Rate_rot[r, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_rot[r, c3, i, j], _ = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_rot[r, c3, i, j, 2] = end_time - start_time
                 except Exception as e:
@@ -265,7 +267,7 @@ for g in range(len(img)):
                     end_time = time.time()
                     Exec_time_graf[g, c3, i, j, 1] = end_time - start_time
                     start_time = time.time()
-                    Rate_graf[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_graf[g, c3, i, j], _ = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_graf[g, c3, i, j, 2] = end_time - start_time
                 except Exception as e:
@@ -301,7 +303,7 @@ for g in range(len(img)):
                     end_time = time.time()
                     Exec_time_wall[g, c3, i, j, 1] = end_time - start_time
                     start_time = time.time()
-                    Rate_wall[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_wall[g, c3, i, j], _ = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_wall[g, c3, i, j, 2] = end_time - start_time
                 except Exception as e:
@@ -337,7 +339,7 @@ for g in range(len(img)):
                     end_time = time.time()
                     Exec_time_trees[g, c3, i, j, 1] = end_time - start_time
                     start_time = time.time()
-                    Rate_trees[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_trees[g, c3, i, j], _ = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_trees[g, c3, i, j, 2] = end_time - start_time
                 except Exception as e:
@@ -373,7 +375,7 @@ for g in range(len(img)):
                     end_time = time.time()
                     Exec_time_bikes[g, c3, i, j, 1] = end_time - start_time
                     start_time = time.time()
-                    Rate_bikes[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_bikes[g, c3, i, j], _ = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_bikes[g, c3, i, j, 2] = end_time - start_time
                 except Exception as e:
@@ -410,7 +412,7 @@ for g in range(len(img)):
                     end_time = time.time()
                     Exec_time_bark[g, c3, i, j, 1] = end_time - start_time
                     start_time = time.time()
-                    Rate_bark[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_bark[g, c3, i, j], _ = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_bark[g, c3, i, j, 2] = end_time - start_time
                 except Exception as e:
@@ -447,7 +449,7 @@ for g in range(len(img)):
                     end_time = time.time()
                     Exec_time_boat[g, c3, i, j, 1] = end_time - start_time
                     start_time = time.time()
-                    Rate_boat[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_boat[g, c3, i, j], _ = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_boat[g, c3, i, j, 2] = end_time - start_time
                 except Exception as e:
@@ -484,7 +486,7 @@ for g in range(len(img)):
                     end_time = time.time()
                     Exec_time_leuven[g, c3, i, j, 1] = end_time - start_time
                     start_time = time.time()
-                    Rate_leuven[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_leuven[g, c3, i, j], _ = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_leuven[g, c3, i, j, 2] = end_time - start_time
                 except Exception as e:
@@ -521,7 +523,7 @@ for g in range(len(img)):
                     end_time = time.time()
                     Exec_time_ubc[g, c3, i, j, 1] = end_time - start_time
                     start_time = time.time()
-                    Rate_ubc[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_ubc[g, c3, i, j], _ = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
                     end_time = time.time()
                     Exec_time_ubc[g, c3, i, j, 2] = end_time - start_time
                 except Exception as e:
@@ -532,3 +534,5 @@ np.save(maindir + "/arrays/Exec_time_ubc.npy", Exec_time_ubc)
 ##########################################################
 
 print("End of the program")
+#insert timestamp here
+print("End time: ", time.ctime())
