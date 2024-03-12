@@ -118,7 +118,6 @@ tbmr  = cv2.xfeatures2d.TBMR_create(min_area=40, max_area_relative=0.01, scale_f
 vgg   = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=6.75, dsc_normalize=False)
 #daisy = cv2.xfeatures2d.DAISY_create(radius=1.0, q_radius=7, q_theta=1, q_hist=1, norm=cv2.xfeatures2d.DAISY_NRM_FULL, interpolation=False, use_orientation=False)
 daisy = cv2.xfeatures2d.DAISY_create(radius=15.0, q_radius=3, q_theta=8, q_hist=8, norm=cv2.xfeatures2d.DAISY_NRM_NONE, interpolation=False, use_orientation=False)
-
 freak = cv2.xfeatures2d.FREAK_create(orientationNormalized=True,scaleNormalized=False,patternScale=22.0,nOctaves=3)
 brief = cv2.xfeatures2d.BriefDescriptorExtractor_create(bytes=16, use_orientation=True)
 lucid = cv2.xfeatures2d.LUCID_create(lucid_kernel=3,blur_kernel=6)
