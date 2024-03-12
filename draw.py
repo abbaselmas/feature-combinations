@@ -11,6 +11,12 @@ data = datasetdir + folder + picture
 Image = cv2.imread(data)
 Image = np.array(Image)
 
+val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
+val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
+nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> number of test images
+scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈]1.1 : 0.2 : 2.3]
+rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
+
 ## Scenario 1 (Intensity): Function that returns 8 images with intensity changes from an I image.
 def get_intensity_8Img(Img, val_b, val_c): # val_b, val_c must be 2 vectors with 4 values each
     image = np.array(Img, dtype=np.uint16)   # transformation of the image into uint16 so that each pixel of the
@@ -34,7 +40,6 @@ def get_intensity_8Img(Img, val_b, val_c): # val_b, val_c must be 2 vectors with
         filename = f"{maindir}/intensity/image_Ix{val_c[j]}.png"
         cv2.imwrite(filename, List8Img[j+4])
     return Img, List8Img
-
 ## Scenario 2 (Scale): Function that takes as input the index of the camera, the index of the image n, and a scale, it returns a couple (I, Iscale). In the following, we will work with 7 images with a scale change Is : s ∈]1.1 : 0.2 : 2.3].
 def get_cam_scale(Img, s):
     ImgScale = cv2.resize(Img, (0, 0), fx=s, fy=s, interpolation = cv2.INTER_NEAREST) # opencv resize function with INTER_NEAREST interpolation
@@ -43,7 +48,6 @@ def get_cam_scale(Img, s):
     filename = f"{maindir}/scale/image_{s}.png"
     cv2.imwrite(filename, ImgScale)
     return I_Is
-
 ## Scenario 3 (Rotation): Function that takes as input the index of the camera, the index of the image n, and a rotation angle, it returns a couple (I, Irot), and the rotation matrix. In the following, we will work with 9 images with a change of scale For an image I, we will create 9 images (I10, I20...I90) with change of rotation from 10 to 90 with a step of 10.
 def get_cam_rot(Img, r):
     # Get the height and width of the image
@@ -132,112 +136,63 @@ matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 
 # ################ Scenario 1 (Intensity) ################
 # print("Scenario 1 Intensity")
-# val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
-# val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
-# nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> number of test images
-
 # Rate_intensity      = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors)))
-# Exec_time_intensity = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
 # img, List8Img = get_intensity_8Img(Image, val_b, val_c) # use the intensity change images (I+b and I*c)
 # for k in range(nbre_img):
 #     img2 = List8Img[k]
-#     for c3 in range(len(matching)): # for bf.L2 mapping
+#     for c3 in range(len(matching)):
 #         for i in range(len(Detectors)):
 #             method_dtect = Detectors[i]
 #             keypoints1 = method_dtect.detect(img, None)
-#             start_time = time.time()
 #             keypoints2 = method_dtect.detect(img2, None)
-#             end_time = time.time()
 #             for j in range(len(Descriptors)):
-#                 Exec_time_intensity[k, c3, i, j, 0] = end_time - start_time
 #                 method_dscrpt = Descriptors[j]
 #                 try:
 #                     descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
-#                     start_time = time.time()
 #                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-#                     end_time = time.time()
-#                     Exec_time_intensity[k, c3, i, j, 1] = end_time - start_time
-#                     start_time = time.time()
-#                     Rate_intensity[k, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-#                     end_time = time.time()
-#                     Exec_time_intensity[k, c3, i, j, 2] = end_time - start_time
-#                 except Exception as e:
-#                     Rate_intensity[k, c3, i, j] = None
-# # export numpy arrays
-# np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
-# np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
+#                     _, good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+#                 except:
+#                     pass
 # ##########################################################
 
 # ################ Scenario 2: Scale ################
 # print("Scenario 2 Scale")
-# scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈]1.1 : 0.2 : 2.3]
-
 # Rate_scale      = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
-# Exec_time_scale = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
-
-# for s in range(len(scale)): # for the 7 scale images
-#     img = get_cam_scale(Image, scale[s])#[0] # image I
+# for s in range(len(scale)):
+#     img = get_cam_scale(Image, scale[s])
 #     for c3 in range(len(matching)): 
 #         for i in range(len(Detectors)):
 #             method_dtect = Detectors[i]
 #             keypoints1 = method_dtect.detect(img[0], None)
-#             start_time = time.time()
 #             keypoints2 = method_dtect.detect(img[1], None)
-#             end_time = time.time()
 #             for j in range(len(Descriptors)):
-#                 Exec_time_scale[s, c3, i, j, 0] = end_time - start_time
 #                 method_dscrpt = Descriptors[j]
 #                 try:
 #                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-#                     start_time = time.time()
 #                     descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-#                     end_time = time.time()
-#                     Exec_time_scale[s, c3, i, j, 1] = end_time - start_time
-#                     start_time = time.time()
-#                     Rate_scale[s, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-#                     end_time = time.time()
-#                     Exec_time_scale[s, c3, i, j, 2] = end_time - start_time
-#                 except Exception as e:
-#                     Rate_scale[s, c3, i, j] = None
-# # export numpy arrays
-# np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
-# np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
+#                     _, good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+#                 except:
+#                     pass
 # ##########################################################
 
 # ################ Scenario 3: Rotation ################
 # print("Scenario 3 Rotation")
-# rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
-
 # Rate_rot       = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors)))
-# Exec_time_rot  = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
-
 # for r in range(len(rot)):
 #     rot_matrix, img = get_cam_rot(Image, rot[r])
 #     for c3 in range(len(matching)): # for bf.L1 and bf.L2 mapping
 #         for i in range(len(Detectors)):
 #             method_dtect = Detectors[i]
 #             keypoints1 = method_dtect.detect(img[0], None)
-#             start_time = time.time()
 #             keypoints2 = method_dtect.detect(img[1], None)
-#             end_time = time.time()
 #             for j in range(len(Descriptors)):
-#                 Exec_time_rot[r, c3, i, j, 0] = end_time - start_time
 #                 method_dscrpt = Descriptors[j]
 #                 try:
 #                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-#                     start_time = time.time()
 #                     descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-#                     end_time = time.time()
-#                     Exec_time_rot[r, c3, i, j, 1] = end_time - start_time
-#                     start_time = time.time()
-#                     Rate_rot[r, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-#                     end_time = time.time()
-#                     Exec_time_rot[r, c3, i, j, 2] = end_time - start_time
-#                 except Exception as e:
-#                     Rate_rot[r, c3, i, j] = None
-# # export numpy arrays
-# np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
-# np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
+#                     _, good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+#                 except:
+#                     pass
 # ##########################################################
 
 ################ Scenario 4: graf ############################
@@ -246,296 +201,178 @@ folder = "/graf"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 Rate_graf       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
-Exec_time_graf  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
-
-for g in range(4 , len(img)): # TODO start from 3 to 6
+for g in range(1, len(img)):
     for c3 in range(len(matching)):
         for i in range(len(Detectors)):
             method_dtect = Detectors[i]
             keypoints1 = method_dtect.detect(img[0], None)
-            start_time = time.time()
             keypoints2 = method_dtect.detect(img[g], None)
-            end_time = time.time()
             for j in range(len(Descriptors)):
-                Exec_time_graf[g, c3, i, j, 0] = end_time - start_time
                 method_dscrpt = Descriptors[j]
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                    start_time = time.time()
                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-                    end_time = time.time()
-                    Exec_time_graf[g, c3, i, j, 1] = end_time - start_time
-                    start_time = time.time()
-                    Rate_graf[g, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-                    end_time = time.time()
-                    img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[g], keypoints2, good_matches[:30], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                    cv2.imshow(f'Detector {Detectors[i]} Descriptor {Descriptors[j]} {matching[c3]}| Match Rate {Rate_graf[g, c3, i, j]}', img_matches)
-                    cv2.waitKey(0)
-                    cv2.destroyAllWindows()
-                    Exec_time_graf[g, c3, i, j, 2] = end_time - start_time
-                except Exception as e:
-                    Rate_graf[g, c3, i, j] = None
-# export numpy arrays
-# np.save(maindir + "/arrays/Rate_graf.npy", Rate_graf)
-# np.save(maindir + "/arrays/Exec_time_graf.npy", Exec_time_graf)
-##########################################################
+                    match_rate, good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[g], keypoints2, good_matches[:50], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                    filename = maindir + f"./draws" + folder + f"./{g}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{round(match_rate,2)}.png"
+                    cv2.imwrite(filename, img_matches)
+                except:
+                    pass
+#########################################################
 
 # ################ Scenario 5: wall ############################
 # print("Scenario 5 wall")
-# # Read the images
 # folder = "/wall"
 # img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 # Rate_wall       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
-# Exec_time_wall  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
 # for g in range(len(img)):
 #     for c3 in range(len(matching)):
 #         for i in range(len(Detectors)):
 #             method_dtect = Detectors[i]
 #             keypoints1 = method_dtect.detect(img[0], None)
-#             start_time = time.time()
 #             keypoints2 = method_dtect.detect(img[g], None)
-#             end_time = time.time()
 #             for j in range(len(Descriptors)):
-#                 Exec_time_wall[g, c3, i, j, 0] = end_time - start_time
 #                 method_dscrpt = Descriptors[j]
 #                 try:
 #                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-#                     start_time = time.time()
 #                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-#                     end_time = time.time()
-#                     Exec_time_wall[g, c3, i, j, 1] = end_time - start_time
-#                     start_time = time.time()
-#                     Rate_wall[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-#                     end_time = time.time()
-#                     Exec_time_wall[g, c3, i, j, 2] = end_time - start_time
-#                 except Exception as e:
-#                     print(e)
-
-#                     Rate_wall[g, c3, i, j] = None
-# # export numpy arrays
-# np.save(maindir + "/arrays/Rate_wall.npy", Rate_wall)
-# np.save(maindir + "/arrays/Exec_time_wall.npy", Exec_time_wall)
+#                     _, good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+#                 except:
+#                     pass
 # ##########################################################
 
 # ################ Scenario 6: trees ############################
 # print("Scenario 6 trees")
-# # Read the images
 # folder = "/trees"
 # img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 # Rate_trees       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
-# Exec_time_trees  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
 # for g in range(len(img)):
 #     for c3 in range(len(matching)):
 #         for i in range(len(Detectors)):
 #             method_dtect = Detectors[i]
 #             keypoints1 = method_dtect.detect(img[0], None)
-#             start_time = time.time()
 #             keypoints2 = method_dtect.detect(img[g], None)
-#             end_time = time.time()
 #             for j in range(len(Descriptors)):
-#                 Exec_time_trees[g, c3, i, j, 0] = end_time - start_time
 #                 method_dscrpt = Descriptors[j]
 #                 try:
 #                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-#                     start_time = time.time()
 #                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-#                     end_time = time.time()
-#                     Exec_time_trees[g, c3, i, j, 1] = end_time - start_time
-#                     start_time = time.time()
-#                     Rate_trees[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-#                     end_time = time.time()
-#                     Exec_time_trees[g, c3, i, j, 2] = end_time - start_time
-#                 except Exception as e:
-#                     Rate_trees[g, c3, i, j] = None
-# # export numpy arrays
-# np.save(maindir + "/arrays/Rate_trees.npy", Rate_trees)
-# np.save(maindir + "/arrays/Exec_time_trees.npy", Exec_time_trees)
+#                     _, good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+#                 except:
+#                     pass
 # ##########################################################
 
 # ################ Scenario 7: bikes ############################
 # print("Scenario 7 bikes")
-# # Read the images
 # folder = "/bikes"
 # img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 # Rate_bikes       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
-# Exec_time_bikes  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
 # for g in range(len(img)):
 #     for c3 in range(len(matching)):
 #         for i in range(len(Detectors)):
 #             method_dtect = Detectors[i]
 #             keypoints1 = method_dtect.detect(img[0], None)
-#             start_time = time.time()
 #             keypoints2 = method_dtect.detect(img[g], None)
-#             end_time = time.time()
 #             for j in range(len(Descriptors)):
-#                 Exec_time_bikes[g, c3, i, j, 0] = end_time - start_time
 #                 method_dscrpt = Descriptors[j]
 #                 try:
 #                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-#                     start_time = time.time()
 #                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-#                     end_time = time.time()
-#                     Exec_time_bikes[g, c3, i, j, 1] = end_time - start_time
-#                     start_time = time.time()
-#                     Rate_bikes[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-#                     end_time = time.time()
-#                     Exec_time_bikes[g, c3, i, j, 2] = end_time - start_time
-#                 except Exception as e:
-#                     Rate_bikes[g, c3, i, j] = None
-# # export numpy arrays
-# np.save(maindir + "/arrays/Rate_bikes.npy", Rate_bikes)
-# np.save(maindir + "/arrays/Exec_time_bikes.npy", Exec_time_bikes)
+#                     _, good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+#                 except:
+#                     pass
 # ##########################################################
 
 # ################ Scenario 8: bark ############################
 # print("Scenario 8 bark")
-# # Read the images
 # folder = "/bark"
 # img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 # Rate_bark       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
-# Exec_time_bark  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
-
 # for g in range(len(img)):
 #     for c3 in range(len(matching)):
 #         for i in range(len(Detectors)):
 #             method_dtect = Detectors[i]
 #             keypoints1 = method_dtect.detect(img[0], None)
-#             start_time = time.time()
 #             keypoints2 = method_dtect.detect(img[g], None)
-#             end_time = time.time()
 #             for j in range(len(Descriptors)):
-#                 Exec_time_bark[g, c3, i, j, 0] = end_time - start_time
 #                 method_dscrpt = Descriptors[j]
 #                 try:
 #                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-#                     start_time = time.time()
 #                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-#                     end_time = time.time()
-#                     Exec_time_bark[g, c3, i, j, 1] = end_time - start_time
-#                     start_time = time.time()
-#                     Rate_bark[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-#                     end_time = time.time()
-#                     Exec_time_bark[g, c3, i, j, 2] = end_time - start_time
-#                 except Exception as e:
-#                     Rate_bark[g, c3, i, j] = None
-# # export numpy arrays
-# np.save(maindir + "/arrays/Rate_bark.npy", Rate_bark)
-# np.save(maindir + "/arrays/Exec_time_bark.npy", Exec_time_bark)
+#                     _, good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+#                 except:
+#                     pass
 # ##########################################################
 
 # ################ Scenario 9: boat ############################
 # print("Scenario 9 boat")
-# # Read the images
 # folder = "/boat"
 # img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 # Rate_boat       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
-# Exec_time_boat  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
-
 # for g in range(len(img)):
 #     for c3 in range(len(matching)):
 #         for i in range(len(Detectors)):
 #             method_dtect = Detectors[i]
 #             keypoints1 = method_dtect.detect(img[0], None)
-#             start_time = time.time()
 #             keypoints2 = method_dtect.detect(img[g], None)
-#             end_time = time.time()
 #             for j in range(len(Descriptors)):
-#                 Exec_time_boat[g, c3, i, j, 0] = end_time - start_time
 #                 method_dscrpt = Descriptors[j]
 #                 try:
 #                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-#                     start_time = time.time()
 #                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-#                     end_time = time.time()
-#                     Exec_time_boat[g, c3, i, j, 1] = end_time - start_time
-#                     start_time = time.time()
-#                     Rate_boat[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-#                     end_time = time.time()
-#                     Exec_time_boat[g, c3, i, j, 2] = end_time - start_time
-#                 except Exception as e:
-#                     Rate_boat[g, c3, i, j] = None
-# # export numpy arrays
-# np.save(maindir + "/arrays/Rate_boat.npy", Rate_boat)
-# np.save(maindir + "/arrays/Exec_time_boat.npy", Exec_time_boat)
+#                     _, good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+#                 except:
+#                     pass
+
 # ##########################################################
 
 # ################ Scenario 10: leuven ############################
 # print("Scenario 10 leuven")
-# # Read the images
 # folder = "/leuven"
 # img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 # Rate_leuven       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
-# Exec_time_leuven  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
-
 # for g in range(len(img)):
 #     for c3 in range(len(matching)):
 #         for i in range(len(Detectors)):
 #             method_dtect = Detectors[i]
 #             keypoints1 = method_dtect.detect(img[0], None)
-#             start_time = time.time()
 #             keypoints2 = method_dtect.detect(img[g], None)
-#             end_time = time.time()
 #             for j in range(len(Descriptors)):
-#                 Exec_time_leuven[g, c3, i, j, 0] = end_time - start_time
 #                 method_dscrpt = Descriptors[j]
 #                 try:
 #                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-#                     start_time = time.time()
 #                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-#                     end_time = time.time()
-#                     Exec_time_leuven[g, c3, i, j, 1] = end_time - start_time
-#                     start_time = time.time()
-#                     Rate_leuven[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-#                     end_time = time.time()
-#                     Exec_time_leuven[g, c3, i, j, 2] = end_time - start_time
-#                 except Exception as e:
-#                     Rate_leuven[g, c3, i, j] = None
-# # export numpy arrays
-# np.save(maindir + "/arrays/Rate_leuven.npy", Rate_leuven)
-# np.save(maindir + "/arrays/Exec_time_leuven.npy", Exec_time_leuven)
+#                     _, good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+#                 except:
+#                     pass
 # ##########################################################
 
 # ################ Scenario 11: ubc ############################
 # print("Scenario 11 ubc")
-# # Read the images
 # folder = "/ubc"
 # img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 # Rate_ubc       = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors)))
-# Exec_time_ubc  = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))  # 3 for detect, compute, and evaluate_scenario (match)
-
 # for g in range(len(img)):
 #     for c3 in range(len(matching)):
 #         for i in range(len(Detectors)):
 #             method_dtect = Detectors[i]
 #             keypoints1 = method_dtect.detect(img[0], None)
-#             start_time = time.time()
 #             keypoints2 = method_dtect.detect(img[g], None)
-#             end_time = time.time()
 #             for j in range(len(Descriptors)):
-#                 Exec_time_ubc[g, c3, i, j, 0] = end_time - start_time
 #                 method_dscrpt = Descriptors[j]
 #                 try:
 #                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-#                     start_time = time.time()
 #                     descriptors2 = method_dscrpt.compute(img[g], keypoints2)[1]
-#                     end_time = time.time()
-#                     Exec_time_ubc[g, c3, i, j, 1] = end_time - start_time
-#                     start_time = time.time()
-#                     Rate_ubc[g, c3, i, j] = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-#                     end_time = time.time()
-#                     Exec_time_ubc[g, c3, i, j, 2] = end_time - start_time
-#                 except Exception as e:
-#                     Rate_ubc[g, c3, i, j] = None
-# # export numpy arrays
-# np.save(maindir + "/arrays/Rate_ubc.npy", Rate_ubc)
-# np.save(maindir + "/arrays/Exec_time_ubc.npy", Exec_time_ubc)
+#                     _, good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+#                 except:
+#                     pass
 # ##########################################################
 
 print("End of the program")
