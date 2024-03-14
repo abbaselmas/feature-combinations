@@ -159,7 +159,7 @@ for k in range(nbre_img):
                     Exec_time_intensity[k, c3, i, j, 2] = end_time - start_time
                     # draw matches
                     img_matches = cv2.drawMatchesKnn(img, keypoints1, img2, keypoints2, good_matches[:50], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                    filename = maindir + f"./draws" + folder + f"./{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{round(Rate_intensity[k, c3, i, j],2)}.png"
+                    filename = f"{maindir}/draws/intensity/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_intensity[k, c3, i, j])}.png"
                     cv2.imwrite(filename, img_matches)
                 except:
                     Rate_intensity[k, c3, i, j] = None
@@ -195,7 +195,7 @@ for k in range(len(scale)): # for the 7 scale images
                     Exec_time_scale[k, c3, i, j, 2] = end_time - start_time
                     # draw matches
                     img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[1], keypoints2, good_matches[:50], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                    filename = maindir + f"./draws" + folder + f"./{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{round(Rate_scale[k, c3, i, j],2)}.png"
+                    filename = f"{maindir}/draws/scale/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_scale[k, c3, i, j])}.png"
                     cv2.imwrite(filename, img_matches)
                 except:
                     Rate_scale[k, c3, i, j] = None
@@ -231,14 +231,22 @@ for k in range(len(rot)):
                     Exec_time_rot[k, c3, i, j, 2] = end_time - start_time
                     # draw matches
                     img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[1], keypoints2, good_matches[:50], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                    filename = maindir + f"./draws" + folder + f"./{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{round(Rate_rot[k, c3, i, j],2)}.png"
+                    filename = f"{maindir}/draws/rot/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_rot[k, c3, i, j])}.png"
                     cv2.imwrite(filename, img_matches)
                 except:
                     Rate_rot[k, c3, i, j] = None
 np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
 np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
 ##########################################################
-
+"""
+..#######..##.....##.########..#######..########..########.
+.##.....##..##...##..##.......##.....##.##.....##.##.....##
+.##.....##...##.##...##.......##.....##.##.....##.##.....##
+.##.....##....###....######...##.....##.########..##.....##
+.##.....##...##.##...##.......##.....##.##...##...##.....##
+.##.....##..##...##..##.......##.....##.##....##..##.....##
+..#######..##.....##.##........#######..##.....##.########.
+"""
 ################ Scenario 4: graf ############################
 print("Scenario 4 graf")
 folder = "/graf"
@@ -269,7 +277,7 @@ for k in range(len(img)):
                     Exec_time_graf[k, c3, i, j, 2] = end_time - start_time
                     # draw matches
                     img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:50], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                    filename = maindir + f"./draws" + folder + f"./{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{round(Rate_graf[k, c3, i, j],2)}.png"
+                    filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_graf[k, c3, i, j])}.png"
                     cv2.imwrite(filename, img_matches)
                 except:
                     Rate_graf[k, c3, i, j] = None
@@ -307,7 +315,7 @@ for k in range(len(img)):
                     Exec_time_wall[k, c3, i, j, 2] = end_time - start_time
                     # draw matches
                     img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:50], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                    filename = maindir + f"./draws" + folder + f"./{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{round(Rate_wall[k, c3, i, j],2)}.png"
+                    filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_wall[k, c3, i, j])}.png"
                     cv2.imwrite(filename, img_matches)
                 except:
                     Rate_wall[k, c3, i, j] = None
@@ -345,7 +353,7 @@ for k in range(len(img)):
                     Exec_time_trees[k, c3, i, j, 2] = end_time - start_time
                     # draw matches
                     img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:50], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                    filename = maindir + f"./draws" + folder + f"./{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{round(Rate_trees[k, c3, i, j],2)}.png"
+                    filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_trees[k, c3, i, j])}.png"
                     cv2.imwrite(filename, img_matches)
                 except:
                     Rate_trees[k, c3, i, j] = None
@@ -383,14 +391,22 @@ for k in range(len(img)):
                     Exec_time_bikes[k, c3, i, j, 2] = end_time - start_time
                     # draw matches
                     img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:50], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                    filename = maindir + f"./draws" + folder + f"./{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{round(Rate_trees[k, c3, i, j],2)}.png"
+                    filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_bikes[k, c3, i, j])}.png"
                     cv2.imwrite(filename, img_matches)
                 except:
                     Rate_bikes[k, c3, i, j] = None
 np.save(maindir + "/arrays/Rate_bikes.npy", Rate_bikes)
 np.save(maindir + "/arrays/Exec_time_bikes.npy", Exec_time_bikes)
 ##########################################################
-
+"""
+..#######..##.....##.########..#######..########..########.....########..#######..########..#######.
+.##.....##..##...##..##.......##.....##.##.....##.##.....##....##.......##.....##.##....##.##.....##
+.##.....##...##.##...##.......##.....##.##.....##.##.....##....##.......##............##...##.....##
+.##.....##....###....######...##.....##.########..##.....##....#######..########.....##.....#######.
+.##.....##...##.##...##.......##.....##.##...##...##.....##..........##.##.....##...##.....##.....##
+.##.....##..##...##..##.......##.....##.##....##..##.....##....##....##.##.....##...##.....##.....##
+..#######..##.....##.##........#######..##.....##.########......######...#######....##......#######.
+"""
 ################ Scenario 8: bark ############################
 print("Scenario 8 bark")
 folder = "/bark"
@@ -421,7 +437,7 @@ for k in range(len(img)):
                     Exec_time_bark[k, c3, i, j, 2] = end_time - start_time
                     # draw matches
                     img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:50], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                    filename = maindir + f"./draws" + folder + f"./{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{round(Rate_bark[k, c3, i, j],2)}.png"
+                    filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_bark[k, c3, i, j])}.png"
                     cv2.imwrite(filename, img_matches)
                 except:
                     Rate_bark[k, c3, i, j] = None
@@ -459,7 +475,7 @@ for k in range(len(img)):
                     Exec_time_boat[k, c3, i, j, 2] = end_time - start_time
                     # draw matches
                     img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:50], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                    filename = maindir + f"./draws" + folder + f"./{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{round(Rate_boat[k, c3, i, j],2)}.png"
+                    filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_boat[k, c3, i, j])}.png"
                     cv2.imwrite(filename, img_matches)
                 except:
                     Rate_boat[k, c3, i, j] = None
@@ -497,7 +513,7 @@ for k in range(len(img)):
                     Exec_time_leuven[k, c3, i, j, 2] = end_time - start_time
                     # draw matches
                     img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:50], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                    filename = maindir + f"./draws" + folder + f"./{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{round(Rate_leuven[k, c3, i, j],2)}.png"
+                    filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_leuven[k, c3, i, j])}.png"
                     cv2.imwrite(filename, img_matches)
                 except:
                     Rate_leuven[k, c3, i, j] = None
@@ -535,7 +551,7 @@ for k in range(len(img)):
                     Exec_time_ubc[k, c3, i, j, 2] = end_time - start_time
                     # draw matches
                     img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:50], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                    filename = maindir + f"./draws" + folder + f"./{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{round(Rate_ubc[k, c3, i, j],2)}.png"
+                    filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_ubc[k, c3, i, j])}.png"
                     cv2.imwrite(filename, img_matches)
                 except:
                     Rate_ubc[k, c3, i, j] = None
