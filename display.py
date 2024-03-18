@@ -236,25 +236,51 @@ Exec_time_graf = np.load(maindir + '/arrays/Exec_time_graf.npy')
 Exec_time_wall = np.load(maindir + '/arrays/Exec_time_wall.npy')
 Exec_time_trees = np.load(maindir + '/arrays/Exec_time_trees.npy')
 Exec_time_bikes = np.load(maindir + '/arrays/Exec_time_bikes.npy')
+Exec_time_bark = np.load(maindir + '/arrays/Exec_time_bark.npy')
+Exec_time_boat = np.load(maindir + '/arrays/Exec_time_boat.npy')
+Exec_time_leuven = np.load(maindir + '/arrays/Exec_time_leuven.npy')
+Exec_time_ubc = np.load(maindir + '/arrays/Exec_time_ubc.npy')
 
 fig3 = make_subplots(rows=2, cols=2, subplot_titles=['Detectors', 'Descriptors', 'Evaluation(matching)'], shared_xaxes=False, shared_yaxes=False, specs=[[{}, {}],[{"colspan": 2}, None]], horizontal_spacing=0.05, vertical_spacing=0.1)
 fig3.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 # detector time
 for i in range(len(DetectorsLegend)):
-    mean_detector_time  = np.mean(Exec_time_graf[:, :, i, :, 0] + Exec_time_wall[:, :, i, :, 0] + Exec_time_trees[:, :, i, :, 0] + Exec_time_bikes[:, :, i, :, 0])/4
+    mean_detector_time  = np.mean(Exec_time_graf        [:, :, i, :, 0] 
+                                  + Exec_time_wall      [:, :, i, :, 0] 
+                                  + Exec_time_trees     [:, :, i, :, 0] 
+                                  + Exec_time_bikes     [:, :, i, :, 0] 
+                                  + Exec_time_bark      [:, :, i, :, 0] 
+                                  + Exec_time_boat      [:, :, i, :, 0] 
+                                  + Exec_time_leuven    [:, :, i, :, 0] 
+                                  + Exec_time_ubc       [:, :, i, :, 0])
+    print(Exec_time_graf        [:, :, i, :, 0])
     if not (np.any(mean_detector_time <= 0)):
         trace_detect = go.Bar(x=[DetectorsLegend[i]], y=[mean_detector_time], name=DetectorsLegend[i], showlegend=True, text=[f'{mean_detector_time:.4f}'], textposition='auto')
         fig3.add_trace(trace_detect, row=1, col=1)
 # descriptor time
 for j in range(len(DescriptorsLegend)):
-    mean_descriptor_time  = np.mean(Exec_time_graf[:, :, :, j, 1]+Exec_time_wall[:, :, :, j, 1]+Exec_time_trees[:, :, :, j, 1]+Exec_time_bikes[:, :, :, j, 1])/4
+    mean_descriptor_time  = np.mean(Exec_time_graf      [:, :, :, j, 1]
+                                    + Exec_time_wall    [:, :, :, j, 1]
+                                    + Exec_time_trees   [:, :, :, j, 1]
+                                    + Exec_time_bikes   [:, :, :, j, 1] 
+                                    + Exec_time_bark    [:, :, :, j, 1] 
+                                    + Exec_time_boat    [:, :, :, j, 1] 
+                                    + Exec_time_leuven  [:, :, :, j, 1] 
+                                    + Exec_time_ubc     [:, :, :, j, 1])
     if not (np.any(mean_descriptor_time <= 0)):
         trace_descr = go.Bar(x=[DescriptorsLegend[j]], y=[mean_descriptor_time], name=DescriptorsLegend[j], showlegend=True, text=[f'{mean_descriptor_time:.4f}'], textposition='auto')
         fig3.add_trace(trace_descr, row=1, col=2)
 # matching time
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
-        mean_matching_time  = np.mean(Exec_time_graf[:, :, i, j, 2]+Exec_time_wall[:, :, i, j, 2]+Exec_time_trees[:, :, i, j, 2]+Exec_time_bikes[:, :, i, j, 2])/4
+        mean_matching_time  = np.mean(Exec_time_graf    [:, :, i, j, 2]
+                                      + Exec_time_wall  [:, :, i, j, 2]
+                                      + Exec_time_trees [:, :, i, j, 2]
+                                      + Exec_time_bikes [:, :, i, j, 2] 
+                                      + Exec_time_bark  [:, :, i, j, 2] 
+                                      + Exec_time_boat  [:, :, i, j, 2] 
+                                      + Exec_time_leuven[:, :, i, j, 2] 
+                                      + Exec_time_ubc   [:, :, i, j, 2])
         if not (np.any(mean_matching_time <= 0)):
             trace_match = go.Bar(x=[DetectorsLegend[i] + '-' + DescriptorsLegend[j]], y=[mean_matching_time], name=DetectorsLegend[i] + '-' + DescriptorsLegend[j], showlegend=True, text=[f'{mean_matching_time:.4f}'], textposition='auto')
             fig3.add_trace(trace_match, row=2, col=1)
