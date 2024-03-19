@@ -165,7 +165,7 @@ for k in range(nbre_img):
                     continue
                 # draw matches
                 img_matches = cv2.drawMatchesKnn(img, keypoints1, img2, keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                filename = f"{maindir}/draws/intensity/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_intensity[k, c3, i, j])}.png"
+                filename = f"{maindir}/draws/intensity/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_intensity[k, c3, i, j])}.png"
                 cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
 np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
@@ -205,7 +205,7 @@ for k in range(len(scale)):
                     continue
                 # draw matches
                 img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[1], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                filename = f"{maindir}/draws/scale/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_scale[k, c3, i, j])}.png"
+                filename = f"{maindir}/draws/scale/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_scale[k, c3, i, j])}.png"
                 cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
 np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
@@ -245,7 +245,7 @@ for k in range(len(rot)):
                     continue
                 # draw matches
                 img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[1], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                filename = f"{maindir}/draws/rot/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_rot[k, c3, i, j])}.png"
+                filename = f"{maindir}/draws/rot/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_rot[k, c3, i, j])}.png"
                 cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
 np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
@@ -295,7 +295,7 @@ for k in range(1, len(img)):
                     continue
                 # draw matches
                 img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_graf[k, c3, i, j])}.png"
+                filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_graf[k, c3, i, j])}.png"
                 cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_graf.npy", Rate_graf)
 np.save(maindir + "/arrays/Exec_time_graf.npy", Exec_time_graf)
@@ -337,7 +337,7 @@ for k in range(1, len(img)):
                     continue
                 # draw matches
                 img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_wall[k, c3, i, j])}.png"
+                filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_wall[k, c3, i, j])}.png"
                 cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_wall.npy", Rate_wall)
 np.save(maindir + "/arrays/Exec_time_wall.npy", Exec_time_wall)
@@ -379,7 +379,7 @@ for k in range(1, len(img)):
                     continue
                 # draw matches
                 img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_trees[k, c3, i, j])}.png"
+                filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_trees[k, c3, i, j])}.png"
                 cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_trees.npy", Rate_trees)
 np.save(maindir + "/arrays/Exec_time_trees.npy", Exec_time_trees)
@@ -421,7 +421,7 @@ for k in range(1, len(img)):
                     continue
                 # draw matches
                 img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_bikes[k, c3, i, j])}.png"
+                filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_bikes[k, c3, i, j])}.png"
                 cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_bikes.npy", Rate_bikes)
 np.save(maindir + "/arrays/Exec_time_bikes.npy", Exec_time_bikes)
@@ -471,7 +471,7 @@ for k in range(1, len(img)):
                     continue
                 # draw matches
                 img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_bark[k, c3, i, j])}.png"
+                filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_bark[k, c3, i, j])}.png"
                 cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_bark.npy", Rate_bark)
 np.save(maindir + "/arrays/Exec_time_bark.npy", Exec_time_bark)
@@ -513,7 +513,7 @@ for k in range(1, len(img)):
                     continue
                 # draw matches
                 img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_boat[k, c3, i, j])}.png"
+                filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_boat[k, c3, i, j])}.png"
                 cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_boat.npy", Rate_boat)
 np.save(maindir + "/arrays/Exec_time_boat.npy", Exec_time_boat)
@@ -555,7 +555,7 @@ for k in range(1, len(img)):
                     continue
                 # draw matches
                 img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_leuven[k, c3, i, j])}.png"
+                filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_leuven[k, c3, i, j])}.png"
                 cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_leuven.npy", Rate_leuven)
 np.save(maindir + "/arrays/Exec_time_leuven.npy", Exec_time_leuven)
@@ -597,7 +597,7 @@ for k in range(1, len(img)):
                     continue
                 # draw matches
                 img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_ubc[k, c3, i, j])}.png"
+                filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_ubc[k, c3, i, j])}.png"
                 cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_ubc.npy", Rate_ubc)
 np.save(maindir + "/arrays/Exec_time_ubc.npy", Exec_time_ubc)
