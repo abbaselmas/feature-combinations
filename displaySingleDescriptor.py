@@ -10,7 +10,7 @@ rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
 DetectorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'agast', 'gftt', 'gftt_harris', 'star', 'hl', 'msd', 'tbmr']
 DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
-line_styles = ['solid', 'dash', 'dot']  # Add more styles as needed
+line_styles = ['solid', 'dash', 'dot']
 Norm = ['L2', 'HAM']
 
 maindir = os.path.abspath(os.path.dirname(__file__))
@@ -55,24 +55,20 @@ for j in range(len(DescriptorsLegend)):
             color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
 
-            if not np.isnan(Rate_intensity[:, c3, i, j]).any(): # single array check is enough since all arrays have the same method combination
-                legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace  
-                trace_I1 = go.Scatter(x=val_b, y=Rate2_I1, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
-                trace_I2 = go.Scatter(x=val_c, y=Rate2_I2, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-                trace_S  = go.Scatter(x=scale, y=Rate2_S,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-                trace_R  = go.Scatter(x=rot,   y=Rate2_R,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-                fig.add_trace(trace_I1, row=1, col=1)
-                fig.add_trace(trace_I2, row=1, col=2)
-                fig.add_trace(trace_S,  row=2, col=1)
-                fig.add_trace(trace_R,  row=2, col=2)
+            # if not np.isnan(Rate_intensity[:, c3, i, j]).any(): # single array check is enough since all arrays have the same method combination
+            legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace  
+            trace_I1 = go.Scatter(x=val_b, y=Rate2_I1, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
+            trace_I2 = go.Scatter(x=val_c, y=Rate2_I2, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            trace_S  = go.Scatter(x=scale, y=Rate2_S,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            trace_R  = go.Scatter(x=rot,   y=Rate2_R,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            fig.add_trace(trace_I1, row=1, col=1)
+            fig.add_trace(trace_I2, row=1, col=2)
+            fig.add_trace(trace_S,  row=2, col=1)
+            fig.add_trace(trace_R,  row=2, col=2)
                 
     fig.write_html(f'./html/SyntheticData_Descriptor_{DescriptorsLegend[j]}.html')
     fig.data = []
-    trace_I1 = None
-    trace_I2 = None
-    trace_S  = None
-    trace_R  = None
-    legend_group = None
+    trace_I1 = trace_I2 = trace_S = trace_R = legend_group = None
 
 """
 ..#######..##.....##.########..#######..########..########........##....#######...#######..##.......
@@ -113,16 +109,16 @@ for j in range(len(DescriptorsLegend)):
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
             x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
 
-            if not np.isnan(Rate_graf[:, c3, i, j]).any():
-                legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
-                trace_G = go.Scatter(x=x, y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
-                trace_W = go.Scatter(x=x, y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-                trace_T = go.Scatter(x=x, y=Rate_T, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-                trace_B = go.Scatter(x=x, y=Rate_B, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-                fig2.add_trace(trace_G, row=1, col=1)
-                fig2.add_trace(trace_W, row=1, col=2)
-                fig2.add_trace(trace_T, row=2, col=1)
-                fig2.add_trace(trace_B, row=2, col=2)
+            # if not np.isnan(Rate_graf[:, c3, i, j]).any():
+            legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
+            trace_G = go.Scatter(x=x, y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
+            trace_W = go.Scatter(x=x, y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            trace_T = go.Scatter(x=x, y=Rate_T, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            trace_B = go.Scatter(x=x, y=Rate_B, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            fig2.add_trace(trace_G, row=1, col=1)
+            fig2.add_trace(trace_W, row=1, col=2)
+            fig2.add_trace(trace_T, row=2, col=1)
+            fig2.add_trace(trace_B, row=2, col=2)
 
 
     fig2.write_html(f'./html/oxfordAffine1234_Descriptor_{DescriptorsLegend[j]}.html')
@@ -169,16 +165,16 @@ for j in range(len(DescriptorsLegend)):
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
             x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
 
-            if not np.isnan(Rate_bark[:, c3, i, j]).any():
-                legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
-                trace_B = go.Scatter(x=x, y=Rate_B, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
-                trace_Bo = go.Scatter(x=x, y=Rate_Bo, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-                trace_L = go.Scatter(x=x, y=Rate_L, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-                trace_U = go.Scatter(x=x, y=Rate_U, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
-                fig3.add_trace(trace_B, row=1, col=1)
-                fig3.add_trace(trace_Bo, row=1, col=2)
-                fig3.add_trace(trace_L, row=2, col=1)
-                fig3.add_trace(trace_U, row=2, col=2)
+            # if not np.isnan(Rate_bark[:, c3, i, j]).any():
+            legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
+            trace_B = go.Scatter(x=x, y=Rate_B, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
+            trace_Bo = go.Scatter(x=x, y=Rate_Bo, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            trace_L = go.Scatter(x=x, y=Rate_L, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            trace_U = go.Scatter(x=x, y=Rate_U, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            fig3.add_trace(trace_B, row=1, col=1)
+            fig3.add_trace(trace_Bo, row=1, col=2)
+            fig3.add_trace(trace_L, row=2, col=1)
+            fig3.add_trace(trace_U, row=2, col=2)
 
 
     fig3.write_html(f'./html/oxfordAffine5678_Descriptor_{DescriptorsLegend[j]}.html')

@@ -66,7 +66,7 @@ def get_cam_rot(Img, r):
     filename = f"{maindir}/rotation/image_{r}.png"  # You can change the format and naming convention as needed
     cv2.imwrite(filename, rotated_image)
 
-    return rotation_mat, couple_I_Ir  # it also returns the rotation matrix for further use in the rotation evaluation function
+    return couple_I_Ir
 
 def match_with_bf_ratio_test(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
     bf = cv2.BFMatcher(normType=norm_type, crossCheck=False)
@@ -151,21 +151,22 @@ for k in range(nbre_img):
                     descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
                     start_time = time.time()
                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptor_time = time.time() - start_time
-                    Exec_time_intensity[k, c3, i, j, 1] = descriptor_time
+                    Exec_time_intensity[k, c3, i, j, 1] = time.time() - start_time
+                except:
+                    Exec_time_intensity[k, c3, i, j, 1] = None
+                    continue
+                try:
                     start_time = time.time()
                     Rate_intensity[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-                    match_time = time.time() - start_time
-                    Exec_time_intensity[k, c3, i, j, 2] = match_time
-                    # draw matches
-                    if Rate_intensity[k, c3, i, j] > 80:
-                        img_matches = cv2.drawMatchesKnn(img, keypoints1, img2, keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                        filename = f"{maindir}/draws/intensity/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_intensity[k, c3, i, j])}.png"
-                        cv2.imwrite(filename, img_matches)
+                    Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_intensity[k, c3, i, j] = None
                     Exec_time_intensity[k, c3, i, j, 2] = None
-                    start_time = None
+                    continue
+                # draw matches
+                img_matches = cv2.drawMatchesKnn(img, keypoints1, img2, keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                filename = f"{maindir}/draws/intensity/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_intensity[k, c3, i, j])}.png"
+                cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
 np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
 ##########################################################
@@ -174,8 +175,8 @@ np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
 print("Scenario 2 Scale")
 Rate_scale      = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
 Exec_time_scale = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
-for k in range(len(scale)): # for the 7 scale images
-    img = get_cam_scale(Image, scale[k])#[0] # image I
+for k in range(len(scale)):
+    img = get_cam_scale(Image, scale[k])
     for c3 in range(len(matching)): 
         for i in range(len(Detectors)):
             method_dtect = Detectors[i]
@@ -187,24 +188,25 @@ for k in range(len(scale)): # for the 7 scale images
                 Exec_time_scale[k, c3, i, j, 0] = detector_time
                 method_dscrpt = Descriptors[j]
                 try:
-                    descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
+                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptor_time = time.time() - start_time
-                    Exec_time_scale[k, c3, i, j, 1] = descriptor_time
+                    descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
+                    Exec_time_scale[k, c3, i, j, 1] = time.time() - start_time
+                except:
+                    Exec_time_scale[k, c3, i, j, 1] = None
+                    continue
+                try:
                     start_time = time.time()
                     Rate_scale[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-                    match_time = time.time() - start_time
-                    Exec_time_scale[k, c3, i, j, 2] = match_time
-                    # draw matches
-                    if Rate_scale[k, c3, i, j] > 80:
-                        img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[1], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                        filename = f"{maindir}/draws/scale/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_scale[k, c3, i, j])}.png"
-                        cv2.imwrite(filename, img_matches)
+                    Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_scale[k, c3, i, j] = None
                     Exec_time_scale[k, c3, i, j, 2] = None
-                    start_time = None
+                    continue
+                # draw matches
+                img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[1], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                filename = f"{maindir}/draws/scale/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_scale[k, c3, i, j])}.png"
+                cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
 np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
 ##########################################################
@@ -214,7 +216,7 @@ print("Scenario 3 Rotation")
 Rate_rot       = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors)))
 Exec_time_rot  = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors), 3))
 for k in range(len(rot)):
-    rot_matrix, img = get_cam_rot(Image, rot[k])
+    img = get_cam_rot(Image, rot[k])
     for c3 in range(len(matching)):
         for i in range(len(Detectors)):
             method_dtect = Detectors[i]
@@ -228,22 +230,23 @@ for k in range(len(rot)):
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptor_time = time.time() - start_time
-                    Exec_time_rot[k, c3, i, j, 1] = descriptor_time
+                    descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
+                    Exec_time_rot[k, c3, i, j, 1] = time.time() - start_time
+                except:
+                    Exec_time_rot[k, c3, i, j, 1] = None
+                    continue
+                try:
                     start_time = time.time()
                     Rate_rot[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-                    match_time = time.time() - start_time
-                    Exec_time_rot[k, c3, i, j, 2] = match_time
-                    # draw matches
-                    if Rate_rot[k, c3, i, j] > 80:
-                        img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[1], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                        filename = f"{maindir}/draws/rot/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_rot[k, c3, i, j])}.png"
-                        cv2.imwrite(filename, img_matches)
+                    Exec_time_rot[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_rot[k, c3, i, j] = None
                     Exec_time_rot[k, c3, i, j, 2] = None
-                    start_time = None
+                    continue
+                # draw matches
+                img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[1], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                filename = f"{maindir}/draws/rot/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_rot[k, c3, i, j])}.png"
+                cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
 np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
 ##########################################################
@@ -277,22 +280,23 @@ for k in range(1, len(img)):
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptor_time = time.time() - start_time
-                    Exec_time_graf[k, c3, i, j, 1] = descriptor_time
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_graf[k, c3, i, j, 1] = time.time() - start_time
+                except:
+                    Exec_time_graf[k, c3, i, j, 1] = None
+                    continue
+                try:
                     start_time = time.time()
                     Rate_graf[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-                    match_time = time.time() - start_time
-                    Exec_time_graf[k, c3, i, j, 2] = match_time
-                    # draw matches
-                    if Rate_graf[k, c3, i, j] > 80:
-                        img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                        filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_graf[k, c3, i, j])}.png"
-                        cv2.imwrite(filename, img_matches)
+                    Exec_time_graf[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_graf[k, c3, i, j] = None
                     Exec_time_graf[k, c3, i, j, 2] = None
-                    start_time = None
+                    continue
+                # draw matches
+                img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_graf[k, c3, i, j])}.png"
+                cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_graf.npy", Rate_graf)
 np.save(maindir + "/arrays/Exec_time_graf.npy", Exec_time_graf)
 ##########################################################
@@ -318,22 +322,23 @@ for k in range(1, len(img)):
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptor_time = time.time() - start_time
-                    Exec_time_wall[k, c3, i, j, 1] = descriptor_time
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_wall[k, c3, i, j, 1] = time.time() - start_time
+                except:
+                    Exec_time_wall[k, c3, i, j, 1] = None
+                    continue
+                try:
                     start_time = time.time()
                     Rate_wall[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-                    match_time = time.time() - start_time
-                    Exec_time_wall[k, c3, i, j, 2] = match_time
-                    # draw matches
-                    if Rate_wall[k, c3, i, j] > 80:
-                        img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                        filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_wall[k, c3, i, j])}.png"
-                        cv2.imwrite(filename, img_matches)
+                    Exec_time_wall[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_wall[k, c3, i, j] = None
                     Exec_time_wall[k, c3, i, j, 2] = None
-                    start_time = None
+                    continue
+                # draw matches
+                img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_wall[k, c3, i, j])}.png"
+                cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_wall.npy", Rate_wall)
 np.save(maindir + "/arrays/Exec_time_wall.npy", Exec_time_wall)
 ##########################################################
@@ -360,21 +365,22 @@ for k in range(1, len(img)):
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     start_time = time.time()
                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptor_time = time.time() - start_time
-                    Exec_time_trees[k, c3, i, j, 1] = descriptor_time
+                    Exec_time_trees[k, c3, i, j, 1] = time.time() - start_time
+                except:
+                    Exec_time_trees[k, c3, i, j, 1] = None
+                    continue
+                try:
                     start_time = time.time()
                     Rate_trees[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-                    match_time = time.time() - start_time
-                    Exec_time_trees[k, c3, i, j, 2] = match_time
-                    # draw matches
-                    if Rate_trees[k, c3, i, j] > 80:
-                        img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                        filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_trees[k, c3, i, j])}.png"
-                        cv2.imwrite(filename, img_matches)
+                    Exec_time_trees[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_trees[k, c3, i, j] = None
                     Exec_time_trees[k, c3, i, j, 2] = None
-                    start_time = None
+                    continue
+                # draw matches
+                img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_trees[k, c3, i, j])}.png"
+                cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_trees.npy", Rate_trees)
 np.save(maindir + "/arrays/Exec_time_trees.npy", Exec_time_trees)
 ##########################################################
@@ -400,22 +406,23 @@ for k in range(1, len(img)):
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptor_time = time.time() - start_time
-                    Exec_time_bikes[k, c3, i, j, 1] = descriptor_time
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_bikes[k, c3, i, j, 1] = time.time() - start_time
+                except:
+                    Exec_time_bikes[k, c3, i, j, 1] = None
+                    continue
+                try:
                     start_time = time.time()
                     Rate_bikes[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-                    match_time = time.time() - start_time
-                    Exec_time_bikes[k, c3, i, j, 2] = match_time
-                    # draw matches
-                    if Rate_bikes[k, c3, i, j] > 80:
-                        img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                        filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_bikes[k, c3, i, j])}.png"
-                        cv2.imwrite(filename, img_matches)
+                    Exec_time_bikes[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_bikes[k, c3, i, j] = None
                     Exec_time_bikes[k, c3, i, j, 2] = None
-                    start_time = None
+                    continue
+                # draw matches
+                img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_bikes[k, c3, i, j])}.png"
+                cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_bikes.npy", Rate_bikes)
 np.save(maindir + "/arrays/Exec_time_bikes.npy", Exec_time_bikes)
 ##########################################################
@@ -449,22 +456,23 @@ for k in range(1, len(img)):
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptor_time = time.time() - start_time
-                    Exec_time_bark[k, c3, i, j, 1] = descriptor_time
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_bark[k, c3, i, j, 1] = time.time() - start_time
+                except:
+                    Exec_time_bark[k, c3, i, j, 1] = None
+                    continue
+                try:
                     start_time = time.time()
                     Rate_bark[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-                    match_time = time.time() - start_time
-                    Exec_time_bark[k, c3, i, j, 2] = match_time
-                    # draw matches
-                    if Rate_bark[k, c3, i, j] > 80:
-                        img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                        filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_bark[k, c3, i, j])}.png"
-                        cv2.imwrite(filename, img_matches)
+                    Exec_time_bark[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_bark[k, c3, i, j] = None
                     Exec_time_bark[k, c3, i, j, 2] = None
-                    start_time = None
+                    continue
+                # draw matches
+                img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_bark[k, c3, i, j])}.png"
+                cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_bark.npy", Rate_bark)
 np.save(maindir + "/arrays/Exec_time_bark.npy", Exec_time_bark)
 ##########################################################
@@ -490,22 +498,23 @@ for k in range(1, len(img)):
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptor_time = time.time() - start_time
-                    Exec_time_boat[k, c3, i, j, 1] = descriptor_time
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_boat[k, c3, i, j, 1] = time.time() - start_time
+                except:
+                    Exec_time_boat[k, c3, i, j, 1] = None
+                    continue
+                try:
                     start_time = time.time()
                     Rate_boat[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-                    match_time = time.time() - start_time
-                    Exec_time_boat[k, c3, i, j, 2] = match_time
-                    # draw matches
-                    if Rate_boat[k, c3, i, j] > 80:
-                        img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                        filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_boat[k, c3, i, j])}.png"
-                        cv2.imwrite(filename, img_matches)
+                    Exec_time_boat[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_boat[k, c3, i, j] = None
                     Exec_time_boat[k, c3, i, j, 2] = None
-                    start_time = None
+                    continue
+                # draw matches
+                img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_boat[k, c3, i, j])}.png"
+                cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_boat.npy", Rate_boat)
 np.save(maindir + "/arrays/Exec_time_boat.npy", Exec_time_boat)
 ##########################################################
@@ -531,22 +540,23 @@ for k in range(1, len(img)):
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptor_time = time.time() - start_time
-                    Exec_time_leuven[k, c3, i, j, 1] = descriptor_time
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_leuven[k, c3, i, j, 1] = time.time() - start_time
+                except:
+                    Exec_time_leuven[k, c3, i, j, 1] = None
+                    continue
+                try:
                     start_time = time.time()
                     Rate_leuven[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-                    match_time = time.time() - start_time
-                    Exec_time_leuven[k, c3, i, j, 2] = match_time
-                    # draw matches
-                    if Rate_leuven[k, c3, i, j] > 80:
-                        img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                        filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_leuven[k, c3, i, j])}.png"
-                        cv2.imwrite(filename, img_matches)
+                    Exec_time_leuven[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_leuven[k, c3, i, j] = None
                     Exec_time_leuven[k, c3, i, j, 2] = None
-                    start_time = None
+                    continue
+                # draw matches
+                img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_leuven[k, c3, i, j])}.png"
+                cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_leuven.npy", Rate_leuven)
 np.save(maindir + "/arrays/Exec_time_leuven.npy", Exec_time_leuven)
 ##########################################################
@@ -572,22 +582,23 @@ for k in range(1, len(img)):
                 try:
                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
                     start_time = time.time()
-                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                    descriptor_time = time.time() - start_time
-                    Exec_time_ubc[k, c3, i, j, 1] = descriptor_time
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_ubc[k, c3, i, j, 1] = time.time() - start_time
+                except:
+                    Exec_time_ubc[k, c3, i, j, 1] = None
+                    continue
+                try:
                     start_time = time.time()
                     Rate_ubc[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-                    match_time = time.time() - start_time
-                    Exec_time_ubc[k, c3, i, j, 2] = match_time
-                    # draw matches
-                    if Rate_ubc[k, c3, i, j] > 80:
-                        img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                        filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_ubc[k, c3, i, j])}.png"
-                        cv2.imwrite(filename, img_matches)
+                    Exec_time_ubc[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_ubc[k, c3, i, j] = None
                     Exec_time_ubc[k, c3, i, j, 2] = None
-                    start_time = None
+                    continue
+                # draw matches
+                img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                filename = f"{maindir}/draws{folder}/{k}_{method_dtect.getDefaultName().split('.')[1]}_{method_dscrpt.getDefaultName().split('.')[1]}_{matching[c3]}_R_{int(Rate_ubc[k, c3, i, j])}.png"
+                cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_ubc.npy", Rate_ubc)
 np.save(maindir + "/arrays/Exec_time_ubc.npy", Exec_time_ubc)
 ##########################################################
