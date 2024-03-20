@@ -98,119 +98,118 @@ def match_with_flannbased_NNDR(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
     return match_rate, good_matches
 
 ### detectors/descriptors 5
-sift   = cv2.SIFT_create(nfeatures=2000, nOctaveLayers=3, contrastThreshold=0.04, edgeThreshold=10.0, sigma=1.6) #best with layer=3 contrastThreshold=0.1 
-akaze  = cv2.AKAZE_create(descriptor_type=cv2.AKAZE_DESCRIPTOR_MLDB, descriptor_size=0, descriptor_channels=3, threshold=0.0015, nOctaves=4, nOctaveLayers=4, diffusivity=cv2.KAZE_DIFF_PM_G2)
-orb    = cv2.ORB_create(nfeatures=2000, scaleFactor=1.1, nlevels=6, edgeThreshold=60, firstLevel=1, WTA_K=2, scoreType=cv2.ORB_HARRIS_SCORE, patchSize=60, fastThreshold=60)
-brisk  = cv2.BRISK_create(thresh=30, octaves=1, patternScale=1.1)
-kaze   = cv2.KAZE_create(extended=False, upright=False, threshold=0.002,  nOctaves=4, nOctaveLayers=4, diffusivity=cv2.KAZE_DIFF_PM_G2)
+sift   = cv2.SIFT_create()
+akaze  = cv2.AKAZE_create()
+orb    = cv2.ORB_create()
+brisk  = cv2.BRISK_create()
+kaze   = cv2.KAZE_create()
 
 ### detectors 9
-fast  = cv2.FastFeatureDetector_create(threshold=5, nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_5_8)
-# 
-mser  = cv2.MSER_create(delta=5, min_area=60, max_area=14400, max_variation=0.25, min_diversity=0.1, max_evolution=600, area_threshold=1.01, min_margin=0.0001, edge_blur_size=5)
-agast = cv2.AgastFeatureDetector_create(threshold=25,nonmaxSuppression=True,type=cv2.AGAST_FEATURE_DETECTOR_AGAST_7_12D)
-gftt  = cv2.GFTTDetector_create(maxCorners=2000, qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=False, k=0.04)
-gftt_harris = cv2.GFTTDetector_create(maxCorners=2000, qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=True, k=0.04)
-star  = cv2.xfeatures2d.StarDetector_create(maxSize=20, responseThreshold=10, lineThresholdProjected=40, lineThresholdBinarized=10, suppressNonmaxSize=5)
-hl    = cv2.xfeatures2d.HarrisLaplaceFeatureDetector_create(numOctaves=4, corn_thresh=0.01, DOG_thresh=0.01, maxCorners=2000, num_layers=4)
-msd   = cv2.xfeatures2d.MSDDetector_create(m_patch_radius=3, m_search_area_radius=5, m_nms_radius=5, m_nms_scale_radius=0, m_th_saliency=250.0, m_kNN=4, m_scale_factor=1.25, m_n_scales=-1, m_compute_orientation=0)
-tbmr  = cv2.xfeatures2d.TBMR_create(min_area=50, max_area_relative=0.01, scale_factor=1.25, n_scales=-1)
+fast  = cv2.FastFeatureDetector_create()
+mser  = cv2.MSER_create()
+agast = cv2.AgastFeatureDetector_create()
+gftt  = cv2.GFTTDetector_create()
+gftt_harris = cv2.GFTTDetector_create()
+star  = cv2.xfeatures2d.StarDetector_create()
+hl    = cv2.xfeatures2d.HarrisLaplaceFeatureDetector_create()
+msd   = cv2.xfeatures2d.MSDDetector_create()
+tbmr  = cv2.xfeatures2d.TBMR_create()
 
 ### descriptors 9
-vgg   = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=6.75, dsc_normalize=False)
-daisy = cv2.xfeatures2d.DAISY_create(radius=15, q_radius=3, q_theta=8, q_hist=8, norm=cv2.xfeatures2d.DAISY_NRM_NONE, interpolation=True, use_orientation=False)
-freak = cv2.xfeatures2d.FREAK_create(orientationNormalized=True,scaleNormalized=False, patternScale=22.0, nOctaves=3)
-brief = cv2.xfeatures2d.BriefDescriptorExtractor_create(bytes=16, use_orientation=True)
-lucid = cv2.xfeatures2d.LUCID_create(lucid_kernel=3,blur_kernel=6)
-latch = cv2.xfeatures2d.LATCH_create(bytes=2,rotationInvariance=True,half_ssd_size=1,sigma=1.4)
-beblid= cv2.xfeatures2d.BEBLID_create(scale_factor=6.75, n_bits=100)
-teblid= cv2.xfeatures2d.TEBLID_create(scale_factor=6.75, n_bits=102)
-boost = cv2.xfeatures2d.BoostDesc_create(desc=300, use_scale_orientation=True, scale_factor=0.75)
+vgg   = cv2.xfeatures2d.VGG_create()
+daisy = cv2.xfeatures2d.DAISY_create()
+freak = cv2.xfeatures2d.FREAK_create()
+brief = cv2.xfeatures2d.BriefDescriptorExtractor_create()
+lucid = cv2.xfeatures2d.LUCID_create()
+latch = cv2.xfeatures2d.LATCH_create()
+beblid= cv2.xfeatures2d.BEBLID_create(scale_factor=5.0)
+teblid= cv2.xfeatures2d.TEBLID_create(scale_factor=5.0)
+boost = cv2.xfeatures2d.BoostDesc_create()
 
 Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, gftt_harris, star, hl, msd, tbmr]) # 14 detectors
 Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost]) # 14 descriptors
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 
-# ################ Scenario 1 (Intensity) ################
-# print("Scenario 1 Intensity")
-# Rate_intensity      = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors)))
-# Exec_time_intensity = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors), 3))
-# img, List8Img = get_intensity_8Img(Image, val_b, val_c)
-# for k in range(nbre_img):
-#     img2 = List8Img[k]
-#     for c3 in range(len(matching)):
-#         for i in range(len(Detectors)):
-#             method_dtect = Detectors[i]
-#             keypoints1 = method_dtect.detect(img, None)
-#             start_time = time.time()
-#             keypoints2 = method_dtect.detect(img2, None)
-#             detector_time = time.time() - start_time
-#             for j in range(len(Descriptors)):
-#                 Exec_time_intensity[k, c3, i, j, 0] = detector_time
-#                 method_dscrpt = Descriptors[j]
-#                 try:
-#                     descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
-#                     start_time = time.time()
-#                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-#                     Exec_time_intensity[k, c3, i, j, 1] = time.time() - start_time
-#                 except:
-#                     Exec_time_intensity[k, c3, i, j, 1] = None
-#                     continue
-#                 try:
-#                     start_time = time.time()
-#                     Rate_intensity[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-#                     Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
-#                 except:
-#                     Rate_intensity[k, c3, i, j] = None
-#                     Exec_time_intensity[k, c3, i, j, 2] = None
-#                     continue
-#                 # draw matches
-#                 img_matches = cv2.drawMatchesKnn(img, keypoints1, img2, keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-#                 filename = f"{maindir}/draws/intensity/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_intensity[k, c3, i, j])}.png"
-#                 cv2.imwrite(filename, img_matches)
-# np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
-# np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
-# ##########################################################
+################ Scenario 1 (Intensity) ################
+print("Scenario 1 Intensity")
+Rate_intensity      = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors)))
+Exec_time_intensity = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors), 3))
+img, List8Img = get_intensity_8Img(Image, val_b, val_c)
+for k in range(nbre_img):
+    img2 = List8Img[k]
+    for c3 in range(len(matching)):
+        for i in range(len(Detectors)):
+            method_dtect = Detectors[i]
+            keypoints1 = method_dtect.detect(img, None)
+            start_time = time.time()
+            keypoints2 = method_dtect.detect(img2, None)
+            detector_time = time.time() - start_time
+            for j in range(len(Descriptors)):
+                Exec_time_intensity[k, c3, i, j, 0] = detector_time
+                method_dscrpt = Descriptors[j]
+                try:
+                    descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
+                    start_time = time.time()
+                    descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
+                    Exec_time_intensity[k, c3, i, j, 1] = time.time() - start_time
+                except:
+                    Exec_time_intensity[k, c3, i, j, 1] = None
+                    continue
+                try:
+                    start_time = time.time()
+                    Rate_intensity[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
+                except:
+                    Rate_intensity[k, c3, i, j] = None
+                    Exec_time_intensity[k, c3, i, j, 2] = None
+                    continue
+                # draw matches
+                img_matches = cv2.drawMatchesKnn(img, keypoints1, img2, keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                filename = f"{maindir}/draws/intensity/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_intensity[k, c3, i, j])}.png"
+                cv2.imwrite(filename, img_matches)
+np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
+np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
+##########################################################
 
-# ################ Scenario 2: Scale ################
-# print("Scenario 2 Scale")
-# Rate_scale      = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
-# Exec_time_scale = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
-# for k in range(len(scale)):
-#     img = get_cam_scale(Image, scale[k])
-#     for c3 in range(len(matching)): 
-#         for i in range(len(Detectors)):
-#             method_dtect = Detectors[i]
-#             keypoints1 = method_dtect.detect(img[0], None)
-#             start_time = time.time()
-#             keypoints2 = method_dtect.detect(img[1], None)
-#             detector_time = time.time() - start_time
-#             for j in range(len(Descriptors)):
-#                 Exec_time_scale[k, c3, i, j, 0] = detector_time
-#                 method_dscrpt = Descriptors[j]
-#                 try:
-#                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-#                     start_time = time.time()
-#                     descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-#                     Exec_time_scale[k, c3, i, j, 1] = time.time() - start_time
-#                 except:
-#                     Exec_time_scale[k, c3, i, j, 1] = None
-#                     continue
-#                 try:
-#                     start_time = time.time()
-#                     Rate_scale[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
-#                     Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
-#                 except:
-#                     Rate_scale[k, c3, i, j] = None
-#                     Exec_time_scale[k, c3, i, j, 2] = None
-#                     continue
-#                 # draw matches
-#                 img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[1], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-#                 filename = f"{maindir}/draws/scale/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_scale[k, c3, i, j])}.png"
-#                 cv2.imwrite(filename, img_matches)
-# np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
-# np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
-# ##########################################################
+################ Scenario 2: Scale ################
+print("Scenario 2 Scale")
+Rate_scale      = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
+Exec_time_scale = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
+for k in range(len(scale)):
+    img = get_cam_scale(Image, scale[k])
+    for c3 in range(len(matching)): 
+        for i in range(len(Detectors)):
+            method_dtect = Detectors[i]
+            keypoints1 = method_dtect.detect(img[0], None)
+            start_time = time.time()
+            keypoints2 = method_dtect.detect(img[1], None)
+            detector_time = time.time() - start_time
+            for j in range(len(Descriptors)):
+                Exec_time_scale[k, c3, i, j, 0] = detector_time
+                method_dscrpt = Descriptors[j]
+                try:
+                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                    start_time = time.time()
+                    descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
+                    Exec_time_scale[k, c3, i, j, 1] = time.time() - start_time
+                except:
+                    Exec_time_scale[k, c3, i, j, 1] = None
+                    continue
+                try:
+                    start_time = time.time()
+                    Rate_scale[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
+                except:
+                    Rate_scale[k, c3, i, j] = None
+                    Exec_time_scale[k, c3, i, j, 2] = None
+                    continue
+                # draw matches
+                img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[1], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                filename = f"{maindir}/draws/scale/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_scale[k, c3, i, j])}.png"
+                cv2.imwrite(filename, img_matches)
+np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
+np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
+##########################################################
 
 ################ Scenario 3: Rotation ################
 print("Scenario 3 Rotation")
