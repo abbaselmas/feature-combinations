@@ -114,7 +114,7 @@ gftt_harris = cv2.GFTTDetector_create(maxCorners=2000, qualityLevel=0.5, minDist
 star  = cv2.xfeatures2d.StarDetector_create(maxSize=20, responseThreshold=10, lineThresholdProjected=40, lineThresholdBinarized=10, suppressNonmaxSize=5)
 hl    = cv2.xfeatures2d.HarrisLaplaceFeatureDetector_create(numOctaves=4, corn_thresh=0.01, DOG_thresh=0.01, maxCorners=2000, num_layers=4)
 msd   = cv2.xfeatures2d.MSDDetector_create(m_patch_radius=3, m_search_area_radius=5, m_nms_radius=5, m_nms_scale_radius=0, m_th_saliency=250.0, m_kNN=4, m_scale_factor=1.25, m_n_scales=-1, m_compute_orientation=0)
-tbmr  = cv2.xfeatures2d.TBMR_create(min_area=50, max_area_relative=0.01, scale_factor=1.25, n_scales=3)
+tbmr  = cv2.xfeatures2d.TBMR_create(min_area=50, max_area_relative=0.01, scale_factor=1.25, n_scales=-1)
 
 ### descriptors 9
 vgg   = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=6.75, dsc_normalize=False)
