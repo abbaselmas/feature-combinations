@@ -66,7 +66,7 @@ def get_cam_rot(Img, r):
     filename = f"{maindir}/rotation/image_{r}.png"  # You can change the format and naming convention as needed
     cv2.imwrite(filename, rotated_image)
 
-    return couple_I_Ir
+    return rotation_mat, couple_I_Ir
 
 def match_with_bf_ratio_test(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
     bf = cv2.BFMatcher(normType=norm_type, crossCheck=False)
@@ -78,6 +78,7 @@ def match_with_bf_ratio_test(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
     good_matches = sorted(good_matches, key = lambda x:x[0].distance)
     match_rate = len(good_matches) / len(matches) * 100
     return match_rate, good_matches
+# ................................................................................
 
 def match_with_flannbased_NNDR(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
     if norm_type == cv2.NORM_L2:
@@ -95,11 +96,163 @@ def match_with_flannbased_NNDR(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
     good_matches = sorted(good_matches, key=lambda x: x[0].distance)
     match_rate = len(good_matches) / len(matches) * 100
     return match_rate, good_matches
+# ................................................................................
 
-# if descriptor == '' and (detector == 'SIFT' or detector == 'SURF' or detector == 'KAZE') or descriptor == 'SIFT' or descriptor == 'SURF' or descriptor == 'KAZE' or descriptor == 'DAISY' or descriptor == 'LUCID' or descriptor == 'VGG':
-#     self.matcher = cv2.BFMatcher(cv2.NORM_L2, crossCheck=True)
-# elif descriptor == '' and (detector == 'ORB' or detector == 'BRISK' or detector == 'AKAZE') or descriptor == 'ORB' or descriptor == 'BRISK' or descriptor == 'AKAZE' or descriptor == 'FREAK' or descriptor == 'LATCH' or descriptor == 'BOOST':
-#     self.matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+def evaluate_scenario_5_6_7(KP1, KP2, Dspt1, Dspt2, norm_type):
+    bf = cv2.BFMatcher(norm_type, crossCheck=True) 
+    matches = bf.match(Dspt1,Dspt2)
+    matches = sorted(matches, key = lambda x:x.distance)
+
+    ## Calculation of the Fundamental matrix with the 8-point method and RANSAC
+    points1 = np.zeros((len(matches), 2), dtype=np.float32)
+    points2 = np.zeros((len(matches), 2), dtype=np.float32)
+    for i, match in enumerate(matches):
+        points1[i, :] = KP1[match.queryIdx].pt
+        points2[i, :] = KP2[match.trainIdx].pt
+    # Find the matrix Fundamental (h) and the coordinates of the homologous points Inliers and Outliers (mask)
+    h, mask = cv2.findFundamentalMat(points1, points2, cv2.RANSAC+cv2.FM_8POINT)
+
+    # Identification of the coordinates of the Inliers homologous points of our two images
+    Inliers_Pts1 = points1[mask.ravel()==1]
+    Inliers_Pts2 = points2[mask.ravel()==1]
+    # Creation of a vect (from zero to the number of points of interest of Inliers)  
+    LenPts = len(Inliers_Pts2)
+    Vect_in = np.linspace(0, min(Inliers_Pts1.shape[0], Inliers_Pts2.shape[0])-1, LenPts, dtype=np.int32) 
+    # Convert the coordinates of the points of interest of Inliers for our 2 images to "KeyPoint  
+    InkeyPoint1 = [cv2.KeyPoint(x=P[0], y=P[1], size=1) for P in Inliers_Pts1[Vect_in]] 
+    InkeyPoint2 = [cv2.KeyPoint(x=P[0], y=P[1], size=1) for P in Inliers_Pts2[Vect_in]]
+    # Filter the coordinates of the homologous points of Inliers from the set of points
+    Inliers_match = [cv2.DMatch(_imgIdx=0, _queryIdx=i, _trainIdx=i,_distance=0) for i in range(len(InkeyPoint2))]
+
+    # Identification of the coordinates of the homologous points Outliers of our two images
+    Outliers_Pts1 = points1[mask.ravel()==0]
+    Outliers_Pts2 = points2[mask.ravel()==0]
+    ## Creation of a vect (from zero to the number of homologous points of Outliers)  
+    LenPts = len(Outliers_Pts2)
+    Vect_out = np.linspace(0, min(Outliers_Pts1.shape[0], Outliers_Pts2.shape[0])-1, LenPts, dtype=np.int32) 
+    ## Convert the coordinates of the points of interest of Outliers for our 2 images to "KeyPoint 
+    OutkeyPoint1 = [cv2.KeyPoint(x=P[0], y=P[1], size=1) for P in Outliers_Pts1[Vect_out]] 
+    OutkeyPoint2 = [cv2.KeyPoint(x=P[0], y=P[1], size=1) for P in Outliers_Pts2[Vect_out]]
+    ## Filter the coordinates of the homologous points of Outliers from the set of points
+    Outliers_match = [cv2.DMatch(_imgIdx=0, _queryIdx=i, _trainIdx=i,_distance=0) for i in range(len(OutkeyPoint2))]
+
+    # Calculation of the rate (%) of correctly matched homologous points 
+    Prob_P = np.shape(Inliers_match)[0] # number of Inliers points
+    Prob_N = np.shape(Outliers_match)[0] # number of points Outliers    
+    Prob_True = (Prob_P / (Prob_P + Prob_N))*100
+
+    return Prob_True, len(matches)
+# ................................................................................
+
+def evaluate_scenario_intensity(KP1, KP2, Dspt1, Dspt2, norm_type):
+    bf = cv2.BFMatcher(norm_type, crossCheck=True) 
+    matches = bf.match(Dspt1,Dspt2)
+    matches = sorted(matches, key = lambda x:x.distance)
+    Prob_P = 0
+    Prob_N = 1
+    good_matches = []
+    # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points 
+    for i in range(len(matches)):
+        m1 = matches[i].queryIdx
+        m2 = matches[i].trainIdx
+        # the coordinates (x,y) of the points detected in the image 1
+        X1 = int(KP1[m1].pt[0]) 
+        Y1 = int(KP1[m1].pt[1])
+        # the coordinates (x,y) of the points detected in the image 2
+        X2 = int(KP2[m2].pt[0])
+        Y2 = int(KP2[m2].pt[1])
+        # comparison between these coordinates (x,y)
+        if (abs(X1 - X2) <=2) and (abs(Y1 - Y2) <=2):   #  Tolerance allowance (∼ 1-2 pixels)
+            Prob_P += 1
+            good_matches.append(matches[i])
+        else:
+            Prob_N += 1   
+    Prob_True = (Prob_P / (Prob_P + Prob_N))*100
+    return Prob_True, good_matches
+# ................................................................................
+
+def evaluate_scenario_scale(KP1, KP2, Dspt1, Dspt2, norm_type, scale):
+    bf = cv2.BFMatcher(norm_type, crossCheck=True) 
+    matches = bf.match(Dspt1,Dspt2)
+    matches = sorted(matches, key = lambda x:x.distance)
+    Prob_P = 0
+    Prob_N = 1
+    good_matches = []
+    # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points 
+    for i in range(len(matches)):
+        m1 = matches[i].queryIdx
+        m2 = matches[i].trainIdx
+        # the coordinates (x,y) of the points detected in the image 1
+        X1 = int(KP1[m1].pt[0])
+        Y1 = int(KP1[m1].pt[1])
+        # the coordinates (x,y) of the points detected in the image 2
+        X2 = int(KP2[m2].pt[0])
+        Y2 = int(KP2[m2].pt[1])
+        if (abs(X1*scale - X2) <=2) and (abs(Y1*scale - Y2) <=2):   #  Tolerance allowance (∼ 1-2 pixels)
+            Prob_P += 1
+            good_matches.append(matches[i])
+        else:
+            Prob_N += 1   
+    # Calculation of the rate (%) of correctly matched homologous points        
+    Prob_True = (Prob_P / (Prob_P + Prob_N))*100
+    return Prob_True, good_matches
+# ................................................................................
+
+def evaluate_scenario_rotation(KP1, KP2, Dspt1, Dspt2, norm_type, rot, rot_matrix):
+    bf = cv2.BFMatcher(norm_type, crossCheck=True)
+    matches = bf.match(Dspt1,Dspt2)
+    matches = sorted(matches, key = lambda x:x.distance)
+    Prob_P = 0
+    Prob_N = 1
+    good_matches = []
+    theta = rot*(np.pi/180) # transformation of the degree of rotation into radian
+    for i in range(len(matches)):
+        m1 = matches[i].queryIdx
+        m2 = matches[i].trainIdx
+        # the coordinates (x,y) of the points detected in the image 1
+        X1 = int(KP1[m1].pt[0])
+        Y1 = int(KP1[m1].pt[1])
+        # the coordinates (x,y) of the points detected in the image 2
+        X2 = int(KP2[m2].pt[0])
+        Y2 = int(KP2[m2].pt[1])
+        X12 = X1*np.cos(theta) + Y1*np.sin(theta) + rot_matrix[0,2]
+        Y12 = -X1*np.sin(theta) + Y1*np.cos(theta) + rot_matrix[1,2]
+        if (abs(X12 - X2) <=2) and (abs(Y12 - Y2) <=2):   #  Tolerance allowance (∼ 1-2 pixels)
+            Prob_P += 1
+            good_matches.append(matches[i])
+        else:
+            Prob_N += 1
+    Prob_True = (Prob_P / (Prob_P + Prob_N))*100
+    return Prob_True, good_matches
+# ................................................................................
+
+def goodMatchesOneToOne(matches, des1, des2, ratio_test=0.8):
+    idx1, idx2 = [], []  
+    if matches is not None:         
+        float_inf = float('inf')
+        dist_match = {}  # Dictionary to store the minimum distance of matches for each keypoint index
+        index_match = {}  # Dictionary to store the index of the match for each keypoint index
+        
+        for m, n in matches:
+            if m.distance > ratio_test * n.distance:
+                continue
+                
+            if m.trainIdx not in dist_match:
+                # If trainIdx has not been matched yet, initialize its distance as infinite
+                dist_match[m.trainIdx] = float_inf
+                idx1.append(m.queryIdx)
+                idx2.append(m.trainIdx)
+                index_match[m.trainIdx] = len(idx2) - 1
+            else:
+                dist = dist_match[m.trainIdx]
+                if m.distance < dist:
+                    # If we already have a match for trainIdx and the current match is better, replace it
+                    index = index_match[m.trainIdx]
+                    assert idx2[index] == m.trainIdx
+                    idx1[index] = m.queryIdx
+                    idx2[index] = m.trainIdx
+                    dist_match[m.trainIdx] = m.distance  # Update the minimum distance
+    return idx1, idx2
 
 ### detectors/descriptors 5
 sift   = cv2.SIFT_create(nfeatures=2000, nOctaveLayers=3, contrastThreshold=0.1, edgeThreshold=10.0, sigma=1.6) #best with layer=3 contrastThreshold=0.1 
@@ -167,7 +320,7 @@ for k in range(nbre_img):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_intensity[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                            Rate_intensity[k, c3, i, j], good_matches = evaluate_scenario_intensity(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_intensity[k, c3, i, j] = None
@@ -214,7 +367,7 @@ for k in range(len(scale)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_scale[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                            Rate_scale[k, c3, i, j], good_matches = evaluate_scenario_scale(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_scale[k, c3, i, j] = None
@@ -237,7 +390,7 @@ print("Scenario 3 Rotation")
 Rate_rot      = np.load(maindir + '/arrays/Rate_rot.npy')
 Exec_time_rot = np.load(maindir + '/arrays/Exec_time_rot.npy')
 for k in range(len(rot)):
-    img = get_cam_rot(Image, rot[k])
+    rot_matrix, img = get_cam_rot(Image, rot[k])
     for c3 in range(len(matching)):
         for i in range(len(Detectors)):
             if i == a or a == 20:
@@ -260,7 +413,7 @@ for k in range(len(rot)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_rot[k, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                            Rate_rot[k, c3, i, j], good_matches = evaluate_scenario_rotation(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
                             Exec_time_rot[k, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_rot[k, c3, i, j] = None
