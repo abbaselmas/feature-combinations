@@ -68,82 +68,6 @@ def get_cam_rot(Img, r):
 
     return rotation_mat, couple_I_Ir
 
-def match_with_bf_ratio_test(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
-    bf = cv2.BFMatcher(normType=norm_type, crossCheck=False)
-    matches = bf.knnMatch(Dspt1,Dspt2,k=2)
-    good_matches = []
-    for m,n in matches:
-        if m.distance < threshold_ratio*n.distance:
-            good_matches.append([m])
-    good_matches = sorted(good_matches, key = lambda x:x[0].distance)
-    match_rate = len(good_matches) / len(matches) * 100
-    return match_rate, good_matches
-# ................................................................................
-
-def match_with_flannbased_NNDR(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
-    if norm_type == cv2.NORM_L2:
-        index_params = dict(algorithm=1, trees=5)
-        search_params = dict(checks=50)
-    elif norm_type == cv2.NORM_HAMMING:
-        index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
-        search_params = dict(checks=50)
-    matcher = cv2.FlannBasedMatcher(index_params, search_params)
-    matches = matcher.knnMatch(Dspt1, Dspt2, 2)
-    good_matches = []
-    for m, n in matches:
-        if m.distance < threshold_ratio * n.distance:
-            good_matches.append([m])
-    good_matches = sorted(good_matches, key=lambda x: x[0].distance)
-    match_rate = len(good_matches) / len(matches) * 100
-    return match_rate, good_matches
-# ................................................................................
-
-def evaluate_scenario_5_6_7(KP1, KP2, Dspt1, Dspt2, norm_type):
-    bf = cv2.BFMatcher(norm_type, crossCheck=True) 
-    matches = bf.match(Dspt1,Dspt2)
-    matches = sorted(matches, key = lambda x:x.distance)
-
-    ## Calculation of the Fundamental matrix with the 8-point method and RANSAC
-    points1 = np.zeros((len(matches), 2), dtype=np.float32)
-    points2 = np.zeros((len(matches), 2), dtype=np.float32)
-    for i, match in enumerate(matches):
-        points1[i, :] = KP1[match.queryIdx].pt
-        points2[i, :] = KP2[match.trainIdx].pt
-    # Find the matrix Fundamental (h) and the coordinates of the homologous points Inliers and Outliers (mask)
-    h, mask = cv2.findFundamentalMat(points1, points2, cv2.RANSAC+cv2.FM_8POINT)
-
-    # Identification of the coordinates of the Inliers homologous points of our two images
-    Inliers_Pts1 = points1[mask.ravel()==1]
-    Inliers_Pts2 = points2[mask.ravel()==1]
-    # Creation of a vect (from zero to the number of points of interest of Inliers)  
-    LenPts = len(Inliers_Pts2)
-    Vect_in = np.linspace(0, min(Inliers_Pts1.shape[0], Inliers_Pts2.shape[0])-1, LenPts, dtype=np.int32) 
-    # Convert the coordinates of the points of interest of Inliers for our 2 images to "KeyPoint  
-    InkeyPoint1 = [cv2.KeyPoint(x=P[0], y=P[1], size=1) for P in Inliers_Pts1[Vect_in]] 
-    InkeyPoint2 = [cv2.KeyPoint(x=P[0], y=P[1], size=1) for P in Inliers_Pts2[Vect_in]]
-    # Filter the coordinates of the homologous points of Inliers from the set of points
-    Inliers_match = [cv2.DMatch(_imgIdx=0, _queryIdx=i, _trainIdx=i,_distance=0) for i in range(len(InkeyPoint2))]
-
-    # Identification of the coordinates of the homologous points Outliers of our two images
-    Outliers_Pts1 = points1[mask.ravel()==0]
-    Outliers_Pts2 = points2[mask.ravel()==0]
-    ## Creation of a vect (from zero to the number of homologous points of Outliers)  
-    LenPts = len(Outliers_Pts2)
-    Vect_out = np.linspace(0, min(Outliers_Pts1.shape[0], Outliers_Pts2.shape[0])-1, LenPts, dtype=np.int32) 
-    ## Convert the coordinates of the points of interest of Outliers for our 2 images to "KeyPoint 
-    OutkeyPoint1 = [cv2.KeyPoint(x=P[0], y=P[1], size=1) for P in Outliers_Pts1[Vect_out]] 
-    OutkeyPoint2 = [cv2.KeyPoint(x=P[0], y=P[1], size=1) for P in Outliers_Pts2[Vect_out]]
-    ## Filter the coordinates of the homologous points of Outliers from the set of points
-    Outliers_match = [cv2.DMatch(_imgIdx=0, _queryIdx=i, _trainIdx=i,_distance=0) for i in range(len(OutkeyPoint2))]
-
-    # Calculation of the rate (%) of correctly matched homologous points 
-    Prob_P = np.shape(Inliers_match)[0] # number of Inliers points
-    Prob_N = np.shape(Outliers_match)[0] # number of points Outliers    
-    Prob_True = (Prob_P / (Prob_P + Prob_N))*100
-
-    return Prob_True, len(matches)
-# ................................................................................
-
 def evaluate_scenario_intensity(KP1, KP2, Dspt1, Dspt2, norm_type):
     bf = cv2.BFMatcher(norm_type, crossCheck=True) 
     matches = bf.match(Dspt1,Dspt2)
@@ -226,33 +150,109 @@ def evaluate_scenario_rotation(KP1, KP2, Dspt1, Dspt2, norm_type, rot, rot_matri
     return Prob_True, good_matches
 # ................................................................................
 
-def goodMatchesOneToOne(matches, des1, des2, ratio_test=0.8):
-    idx1, idx2 = [], []  
-    if matches is not None:         
-        float_inf = float('inf')
-        dist_match = {}  # Dictionary to store the minimum distance of matches for each keypoint index
-        index_match = {}  # Dictionary to store the index of the match for each keypoint index
-        
-        for m, n in matches:
-            if m.distance > ratio_test * n.distance:
-                continue
-                
-            if m.trainIdx not in dist_match:
-                # If trainIdx has not been matched yet, initialize its distance as infinite
-                dist_match[m.trainIdx] = float_inf
-                idx1.append(m.queryIdx)
-                idx2.append(m.trainIdx)
-                index_match[m.trainIdx] = len(idx2) - 1
-            else:
-                dist = dist_match[m.trainIdx]
-                if m.distance < dist:
-                    # If we already have a match for trainIdx and the current match is better, replace it
-                    index = index_match[m.trainIdx]
-                    assert idx2[index] == m.trainIdx
-                    idx1[index] = m.queryIdx
-                    idx2[index] = m.trainIdx
-                    dist_match[m.trainIdx] = m.distance  # Update the minimum distance
-    return idx1, idx2
+def match_with_homography(KP1, KP2, Dspt1, Dspt2, norm_type, homography_matrix, threshold=2):
+    bf = cv2.BFMatcher(norm_type, crossCheck=True)
+    matches = bf.match(Dspt1, Dspt2)
+
+    # Warp keypoints from image 2 to image 1 using the inverse homography matrix
+    warp_pts = []
+    for match in matches:
+        pt1 = KP1[match.queryIdx].pt
+        pt2 = KP2[match.trainIdx].pt
+        pt2 = np.array([pt2[0], pt2[1]]).reshape(1, -1).astype(np.float32)
+        warped_pt = cv2.perspectiveTransform(pt2, np.linalg.inv(homography_matrix))
+        warp_pts.append(warped_pt[0])
+
+    # Calculate distance between warped keypoints and keypoints in image 1
+    distances = np.linalg.norm(np.array(warp_pts) - np.array([kp.pt for kp in KP1]), axis=1)
+
+    # Filter good matches based on distance threshold
+    good_matches = [matches[i] for i in range(len(matches)) if distances[i] <= threshold]
+
+    Prob_P = len(good_matches)
+    Prob_N = len(matches) - Prob_P
+    Prob_True = (Prob_P / (Prob_P + Prob_N)) * 100
+
+    return Prob_True, good_matches
+# ................................................................................
+
+def match_with_bf_ratio_test(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
+    bf = cv2.BFMatcher(normType=norm_type, crossCheck=False)
+    matches = bf.knnMatch(Dspt1,Dspt2,k=2)
+    good_matches = []
+    for m,n in matches:
+        if m.distance < threshold_ratio*n.distance:
+            good_matches.append([m])
+    good_matches = sorted(good_matches, key = lambda x:x[0].distance)
+    match_rate = len(good_matches) / len(matches) * 100
+    return match_rate, good_matches
+# ................................................................................
+
+def match_with_flannbased_NNDR(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
+    if norm_type == cv2.NORM_L2:
+        index_params = dict(algorithm=1, trees=5)
+        search_params = dict(checks=50)
+    elif norm_type == cv2.NORM_HAMMING:
+        index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
+        search_params = dict(checks=50)
+    matcher = cv2.FlannBasedMatcher(index_params, search_params)
+    matches = matcher.knnMatch(Dspt1, Dspt2, 2)
+    good_matches = []
+    for m, n in matches:
+        if m.distance < threshold_ratio * n.distance:
+            good_matches.append([m])
+    good_matches = sorted(good_matches, key=lambda x: x[0].distance)
+    match_rate = len(good_matches) / len(matches) * 100
+    return match_rate, good_matches
+# ................................................................................
+
+def evaluate_with_fundamentalMat_and_XSAC(KP1, KP2, Dspt1, Dspt2, norm_type):
+    bf = cv2.BFMatcher(norm_type, crossCheck=True) 
+    matches = bf.match(Dspt1, Dspt2)
+    matches = sorted(matches, key=lambda x: x.distance)
+    # Extract keypoints into numpy arrays
+    points1 = np.array([KP1[match.queryIdx].pt for match in matches], dtype=np.float32)
+    points2 = np.array([KP2[match.trainIdx].pt for match in matches], dtype=np.float32)
+    # Calculate the fundamental matrix and inliers using RANSAC and the 8-point method
+    h, mask = cv2.findFundamentalMat(points1, points2, cv2.RANSAC + cv2.FM_8POINT) # cv2.FM_RANSAC cv2.USAC_MSAC cv2.USAC_NAPSAC cv2.USAC_MAGSAC
+    # Extract inliers
+    inliers = matches[np.where(mask.ravel() == 1)]
+    inliers_percentage = (len(inliers) / len(matches)) * 100
+    return inliers_percentage, inliers
+# ................................................................................
+
+def evaluate_with_H(KP1, KP2, Dspt1, Dspt2, norm_type, h, threshold=2):
+    bf = cv2.BFMatcher(norm_type, crossCheck=True) 
+    matches = bf.match(Dspt1, Dspt2)
+    matches = sorted(matches, key=lambda x: x.distance)
+    # Extract keypoints into numpy arrays
+    points1 = np.array([KP1[match.queryIdx].pt for match in matches], dtype=np.float32)
+    points2 = np.array([KP2[match.trainIdx].pt for match in matches], dtype=np.float32)
+    # Transform keypoints from image 2 to image 1 using the inverse of the homography matrix
+    transformed_pts = cv2.perspectiveTransform(points2.reshape(-1, 1, 2), np.linalg.inv(h)).reshape(-1, 2)
+    # Calculate the distances between transformed keypoints and keypoints in image 1
+    distances = np.linalg.norm(transformed_pts - points1, axis=1)
+    # Filter matches based on distance threshold
+    inliers = [matches[i] for i in range(len(matches)) if distances[i] <= threshold]
+    inliers_percentage = (len(inliers) / len(matches)) * 100
+    return inliers_percentage, inliers
+# ................................................................................
+
+#   cv::FM_7POINT = 1,
+#   cv::FM_8POINT = 2,
+#   cv::FM_LMEDS = 4,
+#   cv::FM_RANSAC = 8
+
+#   cv::LMEDS = 4,
+#   cv::RANSAC = 8,
+#   cv::RHO = 16,
+#   cv::USAC_DEFAULT = 32,
+#   cv::USAC_PARALLEL = 33,
+#   cv::USAC_FM_8PTS = 34,
+#   cv::USAC_FAST = 35,
+#   cv::USAC_ACCURATE = 36,
+#   cv::USAC_PROSAC = 37,
+#   cv::USAC_MAGSAC = 38
 
 ### detectors/descriptors 5
 sift   = cv2.SIFT_create(nfeatures=2000, nOctaveLayers=3, contrastThreshold=0.1, edgeThreshold=10.0, sigma=1.6) #best with layer=3 contrastThreshold=0.1 
