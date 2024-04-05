@@ -287,6 +287,8 @@ Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, g
 Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost]) # 14 descriptors
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 
+########################################################
+# MARK: Intensity
 ################ Scenario 1 (Intensity) ################
 print("Scenario 1 Intensity")
 Rate_intensity      = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors)))
@@ -327,7 +329,7 @@ for k in range(nbre_img):
 np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
 np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
 ##########################################################
-
+# MARK: Scale
 ################ Scenario 2: Scale ################
 print("Scenario 2 Scale")
 Rate_scale      = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
@@ -367,7 +369,7 @@ for k in range(len(scale)):
 np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
 np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
 ##########################################################
-
+# MARK: Rotation
 ################ Scenario 3: Rotation ################
 print("Scenario 3 Rotation")
 Rate_rot       = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors)))
@@ -407,15 +409,7 @@ for k in range(len(rot)):
 np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
 np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
 ##########################################################
-"""
-..#######..##.....##.########..#######..########..########.
-.##.....##..##...##..##.......##.....##.##.....##.##.....##
-.##.....##...##.##...##.......##.....##.##.....##.##.....##
-.##.....##....###....######...##.....##.########..##.....##
-.##.....##...##.##...##.......##.....##.##...##...##.....##
-.##.....##..##...##..##.......##.....##.##....##..##.....##
-..#######..##.....##.##........#######..##.....##.########.
-"""
+# MARK: GRAF
 ################ Scenario 4: graf ############################
 print("Scenario 4 graf")
 folder = "/graf"
@@ -457,7 +451,7 @@ for k in range(1, len(img)):
 np.save(maindir + "/arrays/Rate_graf.npy", Rate_graf)
 np.save(maindir + "/arrays/Exec_time_graf.npy", Exec_time_graf)
 ##########################################################
-
+# MARK: WALL
 ################ Scenario 5: wall ############################
 print("Scenario 5 wall")
 folder = "/wall"
@@ -499,7 +493,7 @@ for k in range(1, len(img)):
 np.save(maindir + "/arrays/Rate_wall.npy", Rate_wall)
 np.save(maindir + "/arrays/Exec_time_wall.npy", Exec_time_wall)
 ##########################################################
-
+# MARK: TREES
 ################ Scenario 6: trees ############################
 print("Scenario 6 trees")
 folder = "/trees"
@@ -541,7 +535,7 @@ for k in range(1, len(img)):
 np.save(maindir + "/arrays/Rate_trees.npy", Rate_trees)
 np.save(maindir + "/arrays/Exec_time_trees.npy", Exec_time_trees)
 ##########################################################
-
+# MARK: BIKES
 ################ Scenario 7: bikes ############################
 print("Scenario 7 bikes")
 folder = "/bikes"
@@ -583,15 +577,7 @@ for k in range(1, len(img)):
 np.save(maindir + "/arrays/Rate_bikes.npy", Rate_bikes)
 np.save(maindir + "/arrays/Exec_time_bikes.npy", Exec_time_bikes)
 ##########################################################
-"""
-..#######..##.....##.########..#######..########..########.....########..#######..########..#######.
-.##.....##..##...##..##.......##.....##.##.....##.##.....##....##.......##.....##.##....##.##.....##
-.##.....##...##.##...##.......##.....##.##.....##.##.....##....##.......##............##...##.....##
-.##.....##....###....######...##.....##.########..##.....##....#######..########.....##.....#######.
-.##.....##...##.##...##.......##.....##.##...##...##.....##..........##.##.....##...##.....##.....##
-.##.....##..##...##..##.......##.....##.##....##..##.....##....##....##.##.....##...##.....##.....##
-..#######..##.....##.##........#######..##.....##.########......######...#######....##......#######.
-"""
+# MARK: BARK
 ################ Scenario 8: bark ############################
 print("Scenario 8 bark")
 folder = "/bark"
@@ -633,7 +619,7 @@ for k in range(1, len(img)):
 np.save(maindir + "/arrays/Rate_bark.npy", Rate_bark)
 np.save(maindir + "/arrays/Exec_time_bark.npy", Exec_time_bark)
 ##########################################################
-
+# MARK: BOAT
 ################ Scenario 9: boat ############################
 print("Scenario 9 boat")
 folder = "/boat"
@@ -675,7 +661,7 @@ for k in range(1, len(img)):
 np.save(maindir + "/arrays/Rate_boat.npy", Rate_boat)
 np.save(maindir + "/arrays/Exec_time_boat.npy", Exec_time_boat)
 ##########################################################
-
+# MARK: LEUVEN
 ################ Scenario 10: leuven ############################
 print("Scenario 10 leuven")
 folder = "/leuven"
@@ -717,7 +703,7 @@ for k in range(1, len(img)):
 np.save(maindir + "/arrays/Rate_leuven.npy", Rate_leuven)
 np.save(maindir + "/arrays/Exec_time_leuven.npy", Exec_time_leuven)
 ##########################################################
-
+# MARK: UBC
 ################ Scenario 11: ubc ############################
 print("Scenario 11 ubc")
 folder = "/ubc"
