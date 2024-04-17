@@ -1,12 +1,14 @@
 import cv2
 import numpy as np
 import time, os
+import re
 
 maindir = os.path.abspath(os.path.dirname(__file__))
 datasetdir = "./oxfordAffine"
 folder = "/graf"
 picture = "/img1.jpg"
 data = datasetdir + folder + picture
+Hfile_names = ["H1to2p", "H1to3p", "H1to4p", "H1to5p", "H1to6p"]
 
 Image = cv2.imread(data)
 Image = np.array(Image)
@@ -68,10 +70,30 @@ def get_cam_rot(Img, r):
 
     return rotation_mat, couple_I_Ir
 
-def evaluate_scenario_intensity(KP1, KP2, Dspt1, Dspt2, norm_type):
-    bf = cv2.BFMatcher(norm_type, crossCheck=True) 
-    matches = bf.match(Dspt1,Dspt2)
-    matches = sorted(matches, key = lambda x:x.distance)
+def read_H_matrix_from_file(file_path):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+    H = []
+    for line in lines:
+        if line.strip():  # Skip empty lines
+            row = [float(val) for val in re.split(r'\s+', line.strip())]
+            H.append(row)
+    H = np.array(H)
+    return H
+
+def evaluate_scenario_intensity(matcher, KP1, KP2, Dspt1, Dspt2, norm_type):
+    if matcher == 0: # Brute-force matcher
+        bf = cv2.BFMatcher(norm_type, crossCheck=True) 
+        matches = bf.match(Dspt1, Dspt2)
+    else: # Flann-based matcher
+        if norm_type == cv2.NORM_L2:
+            index_params = dict(algorithm=1, trees=5)
+            search_params = dict(checks=50)
+        elif norm_type == cv2.NORM_HAMMING:
+            index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
+            search_params = dict(checks=50)
+        matcher = cv2.FlannBasedMatcher(index_params, search_params)
+        matches = matcher.knnMatch(Dspt1, Dspt2, 2)
     Prob_P = 0
     Prob_N = 1
     good_matches = []
@@ -92,13 +114,23 @@ def evaluate_scenario_intensity(KP1, KP2, Dspt1, Dspt2, norm_type):
         else:
             Prob_N += 1   
     Prob_True = (Prob_P / (Prob_P + Prob_N))*100
+    good_matches = sorted(good_matches, key = lambda x:x.distance)
     return Prob_True, good_matches
 # ................................................................................
 
-def evaluate_scenario_scale(KP1, KP2, Dspt1, Dspt2, norm_type, scale):
-    bf = cv2.BFMatcher(norm_type, crossCheck=True) 
-    matches = bf.match(Dspt1,Dspt2)
-    matches = sorted(matches, key = lambda x:x.distance)
+def evaluate_scenario_scale(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, scale):
+    if matcher == 0: # Brute-force matcher
+        bf = cv2.BFMatcher(norm_type, crossCheck=True) 
+        matches = bf.match(Dspt1, Dspt2)
+    else: # Flann-based matcher
+        if norm_type == cv2.NORM_L2:
+            index_params = dict(algorithm=1, trees=5)
+            search_params = dict(checks=50)
+        elif norm_type == cv2.NORM_HAMMING:
+            index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
+            search_params = dict(checks=50)
+        matcher = cv2.FlannBasedMatcher(index_params, search_params)
+        matches = matcher.knnMatch(Dspt1, Dspt2, 2)
     Prob_P = 0
     Prob_N = 1
     good_matches = []
@@ -119,13 +151,23 @@ def evaluate_scenario_scale(KP1, KP2, Dspt1, Dspt2, norm_type, scale):
             Prob_N += 1   
     # Calculation of the rate (%) of correctly matched homologous points        
     Prob_True = (Prob_P / (Prob_P + Prob_N))*100
+    good_matches = sorted(good_matches, key = lambda x:x.distance)
     return Prob_True, good_matches
 # ................................................................................
 
-def evaluate_scenario_rotation(KP1, KP2, Dspt1, Dspt2, norm_type, rot, rot_matrix):
-    bf = cv2.BFMatcher(norm_type, crossCheck=True)
-    matches = bf.match(Dspt1,Dspt2)
-    matches = sorted(matches, key = lambda x:x.distance)
+def evaluate_scenario_rotation(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, rot, rot_matrix):
+    if matcher == 0: # Brute-force matcher
+        bf = cv2.BFMatcher(norm_type, crossCheck=True) 
+        matches = bf.match(Dspt1, Dspt2)
+    else: # Flann-based matcher
+        if norm_type == cv2.NORM_L2:
+            index_params = dict(algorithm=1, trees=5)
+            search_params = dict(checks=50)
+        elif norm_type == cv2.NORM_HAMMING:
+            index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
+            search_params = dict(checks=50)
+        matcher = cv2.FlannBasedMatcher(index_params, search_params)
+        matches = matcher.knnMatch(Dspt1, Dspt2, 2)
     Prob_P = 0
     Prob_N = 1
     good_matches = []
@@ -147,28 +189,34 @@ def evaluate_scenario_rotation(KP1, KP2, Dspt1, Dspt2, norm_type, rot, rot_matri
         else:
             Prob_N += 1
     Prob_True = (Prob_P / (Prob_P + Prob_N))*100
+    good_matches = sorted(good_matches, key = lambda x:x.distance)
     return Prob_True, good_matches
 # ................................................................................
 
-def match_with_homography(KP1, KP2, Dspt1, Dspt2, norm_type, homography_matrix, threshold=2):
-    bf = cv2.BFMatcher(norm_type, crossCheck=True)
-    matches = bf.match(Dspt1, Dspt2)
+def match_with_homography(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, H, threshold=2):
+    if matcher == 0: # Brute-force matcher
+        bf = cv2.BFMatcher(norm_type, crossCheck=True) 
+        matches = bf.match(Dspt1, Dspt2)
+    else: # Flann-based matcher
+        if norm_type == cv2.NORM_L2:
+            index_params = dict(algorithm=1, trees=5)
+            search_params = dict(checks=50)
+        elif norm_type == cv2.NORM_HAMMING:
+            index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
+            search_params = dict(checks=50)
+        matcher = cv2.FlannBasedMatcher(index_params, search_params)
+        matches = matcher.knnMatch(Dspt1, Dspt2, 2)
 
-    # Warp keypoints from image 2 to image 1 using the inverse homography matrix
     warp_pts = []
     for match in matches:
         pt1 = KP1[match.queryIdx].pt
         pt2 = KP2[match.trainIdx].pt
         pt2 = np.array([pt2[0], pt2[1]]).reshape(1, -1).astype(np.float32)
-        warped_pt = cv2.perspectiveTransform(pt2, np.linalg.inv(homography_matrix))
+        warped_pt = cv2.perspectiveTransform(pt2, np.linalg.inv(H))
         warp_pts.append(warped_pt[0])
 
-    # Calculate distance between warped keypoints and keypoints in image 1
     distances = np.linalg.norm(np.array(warp_pts) - np.array([kp.pt for kp in KP1]), axis=1)
-
-    # Filter good matches based on distance threshold
     good_matches = [matches[i] for i in range(len(matches)) if distances[i] <= threshold]
-
     Prob_P = len(good_matches)
     Prob_N = len(matches) - Prob_P
     Prob_True = (Prob_P / (Prob_P + Prob_N)) * 100
@@ -176,9 +224,20 @@ def match_with_homography(KP1, KP2, Dspt1, Dspt2, norm_type, homography_matrix, 
     return Prob_True, good_matches
 # ................................................................................
 
-def match_with_bf_ratio_test(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
-    bf = cv2.BFMatcher(normType=norm_type, crossCheck=False)
-    matches = bf.knnMatch(Dspt1,Dspt2,k=2)
+def match_with_bf_ratio_test(matcher, Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
+    if matcher == 0: # Brute-force matcher
+        bf = cv2.BFMatcher(norm_type, crossCheck=True) 
+        matches = bf.match(Dspt1, Dspt2)
+    else: # Flann-based matcher
+        if norm_type == cv2.NORM_L2:
+            index_params = dict(algorithm=1, trees=5)
+            search_params = dict(checks=50)
+        elif norm_type == cv2.NORM_HAMMING:
+            index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
+            search_params = dict(checks=50)
+        matcher = cv2.FlannBasedMatcher(index_params, search_params)
+        matches = matcher.knnMatch(Dspt1, Dspt2, 2)
+        
     good_matches = []
     for m,n in matches:
         if m.distance < threshold_ratio*n.distance:
@@ -188,51 +247,50 @@ def match_with_bf_ratio_test(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
     return match_rate, good_matches
 # ................................................................................
 
-def match_with_flannbased_NNDR(Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
-    if norm_type == cv2.NORM_L2:
-        index_params = dict(algorithm=1, trees=5)
-        search_params = dict(checks=50)
-    elif norm_type == cv2.NORM_HAMMING:
-        index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
-        search_params = dict(checks=50)
-    matcher = cv2.FlannBasedMatcher(index_params, search_params)
-    matches = matcher.knnMatch(Dspt1, Dspt2, 2)
-    good_matches = []
-    for m, n in matches:
-        if m.distance < threshold_ratio * n.distance:
-            good_matches.append([m])
-    good_matches = sorted(good_matches, key=lambda x: x[0].distance)
-    match_rate = len(good_matches) / len(matches) * 100
-    return match_rate, good_matches
-# ................................................................................
-
-def evaluate_with_fundamentalMat_and_XSAC(KP1, KP2, Dspt1, Dspt2, norm_type):
-    bf = cv2.BFMatcher(norm_type, crossCheck=True) 
-    matches = bf.match(Dspt1, Dspt2)
-    matches = sorted(matches, key=lambda x: x.distance)
-    # Extract keypoints into numpy arrays
+def evaluate_with_fundamentalMat_and_XSAC(matcher, KP1, KP2, Dspt1, Dspt2, norm_type):
+    if matcher == 0: # Brute-force matcher
+        bf = cv2.BFMatcher(norm_type, crossCheck=True) 
+        matches = bf.match(Dspt1, Dspt2)
+    else: # Flann-based matcher
+        if norm_type == cv2.NORM_L2:
+            index_params = dict(algorithm=1, trees=5)
+            search_params = dict(checks=50)
+        elif norm_type == cv2.NORM_HAMMING:
+            index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
+            search_params = dict(checks=50)
+        matcher = cv2.FlannBasedMatcher(index_params, search_params)
+        matches = matcher.knnMatch(Dspt1, Dspt2, 2)
+        
     points1 = np.array([KP1[match.queryIdx].pt for match in matches], dtype=np.float32)
     points2 = np.array([KP2[match.trainIdx].pt for match in matches], dtype=np.float32)
-    # Calculate the fundamental matrix and inliers using RANSAC and the 8-point method
-    h, mask = cv2.findFundamentalMat(points1, points2, cv2.RANSAC + cv2.FM_8POINT) # cv2.FM_RANSAC cv2.USAC_MSAC cv2.USAC_NAPSAC cv2.USAC_MAGSAC
-    # Extract inliers
-    inliers = matches[np.where(mask.ravel() == 1)]
+    h, mask = cv2.findFundamentalMat(points1, points2, cv2.USAC_MAGSAC + cv2.FM_8POINT) # cv2.RANSAC cv2.FM_RANSAC cv2.USAC_MSAC cv2.USAC_NAPSAC cv2.USAC_MAGSAC
+    if isinstance(matches[0], list):  # Flann-based matcher
+        inliers = [m for i, m in enumerate(matches) if mask[i] == 1]
+    else:  # Brute-force matcher
+        inliers = [matches[i] for i in range(len(matches)) if mask[i] == 1]
+
     inliers_percentage = (len(inliers) / len(matches)) * 100
     return inliers_percentage, inliers
 # ................................................................................
 
-def evaluate_with_H(KP1, KP2, Dspt1, Dspt2, norm_type, h, threshold=2):
-    bf = cv2.BFMatcher(norm_type, crossCheck=True) 
-    matches = bf.match(Dspt1, Dspt2)
-    matches = sorted(matches, key=lambda x: x.distance)
-    # Extract keypoints into numpy arrays
+def evaluate_with_H(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, H, threshold=2):
+    if matcher == 0: # Brute-force matcher
+        bf = cv2.BFMatcher(norm_type, crossCheck=True) 
+        matches = bf.match(Dspt1, Dspt2)
+    else: # Flann-based matcher
+        if norm_type == cv2.NORM_L2:
+            index_params = dict(algorithm=1, trees=5)
+            search_params = dict(checks=50)
+        elif norm_type == cv2.NORM_HAMMING:
+            index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
+            search_params = dict(checks=50)
+        matcher = cv2.FlannBasedMatcher(index_params, search_params)
+        matches = matcher.knnMatch(Dspt1, Dspt2, 2)
+        
     points1 = np.array([KP1[match.queryIdx].pt for match in matches], dtype=np.float32)
     points2 = np.array([KP2[match.trainIdx].pt for match in matches], dtype=np.float32)
-    # Transform keypoints from image 2 to image 1 using the inverse of the homography matrix
-    transformed_pts = cv2.perspectiveTransform(points2.reshape(-1, 1, 2), np.linalg.inv(h)).reshape(-1, 2)
-    # Calculate the distances between transformed keypoints and keypoints in image 1
+    transformed_pts = cv2.perspectiveTransform(points2.reshape(-1, 1, 2), np.linalg.inv(H)).reshape(-1, 2)
     distances = np.linalg.norm(transformed_pts - points1, axis=1)
-    # Filter matches based on distance threshold
     inliers = [matches[i] for i in range(len(matches)) if distances[i] <= threshold]
     inliers_percentage = (len(inliers) / len(matches)) * 100
     return inliers_percentage, inliers
@@ -286,6 +344,7 @@ boost = cv2.xfeatures2d.BoostDesc_create(desc=300, use_scale_orientation=True, s
 Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, gftt_harris, star, hl, msd, tbmr]) # 14 detectors
 Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost]) # 14 descriptors
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
+matcher        = 0 # 0: Brute-force matcher, 1: Flann-based matcher
 
 ########################################################
 # MARK: Intensity
@@ -316,21 +375,21 @@ for k in range(nbre_img):
                     continue
                 try:
                     start_time = time.time()
-                    Rate_intensity[k, c3, i, j], good_matches = evaluate_scenario_intensity(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                    Rate_intensity[k, c3, i, j], good_matches = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_intensity[k, c3, i, j] = None
                     Exec_time_intensity[k, c3, i, j, 2] = None
                     continue
                 # # draw matches
-                # img_matches = cv2.drawMatchesKnn(img, keypoints1, img2, keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                # img_matches = cv2.drawMatches(img, keypoints1, img2, keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                 # filename = f"{maindir}/draws/intensity/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_intensity[k, c3, i, j])}.png"
                 # cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
 np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
 ##########################################################
 # MARK: Scale
-################ Scenario 2: Scale ################
+################ Scenario 2: Scale #######################
 print("Scenario 2 Scale")
 Rate_scale      = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
 Exec_time_scale = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
@@ -356,21 +415,21 @@ for k in range(len(scale)):
                     continue
                 try:
                     start_time = time.time()
-                    Rate_scale[k, c3, i, j], good_matches = evaluate_scenario_scale(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                    Rate_scale[k, c3, i, j], good_matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_scale[k, c3, i, j] = None
                     Exec_time_scale[k, c3, i, j, 2] = None
                     continue
                 # # draw matches
-                # img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[1], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                # img_matches = cv2.drawMatches(img[0], keypoints1, img[1], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                 # filename = f"{maindir}/draws/scale/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_scale[k, c3, i, j])}.png"
                 # cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
 np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
 ##########################################################
 # MARK: Rotation
-################ Scenario 3: Rotation ################
+################ Scenario 3: Rotation ####################
 print("Scenario 3 Rotation")
 Rate_rot       = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors)))
 Exec_time_rot  = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors), 3))
@@ -396,24 +455,29 @@ for k in range(len(rot)):
                     continue
                 try:
                     start_time = time.time()
-                    Rate_rot[k, c3, i, j], good_matches = evaluate_scenario_rotation(keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
+                    Rate_rot[k, c3, i, j], good_matches = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
                     Exec_time_rot[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_rot[k, c3, i, j] = None
                     Exec_time_rot[k, c3, i, j, 2] = None
                     continue
                 # # draw matches
-                # img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[1], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                # img_matches = cv2.drawMatches(img[0], keypoints1, img[1], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                 # filename = f"{maindir}/draws/rot/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_rot[k, c3, i, j])}.png"
                 # cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
 np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
-##########################################################
+##############################################################
 # MARK: GRAF
 ################ Scenario 4: graf ############################
 print("Scenario 4 graf")
 folder = "/graf"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
+
+H = []
+for file_name in Hfile_names:
+    file_path = f'{datasetdir}{folder}/{file_name}'
+    H.append(read_H_matrix_from_file(file_path))
 
 Rate_graf       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
 Exec_time_graf  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
@@ -438,24 +502,29 @@ for k in range(1, len(img)):
                     continue
                 try:
                     start_time = time.time()
-                    Rate_graf[k-1, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_graf[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     Exec_time_graf[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_graf[k-1, c3, i, j] = None
                     Exec_time_graf[k-1, c3, i, j, 2] = None
                     continue
                 # # draw matches
-                # img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                # img_matches = cv2.drawMatches(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                 # filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_graf[k-1, c3, i, j])}.png"
                 # cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_graf.npy", Rate_graf)
 np.save(maindir + "/arrays/Exec_time_graf.npy", Exec_time_graf)
-##########################################################
+##############################################################
 # MARK: WALL
 ################ Scenario 5: wall ############################
 print("Scenario 5 wall")
 folder = "/wall"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
+
+H = []
+for file_name in Hfile_names:
+    file_path = f'{datasetdir}{folder}/{file_name}'
+    H.append(read_H_matrix_from_file(file_path))
 
 Rate_wall       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
 Exec_time_wall  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
@@ -480,24 +549,29 @@ for k in range(1, len(img)):
                     continue
                 try:
                     start_time = time.time()
-                    Rate_wall[k-1, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_wall[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     Exec_time_wall[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_wall[k-1, c3, i, j] = None
                     Exec_time_wall[k-1, c3, i, j, 2] = None
                     continue
                 # # draw matches
-                # img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                # img_matches = cv2.drawMatches(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                 # filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_wall[k-1, c3, i, j])}.png"
                 # cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_wall.npy", Rate_wall)
 np.save(maindir + "/arrays/Exec_time_wall.npy", Exec_time_wall)
-##########################################################
+###############################################################
 # MARK: TREES
 ################ Scenario 6: trees ############################
 print("Scenario 6 trees")
 folder = "/trees"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
+
+H = []
+for file_name in Hfile_names:
+    file_path = f'{datasetdir}{folder}/{file_name}'
+    H.append(read_H_matrix_from_file(file_path))
 
 Rate_trees       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
 Exec_time_trees  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
@@ -522,24 +596,29 @@ for k in range(1, len(img)):
                     continue
                 try:
                     start_time = time.time()
-                    Rate_trees[k-1, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_trees[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     Exec_time_trees[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_trees[k-1, c3, i, j] = None
                     Exec_time_trees[k-1, c3, i, j, 2] = None
                     continue
                 # # draw matches
-                # img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                # img_matches = cv2.drawMatches(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                 # filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_trees[k-1, c3, i, j])}.png"
                 # cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_trees.npy", Rate_trees)
 np.save(maindir + "/arrays/Exec_time_trees.npy", Exec_time_trees)
-##########################################################
+###############################################################
 # MARK: BIKES
 ################ Scenario 7: bikes ############################
 print("Scenario 7 bikes")
 folder = "/bikes"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
+
+H = []
+for file_name in Hfile_names:
+    file_path = f'{datasetdir}{folder}/{file_name}'
+    H.append(read_H_matrix_from_file(file_path))
 
 Rate_bikes       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
 Exec_time_bikes  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
@@ -564,24 +643,29 @@ for k in range(1, len(img)):
                     continue
                 try:
                     start_time = time.time()
-                    Rate_bikes[k-1, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_bikes[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     Exec_time_bikes[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_bikes[k-1, c3, i, j] = None
                     Exec_time_bikes[k-1, c3, i, j, 2] = None
                     continue
                 # # draw matches
-                # img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                # img_matches = cv2.drawMatches(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                 # filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_bikes[k-1, c3, i, j])}.png"
                 # cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_bikes.npy", Rate_bikes)
 np.save(maindir + "/arrays/Exec_time_bikes.npy", Exec_time_bikes)
-##########################################################
+##############################################################
 # MARK: BARK
 ################ Scenario 8: bark ############################
 print("Scenario 8 bark")
 folder = "/bark"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
+
+H = []
+for file_name in Hfile_names:
+    file_path = f'{datasetdir}{folder}/{file_name}'
+    H.append(read_H_matrix_from_file(file_path))
 
 Rate_bark       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
 Exec_time_bark  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
@@ -606,24 +690,29 @@ for k in range(1, len(img)):
                     continue
                 try:
                     start_time = time.time()
-                    Rate_bark[k-1, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_bark[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     Exec_time_bark[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_bark[k-1, c3, i, j] = None
                     Exec_time_bark[k-1, c3, i, j, 2] = None
                     continue
                 # # draw matches
-                # img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                # img_matches = cv2.drawMatches(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                 # filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_bark[k-1, c3, i, j])}.png"
                 # cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_bark.npy", Rate_bark)
 np.save(maindir + "/arrays/Exec_time_bark.npy", Exec_time_bark)
-##########################################################
+##############################################################
 # MARK: BOAT
 ################ Scenario 9: boat ############################
 print("Scenario 9 boat")
 folder = "/boat"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
+
+H = []
+for file_name in Hfile_names:
+    file_path = f'{datasetdir}{folder}/{file_name}'
+    H.append(read_H_matrix_from_file(file_path))
 
 Rate_boat       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
 Exec_time_boat  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
@@ -648,24 +737,29 @@ for k in range(1, len(img)):
                     continue
                 try:
                     start_time = time.time()
-                    Rate_boat[k-1, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_boat[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     Exec_time_boat[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_boat[k-1, c3, i, j] = None
                     Exec_time_boat[k-1, c3, i, j, 2] = None
                     continue
                 # # draw matches
-                # img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                # img_matches = cv2.drawMatches(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                 # filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_boat[k-1, c3, i, j])}.png"
                 # cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_boat.npy", Rate_boat)
 np.save(maindir + "/arrays/Exec_time_boat.npy", Exec_time_boat)
-##########################################################
+#################################################################
 # MARK: LEUVEN
 ################ Scenario 10: leuven ############################
 print("Scenario 10 leuven")
 folder = "/leuven"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
+
+H = []
+for file_name in Hfile_names:
+    file_path = f'{datasetdir}{folder}/{file_name}'
+    H.append(read_H_matrix_from_file(file_path))
 
 Rate_leuven       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
 Exec_time_leuven  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
@@ -690,24 +784,29 @@ for k in range(1, len(img)):
                     continue
                 try:
                     start_time = time.time()
-                    Rate_leuven[k-1, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_leuven[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     Exec_time_leuven[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_leuven[k-1, c3, i, j] = None
                     Exec_time_leuven[k-1, c3, i, j, 2] = None
                     continue
                 # # draw matches
-                # img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                # img_matches = cv2.drawMatches(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                 # filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_leuven[k-1, c3, i, j])}.png"
                 # cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_leuven.npy", Rate_leuven)
 np.save(maindir + "/arrays/Exec_time_leuven.npy", Exec_time_leuven)
-##########################################################
+##############################################################
 # MARK: UBC
 ################ Scenario 11: ubc ############################
 print("Scenario 11 ubc")
 folder = "/ubc"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
+
+H = []
+for file_name in Hfile_names:
+    file_path = f'{datasetdir}{folder}/{file_name}'
+    H.append(read_H_matrix_from_file(file_path))
 
 Rate_ubc       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
 Exec_time_ubc  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
@@ -732,14 +831,14 @@ for k in range(1, len(img)):
                     continue
                 try:
                     start_time = time.time()
-                    Rate_ubc[k-1, c3, i, j], good_matches = match_with_flannbased_NNDR(descriptors1, descriptors2, matching[c3])
+                    Rate_ubc[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                     Exec_time_ubc[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_ubc[k-1, c3, i, j] = None
                     Exec_time_ubc[k-1, c3, i, j, 2] = None
                     continue
                 # # draw matches
-                # img_matches = cv2.drawMatchesKnn(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                # img_matches = cv2.drawMatches(img[0], keypoints1, img[k], keypoints2, good_matches[:100], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                 # filename = f"{maindir}/draws{folder}/{k}_{i}_{j}_{matching[c3]}_R_{int(Rate_ubc[k-1, c3, i, j])}.png"
                 # cv2.imwrite(filename, img_matches)
 np.save(maindir + "/arrays/Rate_ubc.npy", Rate_ubc)
