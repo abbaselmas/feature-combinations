@@ -415,7 +415,7 @@ for k in range(len(scale)):
                     continue
                 try:
                     start_time = time.time()
-                    Rate_scale[k, c3, i, j], good_matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                    Rate_scale[k, c3, i, j], good_matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
                     Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_scale[k, c3, i, j] = None
