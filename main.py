@@ -193,37 +193,6 @@ def evaluate_scenario_rotation(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, rot, 
     return Prob_True, good_matches
 # ................................................................................
 
-def match_with_homography(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, H, threshold=2):
-    if matcher == 0: # Brute-force matcher
-        bf = cv2.BFMatcher(norm_type, crossCheck=True) 
-        matches = bf.match(Dspt1, Dspt2)
-    else: # Flann-based matcher
-        if norm_type == cv2.NORM_L2:
-            index_params = dict(algorithm=1, trees=5)
-            search_params = dict(checks=50)
-        elif norm_type == cv2.NORM_HAMMING:
-            index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
-            search_params = dict(checks=50)
-        matcher = cv2.FlannBasedMatcher(index_params, search_params)
-        matches = matcher.knnMatch(Dspt1, Dspt2, 2)
-
-    warp_pts = []
-    for match in matches:
-        pt1 = KP1[match.queryIdx].pt
-        pt2 = KP2[match.trainIdx].pt
-        pt2 = np.array([pt2[0], pt2[1]]).reshape(1, -1).astype(np.float32)
-        warped_pt = cv2.perspectiveTransform(pt2, np.linalg.inv(H))
-        warp_pts.append(warped_pt[0])
-
-    distances = np.linalg.norm(np.array(warp_pts) - np.array([kp.pt for kp in KP1]), axis=1)
-    good_matches = [matches[i] for i in range(len(matches)) if distances[i] <= threshold]
-    Prob_P = len(good_matches)
-    Prob_N = len(matches) - Prob_P
-    Prob_True = (Prob_P / (Prob_P + Prob_N)) * 100
-
-    return Prob_True, good_matches
-# ................................................................................
-
 def match_with_bf_ratio_test(matcher, Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
     if matcher == 0: # Brute-force matcher
         bf = cv2.BFMatcher(norm_type, crossCheck=True) 
