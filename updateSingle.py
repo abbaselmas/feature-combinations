@@ -8,7 +8,6 @@ datasetdir = "./oxfordAffine"
 folder = "/graf"
 picture = "/img1.jpg"
 data = datasetdir + folder + picture
-Hfile_names = ["H1to2p", "H1to3p", "H1to4p", "H1to5p", "H1to6p"]
 
 Image = cv2.imread(data)
 Image = np.array(Image)
@@ -69,17 +68,6 @@ def get_cam_rot(Img, r):
     cv2.imwrite(filename, rotated_image)
 
     return rotation_mat, couple_I_Ir
-
-def read_H_matrix_from_file(file_path):
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
-    H = []
-    for line in lines:
-        if line.strip():  # Skip empty lines
-            row = [float(val) for val in re.split(r'\s+', line.strip())]
-            H.append(row)
-    H = np.array(H)
-    return H
 
 def evaluate_scenario_intensity(matcher, KP1, KP2, Dspt1, Dspt2, norm_type):
     if matcher == 0: # Brute-force matcher
@@ -242,34 +230,10 @@ def evaluate_with_fundamentalMat_and_XSAC(matcher, KP1, KP2, Dspt1, Dspt2, norm_
     return inliers_percentage, inliers
 # ................................................................................
 
-def evaluate_with_H(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, H, threshold=2):
-    if matcher == 0: # Brute-force matcher
-        bf = cv2.BFMatcher(norm_type, crossCheck=True) 
-        matches = bf.match(Dspt1, Dspt2)
-    else: # Flann-based matcher
-        if norm_type == cv2.NORM_L2:
-            index_params = dict(algorithm=1, trees=5)
-            search_params = dict(checks=50)
-        elif norm_type == cv2.NORM_HAMMING:
-            index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
-            search_params = dict(checks=50)
-        matcher = cv2.FlannBasedMatcher(index_params, search_params)
-        matches = matcher.knnMatch(Dspt1, Dspt2, 2)
-        
-    points1 = np.array([KP1[match.queryIdx].pt for match in matches], dtype=np.float32)
-    points2 = np.array([KP2[match.trainIdx].pt for match in matches], dtype=np.float32)
-    transformed_pts = cv2.perspectiveTransform(points2.reshape(-1, 1, 2), np.linalg.inv(H)).reshape(-1, 2)
-    distances = np.linalg.norm(transformed_pts - points1, axis=1)
-    inliers = [matches[i] for i in range(len(matches)) if distances[i] <= threshold]
-    inliers_percentage = (len(inliers) / len(matches)) * 100
-    return inliers_percentage, inliers
-# ................................................................................
-
 #   cv::FM_7POINT = 1,
 #   cv::FM_8POINT = 2,
 #   cv::FM_LMEDS = 4,
 #   cv::FM_RANSAC = 8
-
 #   cv::LMEDS = 4,
 #   cv::RANSAC = 8,
 #   cv::RHO = 16,
@@ -469,11 +433,6 @@ print("Scenario 4 graf")
 folder = "/graf"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
-H = []
-for file_name in Hfile_names:
-    file_path = f'{datasetdir}{folder}/{file_name}'
-    H.append(read_H_matrix_from_file(file_path))
-
 Rate_graf      = np.load(maindir + '/arrays/Rate_graf.npy')
 Exec_time_graf = np.load(maindir + '/arrays/Exec_time_graf.npy')
 for k in range(1, len(img)):
@@ -522,11 +481,6 @@ np.save(maindir + "/arrays/Exec_time_graf.npy", Exec_time_graf)
 print("Scenario 5 wall")
 folder = "/wall"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
-
-H = []
-for file_name in Hfile_names:
-    file_path = f'{datasetdir}{folder}/{file_name}'
-    H.append(read_H_matrix_from_file(file_path))
 
 Rate_wall      = np.load(maindir + '/arrays/Rate_wall.npy')
 Exec_time_wall = np.load(maindir + '/arrays/Exec_time_wall.npy')
@@ -577,11 +531,6 @@ print("Scenario 6 trees")
 folder = "/trees"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
-H = []
-for file_name in Hfile_names:
-    file_path = f'{datasetdir}{folder}/{file_name}'
-    H.append(read_H_matrix_from_file(file_path))
-
 Rate_trees      = np.load(maindir + '/arrays/Rate_trees.npy')
 Exec_time_trees = np.load(maindir + '/arrays/Exec_time_trees.npy')
 for k in range(1, len(img)):
@@ -630,11 +579,6 @@ np.save(maindir + "/arrays/Exec_time_trees.npy", Exec_time_trees)
 print("Scenario 7 bikes")
 folder = "/bikes"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
-
-H = []
-for file_name in Hfile_names:
-    file_path = f'{datasetdir}{folder}/{file_name}'
-    H.append(read_H_matrix_from_file(file_path))
 
 Rate_bikes      = np.load(maindir + '/arrays/Rate_bikes.npy')
 Exec_time_bikes = np.load(maindir + '/arrays/Exec_time_bikes.npy')
@@ -685,11 +629,6 @@ print("Scenario 8 bark")
 folder = "/bark"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
-H = []
-for file_name in Hfile_names:
-    file_path = f'{datasetdir}{folder}/{file_name}'
-    H.append(read_H_matrix_from_file(file_path))
-
 Rate_bark      = np.load(maindir + '/arrays/Rate_bark.npy')
 Exec_time_bark = np.load(maindir + '/arrays/Exec_time_bark.npy')
 for k in range(1, len(img)):
@@ -738,11 +677,6 @@ np.save(maindir + "/arrays/Exec_time_bark.npy", Exec_time_bark)
 print("Scenario 9 boat")
 folder = "/boat"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
-
-H = []
-for file_name in Hfile_names:
-    file_path = f'{datasetdir}{folder}/{file_name}'
-    H.append(read_H_matrix_from_file(file_path))
 
 Rate_boat      = np.load(maindir + '/arrays/Rate_boat.npy')
 Exec_time_boat = np.load(maindir + '/arrays/Exec_time_boat.npy')
@@ -793,11 +727,6 @@ print("Scenario 10 leuven")
 folder = "/leuven"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
-H = []
-for file_name in Hfile_names:
-    file_path = f'{datasetdir}{folder}/{file_name}'
-    H.append(read_H_matrix_from_file(file_path))
-
 Rate_leuven      = np.load(maindir + '/arrays/Rate_leuven.npy')
 Exec_time_leuven = np.load(maindir + '/arrays/Exec_time_leuven.npy')
 for k in range(1, len(img)):
@@ -846,11 +775,6 @@ np.save(maindir + "/arrays/Exec_time_leuven.npy", Exec_time_leuven)
 print("Scenario 11 ubc")
 folder = "/ubc"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
-
-H = []
-for file_name in Hfile_names:
-    file_path = f'{datasetdir}{folder}/{file_name}'
-    H.append(read_H_matrix_from_file(file_path))
 
 Rate_ubc      = np.load(maindir + '/arrays/Rate_ubc.npy')
 Exec_time_ubc = np.load(maindir + '/arrays/Exec_time_ubc.npy')
