@@ -81,7 +81,7 @@ def evaluate_scenario_intensity(matcher, KP1, KP2, Dspt1, Dspt2, norm_type):
             index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
             search_params = dict(checks=50)
         matcher = cv2.FlannBasedMatcher(index_params, search_params)
-        matches = matcher.knnMatch(Dspt1, Dspt2, 2)
+        matches = matcher.match(Dspt1, Dspt2)
     Prob_P = 0
     Prob_N = 1
     good_matches = []
