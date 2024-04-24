@@ -216,34 +216,17 @@ def evaluate_with_fundamentalMat_and_XSAC(matcher, KP1, KP2, Dspt1, Dspt2, norm_
             index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
             search_params = dict(checks=50)
         matcher = cv2.FlannBasedMatcher(index_params, search_params)
-        matches = matcher.knnMatch(Dspt1, Dspt2, 2)
-        
+        matches = matcher.match(Dspt1, Dspt2)
+                
     points1 = np.array([KP1[match.queryIdx].pt for match in matches], dtype=np.float32)
     points2 = np.array([KP2[match.trainIdx].pt for match in matches], dtype=np.float32)
-    h, mask = cv2.findFundamentalMat(points1, points2, cv2.USAC_MAGSAC + cv2.FM_8POINT) # cv2.RANSAC cv2.FM_RANSAC cv2.USAC_MSAC cv2.USAC_NAPSAC cv2.USAC_MAGSAC
-    if isinstance(matches[0], list):  # Flann-based matcher
-        inliers = [m for i, m in enumerate(matches) if mask[i] == 1]
-    else:  # Brute-force matcher
-        inliers = [matches[i] for i in range(len(matches)) if mask[i] == 1]
+    
+    h, mask = cv2.findFundamentalMat(points1, points2, cv2.USAC_MAGSAC )
+    inliers = [matches[i] for i in range(len(matches)) if mask[i] == 1]
 
     inliers_percentage = (len(inliers) / len(matches)) * 100
     return inliers_percentage, inliers
 # ................................................................................
-
-#   cv::FM_7POINT = 1,
-#   cv::FM_8POINT = 2,
-#   cv::FM_LMEDS = 4,
-#   cv::FM_RANSAC = 8
-#   cv::LMEDS = 4,
-#   cv::RANSAC = 8,
-#   cv::RHO = 16,
-#   cv::USAC_DEFAULT = 32,
-#   cv::USAC_PARALLEL = 33,
-#   cv::USAC_FM_8PTS = 34,
-#   cv::USAC_FAST = 35,
-#   cv::USAC_ACCURATE = 36,
-#   cv::USAC_PROSAC = 37,
-#   cv::USAC_MAGSAC = 38
 
 ### detectors/descriptors 5
 sift   = cv2.SIFT_create(nfeatures=2000, nOctaveLayers=3, contrastThreshold=0.1, edgeThreshold=10.0, sigma=1.6) #best with layer=3 contrastThreshold=0.1 
@@ -289,6 +272,8 @@ b = 0 #j
 print("Scenario 1 Intensity")
 Rate_intensity      = np.load(maindir + '/arrays/Rate_intensity.npy')
 Exec_time_intensity = np.load(maindir + '/arrays/Exec_time_intensity.npy')
+keypoints_cache = np.load(maindir + '/arrays/Intensity_keypoints.npy')
+descriptors_cache = np.load(maindir + '/arrays/Intensity_descriptors.npy')
 img, List8Img = get_intensity_8Img(Image, val_b, val_c)
 for k in range(nbre_img):
     img2 = List8Img[k]
@@ -332,12 +317,17 @@ for k in range(nbre_img):
                 
 np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
 np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
+np.save(maindir + "/arrays/Intensity_keypoints.npy", keypoints_cache)
+np.save(maindir + "/arrays/Intensity_descriptors.npy", descriptors_cache)
+
 ##########################################################
 # MARK: Scale
 ################ Scenario 2: Scale #######################
 print("Scenario 2 Scale")
 Rate_scale      = np.load(maindir + '/arrays/Rate_scale.npy')
 Exec_time_scale = np.load(maindir + '/arrays/Exec_time_scale.npy')
+keypoints_cache = np.load(maindir + '/arrays/Scale_keypoints.npy')
+descriptors_cache = np.load(maindir + '/arrays/Scale_descriptors.npy')
 for k in range(len(scale)):
     img = get_cam_scale(Image, scale[k])
     for c3 in range(len(matching)): 
@@ -379,12 +369,16 @@ for k in range(len(scale)):
                 continue
 np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
 np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
+np.save(maindir + "/arrays/Scale_keypoints.npy", keypoints_cache)
+np.save(maindir + "/arrays/Scale_descriptors.npy", descriptors_cache)
 ##########################################################
 # MARK: Rotation
 ################ Scenario 3: Rotation ####################
 print("Scenario 3 Rotation")
 Rate_rot      = np.load(maindir + '/arrays/Rate_rot.npy')
 Exec_time_rot = np.load(maindir + '/arrays/Exec_time_rot.npy')
+keypoints_cache = np.load(maindir + '/arrays/Rotation_keypoints.npy')
+descriptors_cache = np.load(maindir + '/arrays/Rotation_descriptors.npy')
 for k in range(len(rot)):
     rot_matrix, img = get_cam_rot(Image, rot[k])
     for c3 in range(len(matching)):
@@ -426,6 +420,8 @@ for k in range(len(rot)):
                 continue
 np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
 np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
+np.save(maindir + "/arrays/Rotation_keypoints.npy", keypoints_cache)
+np.save(maindir + "/arrays/Rotation_descriptors.npy", descriptors_cache)
 ##############################################################
 # MARK: GRAF
 ################ Scenario 4: graf ############################
@@ -435,6 +431,8 @@ img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 Rate_graf      = np.load(maindir + '/arrays/Rate_graf.npy')
 Exec_time_graf = np.load(maindir + '/arrays/Exec_time_graf.npy')
+keypoints_cache = np.load(maindir + '/arrays/Graf_keypoints.npy')
+descriptors_cache = np.load(maindir + '/arrays/Graf_descriptors.npy')
 for k in range(1, len(img)):
     for c3 in range(len(matching)):
         for i in range(len(Detectors)):
@@ -475,6 +473,8 @@ for k in range(1, len(img)):
                 continue
 np.save(maindir + "/arrays/Rate_graf.npy", Rate_graf)
 np.save(maindir + "/arrays/Exec_time_graf.npy", Exec_time_graf)
+np.save(maindir + "/arrays/Graf_keypoints.npy", keypoints_cache)
+np.save(maindir + "/arrays/Graf_descriptors.npy", descriptors_cache)
 ##############################################################
 # MARK: WALL
 ################ Scenario 5: wall ############################
@@ -484,6 +484,8 @@ img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 Rate_wall      = np.load(maindir + '/arrays/Rate_wall.npy')
 Exec_time_wall = np.load(maindir + '/arrays/Exec_time_wall.npy')
+keypoints_cache = np.load(maindir + '/arrays/Wall_keypoints.npy')
+descriptors_cache = np.load(maindir + '/arrays/Wall_descriptors.npy')
 for k in range(1, len(img)):
     for c3 in range(len(matching)):
         for i in range(len(Detectors)):
@@ -524,6 +526,8 @@ for k in range(1, len(img)):
                 continue                
 np.save(maindir + "/arrays/Rate_wall.npy", Rate_wall)
 np.save(maindir + "/arrays/Exec_time_wall.npy", Exec_time_wall)
+np.save(maindir + "/arrays/Wall_keypoints.npy", keypoints_cache)
+np.save(maindir + "/arrays/Wall_descriptors.npy", descriptors_cache)
 ###############################################################
 # MARK: TREES
 ################ Scenario 6: trees ############################
@@ -533,6 +537,8 @@ img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 Rate_trees      = np.load(maindir + '/arrays/Rate_trees.npy')
 Exec_time_trees = np.load(maindir + '/arrays/Exec_time_trees.npy')
+keypoints_cache = np.load(maindir + '/arrays/Trees_keypoints.npy')
+descriptors_cache = np.load(maindir + '/arrays/Trees_descriptors.npy')
 for k in range(1, len(img)):
     for c3 in range(len(matching)):
         for i in range(len(Detectors)):
@@ -573,6 +579,8 @@ for k in range(1, len(img)):
                 continue
 np.save(maindir + "/arrays/Rate_trees.npy", Rate_trees)
 np.save(maindir + "/arrays/Exec_time_trees.npy", Exec_time_trees)
+np.save(maindir + "/arrays/Trees_keypoints.npy", keypoints_cache)
+np.save(maindir + "/arrays/Trees_descriptors.npy", descriptors_cache)
 ###############################################################
 # MARK: BIKES
 ################ Scenario 7: bikes ############################
@@ -582,6 +590,8 @@ img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 Rate_bikes      = np.load(maindir + '/arrays/Rate_bikes.npy')
 Exec_time_bikes = np.load(maindir + '/arrays/Exec_time_bikes.npy')
+keypoints_cache = np.load(maindir + '/arrays/Bikes_keypoints.npy')
+descriptors_cache = np.load(maindir + '/arrays/Bikes_descriptors.npy')
 for k in range(1, len(img)):
     for c3 in range(len(matching)):
         for i in range(len(Detectors)):
@@ -622,6 +632,8 @@ for k in range(1, len(img)):
                 continue
 np.save(maindir + "/arrays/Rate_bikes.npy", Rate_bikes)
 np.save(maindir + "/arrays/Exec_time_bikes.npy", Exec_time_bikes)
+np.save(maindir + "/arrays/Bikes_keypoints.npy", keypoints_cache)
+np.save(maindir + "/arrays/Bikes_descriptors.npy", descriptors_cache)
 ##############################################################
 # MARK: BARK
 ################ Scenario 8: bark ############################
@@ -631,6 +643,8 @@ img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 Rate_bark      = np.load(maindir + '/arrays/Rate_bark.npy')
 Exec_time_bark = np.load(maindir + '/arrays/Exec_time_bark.npy')
+keypoints_cache = np.load(maindir + '/arrays/Bark_keypoints.npy')
+descriptors_cache = np.load(maindir + '/arrays/Bark_descriptors.npy')
 for k in range(1, len(img)):
     for c3 in range(len(matching)):
         for i in range(len(Detectors)):
@@ -671,6 +685,8 @@ for k in range(1, len(img)):
                 continue
 np.save(maindir + "/arrays/Rate_bark.npy", Rate_bark)
 np.save(maindir + "/arrays/Exec_time_bark.npy", Exec_time_bark)
+np.save(maindir + "/arrays/Bark_keypoints.npy", keypoints_cache)
+np.save(maindir + "/arrays/Bark_descriptors.npy", descriptors_cache)
 ##############################################################
 # MARK: BOAT
 ################ Scenario 9: boat ############################
@@ -680,6 +696,8 @@ img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 Rate_boat      = np.load(maindir + '/arrays/Rate_boat.npy')
 Exec_time_boat = np.load(maindir + '/arrays/Exec_time_boat.npy')
+keypoints_cache = np.load(maindir + '/arrays/Boat_keypoints.npy')
+descriptors_cache = np.load(maindir + '/arrays/Boat_descriptors.npy')
 for k in range(1, len(img)):
     for c3 in range(len(matching)):
         for i in range(len(Detectors)):
@@ -720,6 +738,8 @@ for k in range(1, len(img)):
                 continue
 np.save(maindir + "/arrays/Rate_boat.npy", Rate_boat)
 np.save(maindir + "/arrays/Exec_time_boat.npy", Exec_time_boat)
+np.save(maindir + "/arrays/Boat_keypoints.npy", keypoints_cache)
+np.save(maindir + "/arrays/Boat_descriptors.npy", descriptors_cache)
 #################################################################
 # MARK: LEUVEN
 ################ Scenario 10: leuven ############################
@@ -729,6 +749,8 @@ img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 Rate_leuven      = np.load(maindir + '/arrays/Rate_leuven.npy')
 Exec_time_leuven = np.load(maindir + '/arrays/Exec_time_leuven.npy')
+keypoints_cache = np.load(maindir + '/arrays/Leuven_keypoints.npy')
+descriptors_cache = np.load(maindir + '/arrays/Leuven_descriptors.npy')
 for k in range(1, len(img)):
     for c3 in range(len(matching)):
         for i in range(len(Detectors)):
@@ -769,6 +791,8 @@ for k in range(1, len(img)):
                 continue
 np.save(maindir + "/arrays/Rate_leuven.npy", Rate_leuven)
 np.save(maindir + "/arrays/Exec_time_leuven.npy", Exec_time_leuven)
+np.save(maindir + "/arrays/Leuven_keypoints.npy", keypoints_cache)
+np.save(maindir + "/arrays/Leuven_descriptors.npy", descriptors_cache)
 ##############################################################
 # MARK: UBC
 ################ Scenario 11: ubc ############################
@@ -778,6 +802,8 @@ img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 
 Rate_ubc      = np.load(maindir + '/arrays/Rate_ubc.npy')
 Exec_time_ubc = np.load(maindir + '/arrays/Exec_time_ubc.npy')
+keypoints_cache = np.load(maindir + '/arrays/Ubc_keypoints.npy')
+descriptors_cache = np.load(maindir + '/arrays/Ubc_descriptors.npy')
 for k in range(1, len(img)):
     for c3 in range(len(matching)):
         for i in range(len(Detectors)):
@@ -818,4 +844,6 @@ for k in range(1, len(img)):
                 continue
 np.save(maindir + "/arrays/Rate_ubc.npy", Rate_ubc)
 np.save(maindir + "/arrays/Exec_time_ubc.npy", Exec_time_ubc)
+np.save(maindir + "/arrays/Ubc_keypoints.npy", keypoints_cache)
+np.save(maindir + "/arrays/Ubc_descriptors.npy", descriptors_cache)
 ##########################################################
