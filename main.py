@@ -30,24 +30,24 @@ def get_intensity_8Img(Img, val_b, val_c): # val_b, val_c must be 2 vectors with
         List8Img[i][List8Img[i] > 255] = 255 # set pixels with intensity > 255 to 255
         List8Img[i][List8Img[i] < 0] = 0 # set the pixels with intensity < 0 to the value of 0
         List8Img[i] = np.array(List8Img[i], dtype=np.uint8) # image transformation to uint8
-        filename = f"{maindir}/intensity/image_I+{val_b[i]}.png"
-        cv2.imwrite(filename, List8Img[i])
+        # filename = f"{maindir}/intensity/image_I+{val_b[i]}.png"
+        # cv2.imwrite(filename, List8Img[i])
     for j in range(len(val_c)): # for I ∗ c, with: c ∈ [0.7 : 0.2 : 1.3].
         I =  image * val_c[j]
         List8Img[j+4] = I.astype(int)
         List8Img[j+4][List8Img[j+4] > 255] = 255 # set pixels with intensity > 255 to 255
         List8Img[j+4][List8Img[j+4] < 0] = 0 # set the pixels with intensity < 0 to the value of 0
         List8Img[j+4] = np.array(List8Img[j+4], dtype=np.uint8) # transform image to uint8 (min value = 0, max value = 255)
-        filename = f"{maindir}/intensity/image_Ix{val_c[j]}.png"
-        cv2.imwrite(filename, List8Img[j+4])
+        # filename = f"{maindir}/intensity/image_Ix{val_c[j]}.png"
+        # cv2.imwrite(filename, List8Img[j+4])
     return Img, List8Img
 ## Scenario 2 (Scale): Function that takes as input the index of the camera, the index of the image n, and a scale, it returns a couple (I, Iscale). In the following, we will work with 7 images with a scale change Is : s ∈]1.1 : 0.2 : 2.3].
 def get_cam_scale(Img, s):
     ImgScale = cv2.resize(Img, (0, 0), fx=s, fy=s, interpolation = cv2.INTER_NEAREST) # opencv resize function with INTER_NEAREST interpolation
     I_Is = list([Img, ImgScale]) # list of 2 images (original image and scaled image)
-    # Save the images to disk
-    filename = f"{maindir}/scale/image_{s}.png"
-    cv2.imwrite(filename, ImgScale)
+    # # Save the images to disk
+    # filename = f"{maindir}/scale/image_{s}.png"
+    # cv2.imwrite(filename, ImgScale)
     return I_Is
 ## Scenario 3 (Rotation): Function that takes as input the index of the camera, the index of the image n, and a rotation angle, it returns a couple (I, Irot), and the rotation matrix. In the following, we will work with 9 images with a change of scale For an image I, we will create 9 images (I10, I20...I90) with change of rotation from 10 to 90 with a step of 10.
 def get_cam_rot(Img, r):
@@ -63,10 +63,9 @@ def get_cam_rot(Img, r):
     rotation_mat[1, 2] += bound_h/2 - image_center[1]
     rotated_image = cv2.warpAffine(Img, rotation_mat, (bound_w, bound_h))
     couple_I_Ir = [Img, rotated_image]  # list of 2 images (original image and image with rotation change)
-    # Save the images to disk
-    filename = f"{maindir}/rotation/image_{r}.png"  # You can change the format and naming convention as needed
-    cv2.imwrite(filename, rotated_image)
-
+    # # Save the images to disk
+    # filename = f"{maindir}/rotation/image_{r}.png"  # You can change the format and naming convention as needed
+    # cv2.imwrite(filename, rotated_image)
     return rotation_mat, couple_I_Ir
 
 def evaluate_scenario_intensity(matcher, KP1, KP2, Dspt1, Dspt2, norm_type):
@@ -257,201 +256,141 @@ beblid= cv2.xfeatures2d.BEBLID_create(scale_factor=6.75, n_bits=100)
 teblid= cv2.xfeatures2d.TEBLID_create(scale_factor=6.75, n_bits=102)
 boost = cv2.xfeatures2d.BoostDesc_create(desc=300, use_scale_orientation=True, scale_factor=0.75)
 
-Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, gftt_harris, star, hl, msd, tbmr]) # 14 detectors
-Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost]) # 14 descriptors
+Detectors      = list([sift, hl]) #list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, gftt_harris, star, hl, msd, tbmr]) # 14 detectors
+Descriptors    = list([sift, beblid]) #list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, lucid, latch, beblid, teblid, boost]) # 14 descriptors
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 matcher        = 0 # 0: Brute-force matcher, 1: Flann-based matcher
-
 ########################################################
-# MARK: Intensity
-################ Scenario 1 (Intensity) ################
-print("Scenario 1 Intensity")
-Rate_intensity      = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors)))
-Exec_time_intensity = np.zeros((nbre_img, len(matching), len(Detectors), len(Descriptors), 3))
-keypoints_cache = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
-Intensity_good_matches = {}
-img, List8Img = get_intensity_8Img(Image, val_b, val_c)
-for k in range(nbre_img):
-    img2 = List8Img[k]
-    for c3 in range(len(matching)):
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]            
-            if keypoints_cache[k, i, 0] is None:
-                keypoints1 = method_dtect.detect(img, None)
-                keypoints_cache[k, i, 0] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints1]
-            else:
-                keypoints1 = keypoints_cache[k, i, 0]    
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img2, None)
-                detector_time = time.time() - start_time
-                keypoints_cache[k, i, 1] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints2]
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
-            for j in range(len(Descriptors)):
-                Exec_time_intensity[k, c3, i, j, 0] = detector_time
-                method_dscrpt = Descriptors[j]
-                try:
-                    if descriptors_cache[k, i, j, 0] is None:
-                        descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
-                        descriptors_cache[k, i, j, 0] = descriptors1
-                    else:
-                        descriptors1 = descriptors_cache[k, i, j, 0]
-                    if descriptors_cache[k, i, j, 1] is None:
-                        start_time = time.time()
-                        descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                        Exec_time_intensity[k, c3, i, j, 1] = time.time() - start_time
-                        descriptors_cache[k, i, j, 1] = descriptors2
-                    else:
-                        descriptors2 = descriptors_cache[k, i, j, 1]
-                except:
-                    Exec_time_intensity[k, c3, i, j, 1] = None
-                    continue
-                try:
-                    start_time = time.time()
-                    Rate_intensity[k, c3, i, j], good_matches = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    Intensity_good_matches[(k, c3, i, j)] = [(m.queryIdx, m.trainIdx, m.distance) for m in good_matches]
-                    Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
-                except:
-                    Rate_intensity[k, c3, i, j] = None
-                    Exec_time_intensity[k, c3, i, j, 2] = None
-                    continue
-np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
-np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
-np.save(maindir + "/arrays/Intensity_keypoints.npy", keypoints_cache)
-np.save(maindir + "/arrays/Intensity_descriptors.npy", descriptors_cache)
-np.save(maindir + "/arrays/Intensity_good_matches.npy", Intensity_good_matches)
-
-##########################################################
-# MARK: Scale
-################ Scenario 2: Scale #######################
-print("Scenario 2 Scale")
+Rate_intensity  = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors)))
 Rate_scale      = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
-Exec_time_scale = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
-keypoints_cache = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
-Scale_good_matches = {}
-for k in range(len(scale)):
-    img = get_cam_scale(Image, scale[k])
-    for c3 in range(len(matching)): 
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]            
-            if keypoints_cache[k, i, 0] is None:
-                keypoints1 = method_dtect.detect(img[0], None)
-                keypoints_cache[k, i, 0] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints1]
-            else:
-                keypoints1 = keypoints_cache[k, i, 0]    
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img[1], None)
-                detector_time = time.time() - start_time
-                keypoints_cache[k, i, 1] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints2]
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
-            for j in range(len(Descriptors)):
-                Exec_time_scale[k, c3, i, j, 0] = detector_time
-                method_dscrpt = Descriptors[j]
-                try:
-                    if descriptors_cache[k, i, j, 0] is None:
-                        descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                        descriptors_cache[k, i, j, 0] = descriptors1
-                    else:
-                        descriptors1 = descriptors_cache[k, i, j, 0]
-                    if descriptors_cache[k, i, j, 1] is None:
-                        start_time = time.time()
-                        descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                        Exec_time_scale[k, c3, i, j, 1] = time.time() - start_time
-                        descriptors_cache[k, i, j, 1] = descriptors2
-                    else:
-                        descriptors2 = descriptors_cache[k, i, j, 1]
-                except:
-                    Exec_time_scale[k, c3, i, j, 1] = None
-                    continue
-                try:
-                    start_time = time.time()
-                    Rate_scale[k, c3, i, j], good_matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
-                    Scale_good_matches[(k, c3, i, j)] = [(m.queryIdx, m.trainIdx, m.distance) for m in good_matches]
-                    Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
-                except:
-                    Rate_scale[k, c3, i, j] = None
-                    Exec_time_scale[k, c3, i, j, 2] = None
-                    continue
-np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
-np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
-np.save(maindir + "/arrays/Scale_keypoints.npy", keypoints_cache)
-np.save(maindir + "/arrays/Scale_descriptors.npy", descriptors_cache)
-np.save(maindir + "/arrays/Scale_good_matches.npy", Scale_good_matches)
+Rate_rot        = np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors)))
 
-##########################################################
-# MARK: Rotation
-################ Scenario 3: Rotation ####################
-print("Scenario 3 Rotation")
-Rate_rot       = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors)))
-Exec_time_rot  = np.zeros((len(rot), len(matching), len(Detectors), len(Descriptors), 3))
-keypoints_cache = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
-Rotation_good_matches = {}
-for k in range(len(rot)):
-    rot_matrix, img = get_cam_rot(Image, rot[k])
-    for c3 in range(len(matching)):
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]            
-            if keypoints_cache[k, i, 0] is None:
-                keypoints1 = method_dtect.detect(img[0], None)
-                keypoints_cache[k, i, 0] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints1]
-            else:
-                keypoints1 = keypoints_cache[k, i, 0]    
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img[1], None)
-                detector_time = time.time() - start_time
-                keypoints_cache[k, i, 1] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints2]
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
-            for j in range(len(Descriptors)):
-                Exec_time_rot[k, c3, i, j, 0] = detector_time
-                method_dscrpt = Descriptors[j]
-                try:
-                    if descriptors_cache[k, i, j, 0] is None:
-                        descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                        descriptors_cache[k, i, j, 0] = descriptors1
-                    else:
-                        descriptors1 = descriptors_cache[k, i, j, 0]
-                    if descriptors_cache[k, i, j, 1] is None:
-                        start_time = time.time()
-                        descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                        Exec_time_rot[k, c3, i, j, 1] = time.time() - start_time
-                        descriptors_cache[k, i, j, 1] = descriptors2
-                    else:
-                        descriptors2 = descriptors_cache[k, i, j, 1]
-                except:
-                    Exec_time_rot[k, c3, i, j, 1] = None
-                    continue
-                try:
-                    start_time = time.time()
-                    Rate_rot[k, c3, i, j], good_matches = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
-                    Rotation_good_matches[(k, c3, i, j)] = [(m.queryIdx, m.trainIdx, m.distance) for m in good_matches]
-                    Exec_time_rot[k, c3, i, j, 2] = time.time() - start_time
-                except:
-                    Rate_rot[k, c3, i, j] = None
-                    Exec_time_rot[k, c3, i, j, 2] = None
-                    continue
-np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
-np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
-np.save(maindir + "/arrays/Rotation_keypoints.npy", keypoints_cache)
-np.save(maindir + "/arrays/Rotation_descriptors.npy", descriptors_cache)
-np.save(maindir + "/arrays/Rotation_good_matches.npy", Rotation_good_matches)
+Rate_ubc        = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
+Rate_leuven     = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
+Rate_boat       = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
+Rate_bark       = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
+Rate_bikes      = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
+Rate_trees      = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
+Rate_graf       = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
+Rate_wall       = np.zeros((6, len(matching), len(Detectors), len(Descriptors)))
+########################################################
+Exec_time_intensity = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 3))
+Exec_time_scale     = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
+Exec_time_rot       = np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 3))
 
-"""
-..######..########.########..########.########.....###....########..#######..########.
-.##....##.##.......##.....##.##.......##.....##...##.##......##....##.....##.##.....##
-.##.......##.......##.....##.##.......##.....##..##...##.....##....##.....##.##.....##
-..######..######...########..######...########..##.....##....##....##.....##.########.
-.......##.##.......##........##.......##...##...#########....##....##.....##.##...##..
-.##....##.##.......##........##.......##....##..##.....##....##....##.....##.##....##.
-..######..########.##........########.##.....##.##.....##....##.....#######..##.....##
-"""
+Exec_time_ubc    = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+Exec_time_leuven = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+Exec_time_boat   = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+Exec_time_bark   = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+Exec_time_bikes  = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+Exec_time_trees  = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+Exec_time_wall   = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+Exec_time_graf   = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+# ########################################################
+# # MARK: Intensity
+# ################ Scenario 1 (Intensity) ################
+# print("Scenario 1 Intensity")
+# img, List8Img = get_intensity_8Img(Image, val_b, val_c)
+# for k in range(nbre_img):
+#     img2 = List8Img[k]
+#     for i in range(len(Detectors)):
+#         method_dtect = Detectors[i]            
+#         keypoints1 = method_dtect.detect(img, None)
+#         start_time = time.time()
+#         keypoints2 = method_dtect.detect(img2, None)
+#         detector_time = time.time() - start_time
+#         for j in range(len(Descriptors)):
+#             for c3 in range(len(matching)):
+#                 Exec_time_intensity[k, c3, i, j, 0] = detector_time
+#                 method_dscrpt = Descriptors[j]
+#                 try:
+#                     descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
+#                     start_time = time.time()
+#                     descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
+#                     Exec_time_intensity[k, c3, i, j, 1] = time.time() - start_time
+#                 except:
+#                     Exec_time_intensity[k, c3, i, j, 1] = None
+#                     continue
+#                 try:
+#                     start_time = time.time()
+#                     Rate_intensity[k, c3, i, j], good_matches = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+#                     Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
+#                 except:
+#                     Rate_intensity[k, c3, i, j] = None
+#                     Exec_time_intensity[k, c3, i, j, 2] = None
+#                     continue
+# np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
+# np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
+
+# ##########################################################
+# # MARK: Scale
+# ################ Scenario 2: Scale #######################
+# print("Scenario 2 Scale")
+# for k in range(len(scale)):
+#     img = get_cam_scale(Image, scale[k])
+#     for i in range(len(Detectors)):
+#         method_dtect = Detectors[i]            
+#         keypoints1 = method_dtect.detect(img[0], None)
+#         start_time = time.time()
+#         keypoints2 = method_dtect.detect(img[1], None)
+#         detector_time = time.time() - start_time
+#         for j in range(len(Descriptors)):
+#             for c3 in range(len(matching)): 
+#                 Exec_time_scale[k, c3, i, j, 0] = detector_time
+#                 method_dscrpt = Descriptors[j]
+#                 try:
+#                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+#                     start_time = time.time()
+#                     descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
+#                     Exec_time_scale[k, c3, i, j, 1] = time.time() - start_time
+#                 except:
+#                     Exec_time_scale[k, c3, i, j, 1] = None
+#                     continue
+#                 try:
+#                     start_time = time.time()
+#                     Rate_scale[k, c3, i, j], good_matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
+#                     Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
+#                 except:
+#                     Rate_scale[k, c3, i, j] = None
+#                     Exec_time_scale[k, c3, i, j, 2] = None
+#                     continue
+# np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
+# np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
+
+# ##########################################################
+# # MARK: Rotation
+# ################ Scenario 3: Rotation ####################
+# print("Scenario 3 Rotation")
+# for k in range(len(rot)):
+#     rot_matrix, img = get_cam_rot(Image, rot[k])
+#     for i in range(len(Detectors)):
+#         method_dtect = Detectors[i]            
+#         keypoints1 = method_dtect.detect(img[0], None)
+#         start_time = time.time()
+#         keypoints2 = method_dtect.detect(img[1], None)
+#         detector_time = time.time() - start_time
+#         for j in range(len(Descriptors)):
+#             for c3 in range(len(matching)):
+#                 Exec_time_rot[k, c3, i, j, 0] = detector_time
+#                 method_dscrpt = Descriptors[j]
+#                 try:
+#                     descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+#                     start_time = time.time()
+#                     descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
+#                     Exec_time_rot[k, c3, i, j, 1] = time.time() - start_time
+#                 except:
+#                     Exec_time_rot[k, c3, i, j, 1] = None
+#                     continue
+#                 try:
+#                     start_time = time.time()
+#                     Rate_rot[k, c3, i, j], good_matches = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
+#                     Exec_time_rot[k, c3, i, j, 2] = time.time() - start_time
+#                 except:
+#                     Rate_rot[k, c3, i, j] = None
+#                     Exec_time_rot[k, c3, i, j, 2] = None
+#                     continue
+# np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
+# np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
 
 ##############################################################
 # MARK: GRAF
@@ -459,51 +398,30 @@ np.save(maindir + "/arrays/Rotation_good_matches.npy", Rotation_good_matches)
 print("Scenario 4 graf")
 folder = "/graf"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
-
-Rate_graf       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
-Exec_time_graf  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
 keypoints_cache = np.empty((nbre_img, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
-Graf_good_matches = {}
 for k in range(1, len(img)):
-    for c3 in range(len(matching)):
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]            
-            if keypoints_cache[k, i, 0] is None:
-                keypoints1 = method_dtect.detect(img[0], None)
-                keypoints_cache[k, i, 0] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints1]
-            else:
-                keypoints1 = keypoints_cache[k, i, 0]    
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img[1], None)
-                detector_time = time.time() - start_time
-                keypoints_cache[k, i, 1] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints2]
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
-            for j in range(len(Descriptors)):
+    for i in range(len(Detectors)):
+        method_dtect = Detectors[i]            
+        keypoints1 = method_dtect.detect(img[0], None)
+        start_time = time.time()
+        keypoints2 = method_dtect.detect(img[k], None)
+        detector_time = time.time() - start_time
+        for j in range(len(Descriptors)):
+            for c3 in range(len(matching)):
                 Exec_time_graf[k-1, c3, i, j, 0] = detector_time
                 method_dscrpt = Descriptors[j]
                 try:
-                    if descriptors_cache[k, i, j, 0] is None:
-                        descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                        descriptors_cache[k, i, j, 0] = descriptors1
-                    else:
-                        descriptors1 = descriptors_cache[k, i, j, 0]
-                    if descriptors_cache[k, i, j, 1] is None:
-                        start_time = time.time()
-                        descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                        Exec_time_graf[k, c3, i, j, 1] = time.time() - start_time
-                        descriptors_cache[k, i, j, 1] = descriptors2
-                    else:
-                        descriptors2 = descriptors_cache[k, i, j, 1]
+                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                    start_time = time.time()
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_graf[k-1, c3, i, j, 1] = time.time() - start_time
                 except:
                     Exec_time_graf[k-1, c3, i, j, 1] = None
                     continue
                 try:
                     start_time = time.time()
                     Rate_graf[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    Graf_good_matches[(k, c3, i, j)] = [(m.queryIdx, m.trainIdx, m.distance) for m in good_matches]
                     Exec_time_graf[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_graf[k-1, c3, i, j] = None
@@ -511,60 +429,35 @@ for k in range(1, len(img)):
                     continue
 np.save(maindir + "/arrays/Rate_graf.npy", Rate_graf)
 np.save(maindir + "/arrays/Exec_time_graf.npy", Exec_time_graf)
-np.save(maindir + "/arrays/Graf_keypoints.npy", keypoints_cache)
-np.save(maindir + "/arrays/Graf_descriptors.npy", descriptors_cache)
-np.save(maindir + "/arrays/Graf_good_matches.npy", Graf_good_matches)
+
 ##############################################################
 # MARK: WALL
 ################ Scenario 5: wall ############################
 print("Scenario 5 wall")
 folder = "/wall"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
-
-Rate_wall       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
-Exec_time_wall  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
-keypoints_cache = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
-Wall_good_matches = {}
 for k in range(1, len(img)):
-    for c3 in range(len(matching)):
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]            
-            if keypoints_cache[k, i, 0] is None:
-                keypoints1 = method_dtect.detect(img[0], None)
-                keypoints_cache[k, i, 0] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints1]
-            else:
-                keypoints1 = keypoints_cache[k, i, 0]    
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img[1], None)
-                detector_time = time.time() - start_time
-                keypoints_cache[k, i, 1] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints2]
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
-            for j in range(len(Descriptors)):
+    for i in range(len(Detectors)):
+        method_dtect = Detectors[i]            
+        keypoints1 = method_dtect.detect(img[0], None)
+        start_time = time.time()
+        keypoints2 = method_dtect.detect(img[k], None)
+        detector_time = time.time() - start_time
+        for j in range(len(Descriptors)):
+            for c3 in range(len(matching)):
                 Exec_time_wall[k-1, c3, i, j, 0] = detector_time
                 method_dscrpt = Descriptors[j]
                 try:
-                    if descriptors_cache[k, i, j, 0] is None:
-                        descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                        descriptors_cache[k, i, j, 0] = descriptors1
-                    else:
-                        descriptors1 = descriptors_cache[k, i, j, 0]
-                    if descriptors_cache[k, i, j, 1] is None:
-                        start_time = time.time()
-                        descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                        Exec_time_wall[k, c3, i, j, 1] = time.time() - start_time
-                        descriptors_cache[k, i, j, 1] = descriptors2
-                    else:
-                        descriptors2 = descriptors_cache[k, i, j, 1]
+                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                    start_time = time.time()
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_wall[k-1, c3, i, j, 1] = time.time() - start_time
                 except:
                     Exec_time_wall[k-1, c3, i, j, 1] = None
                     continue
                 try:
                     start_time = time.time()
                     Rate_wall[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    Wall_good_matches[(k, c3, i, j)] = [(m.queryIdx, m.trainIdx, m.distance) for m in good_matches]
                     Exec_time_wall[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_wall[k-1, c3, i, j] = None
@@ -572,60 +465,35 @@ for k in range(1, len(img)):
                     continue
 np.save(maindir + "/arrays/Rate_wall.npy", Rate_wall)
 np.save(maindir + "/arrays/Exec_time_wall.npy", Exec_time_wall)
-np.save(maindir + "/arrays/Wall_keypoints.npy", keypoints_cache)
-np.save(maindir + "/arrays/Wall_descriptors.npy", descriptors_cache)
-np.save(maindir + "/arrays/Wall_good_matches.npy", Wall_good_matches)
+
 ###############################################################
 # MARK: TREES
 ################ Scenario 6: trees ############################
 print("Scenario 6 trees")
 folder = "/trees"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
-
-Rate_trees       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
-Exec_time_trees  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
-keypoints_cache = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
-Trees_good_matches = {}
 for k in range(1, len(img)):
-    for c3 in range(len(matching)):
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]            
-            if keypoints_cache[k, i, 0] is None:
-                keypoints1 = method_dtect.detect(img[0], None)
-                keypoints_cache[k, i, 0] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints1]
-            else:
-                keypoints1 = keypoints_cache[k, i, 0]    
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img[1], None)
-                detector_time = time.time() - start_time
-                keypoints_cache[k, i, 1] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints2]
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
-            for j in range(len(Descriptors)):
+    for i in range(len(Detectors)):
+        method_dtect = Detectors[i]            
+        keypoints1 = method_dtect.detect(img[0], None)
+        start_time = time.time()
+        keypoints2 = method_dtect.detect(img[k], None)
+        detector_time = time.time() - start_time
+        for j in range(len(Descriptors)):
+            for c3 in range(len(matching)):
                 Exec_time_trees[k-1, c3, i, j, 0] = detector_time
                 method_dscrpt = Descriptors[j]
                 try:
-                    if descriptors_cache[k, i, j, 0] is None:
-                        descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                        descriptors_cache[k, i, j, 0] = descriptors1
-                    else:
-                        descriptors1 = descriptors_cache[k, i, j, 0]
-                    if descriptors_cache[k, i, j, 1] is None:
-                        start_time = time.time()
-                        descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                        Exec_time_trees[k, c3, i, j, 1] = time.time() - start_time
-                        descriptors_cache[k, i, j, 1] = descriptors2
-                    else:
-                        descriptors2 = descriptors_cache[k, i, j, 1]
+                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                    start_time = time.time()
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_trees[k-1, c3, i, j, 1] = time.time() - start_time
                 except:
                     Exec_time_trees[k-1, c3, i, j, 1] = None
                     continue
                 try:
                     start_time = time.time()
                     Rate_trees[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    Trees_good_matches[(k, c3, i, j)] = [(m.queryIdx, m.trainIdx, m.distance) for m in good_matches]
                     Exec_time_trees[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_trees[k-1, c3, i, j] = None
@@ -633,60 +501,35 @@ for k in range(1, len(img)):
                     continue
 np.save(maindir + "/arrays/Rate_trees.npy", Rate_trees)
 np.save(maindir + "/arrays/Exec_time_trees.npy", Exec_time_trees)
-np.save(maindir + "/arrays/Trees_keypoints.npy", keypoints_cache)
-np.save(maindir + "/arrays/Trees_descriptors.npy", descriptors_cache)
-np.save(maindir + "/arrays/Trees_good_matches.npy", Trees_good_matches)
+
 ###############################################################
 # MARK: BIKES
 ################ Scenario 7: bikes ############################
 print("Scenario 7 bikes")
 folder = "/bikes"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
-
-Rate_bikes       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
-Exec_time_bikes  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
-keypoints_cache = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
-Bikes_good_matches = {}
 for k in range(1, len(img)):
-    for c3 in range(len(matching)):
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]            
-            if keypoints_cache[k, i, 0] is None:
-                keypoints1 = method_dtect.detect(img[0], None)
-                keypoints_cache[k, i, 0] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints1]
-            else:
-                keypoints1 = keypoints_cache[k, i, 0]    
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img[1], None)
-                detector_time = time.time() - start_time
-                keypoints_cache[k, i, 1] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints2]
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
-            for j in range(len(Descriptors)):
+    for i in range(len(Detectors)):
+        method_dtect = Detectors[i]            
+        keypoints1 = method_dtect.detect(img[0], None)
+        start_time = time.time()
+        keypoints2 = method_dtect.detect(img[k], None)
+        detector_time = time.time() - start_time
+        for j in range(len(Descriptors)):
+            for c3 in range(len(matching)):
                 Exec_time_bikes[k-1, c3, i, j, 0] = detector_time
                 method_dscrpt = Descriptors[j]
                 try:
-                    if descriptors_cache[k, i, j, 0] is None:
-                        descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                        descriptors_cache[k, i, j, 0] = descriptors1
-                    else:
-                        descriptors1 = descriptors_cache[k, i, j, 0]
-                    if descriptors_cache[k, i, j, 1] is None:
-                        start_time = time.time()
-                        descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                        Exec_time_bikes[k, c3, i, j, 1] = time.time() - start_time
-                        descriptors_cache[k, i, j, 1] = descriptors2
-                    else:
-                        descriptors2 = descriptors_cache[k, i, j, 1]
+                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                    start_time = time.time()
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_bikes[k-1, c3, i, j, 1] = time.time() - start_time
                 except:
                     Exec_time_bikes[k-1, c3, i, j, 1] = None
                     continue
                 try:
                     start_time = time.time()
                     Rate_bikes[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    Bikes_good_matches[(k, c3, i, j)] = [(m.queryIdx, m.trainIdx, m.distance) for m in good_matches]
                     Exec_time_bikes[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_bikes[k-1, c3, i, j] = None
@@ -694,60 +537,35 @@ for k in range(1, len(img)):
                     continue
 np.save(maindir + "/arrays/Rate_bikes.npy", Rate_bikes)
 np.save(maindir + "/arrays/Exec_time_bikes.npy", Exec_time_bikes)
-np.save(maindir + "/arrays/Bikes_keypoints.npy", keypoints_cache)
-np.save(maindir + "/arrays/Bikes_descriptors.npy", descriptors_cache)
-np.save(maindir + "/arrays/Bikes_good_matches.npy", Bikes_good_matches)
+
 ##############################################################
 # MARK: BARK
 ################ Scenario 8: bark ############################
 print("Scenario 8 bark")
 folder = "/bark"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
-
-Rate_bark       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
-Exec_time_bark  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
-keypoints_cache = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
-Bark_good_matches = {}
 for k in range(1, len(img)):
-    for c3 in range(len(matching)):
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]            
-            if keypoints_cache[k, i, 0] is None:
-                keypoints1 = method_dtect.detect(img[0], None)
-                keypoints_cache[k, i, 0] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints1]
-            else:
-                keypoints1 = keypoints_cache[k, i, 0]    
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img[1], None)
-                detector_time = time.time() - start_time
-                keypoints_cache[k, i, 1] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints2]
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
-            for j in range(len(Descriptors)):
+    for i in range(len(Detectors)):
+        method_dtect = Detectors[i]            
+        keypoints1 = method_dtect.detect(img[0], None)
+        start_time = time.time()
+        keypoints2 = method_dtect.detect(img[k], None)
+        detector_time = time.time() - start_time
+        for j in range(len(Descriptors)):
+            for c3 in range(len(matching)):
                 Exec_time_bark[k-1, c3, i, j, 0] = detector_time
                 method_dscrpt = Descriptors[j]
                 try:
-                    if descriptors_cache[k, i, j, 0] is None:
-                        descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                        descriptors_cache[k, i, j, 0] = descriptors1
-                    else:
-                        descriptors1 = descriptors_cache[k, i, j, 0]
-                    if descriptors_cache[k, i, j, 1] is None:
-                        start_time = time.time()
-                        descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                        Exec_time_bark[k, c3, i, j, 1] = time.time() - start_time
-                        descriptors_cache[k, i, j, 1] = descriptors2
-                    else:
-                        descriptors2 = descriptors_cache[k, i, j, 1]
+                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                    start_time = time.time()
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_bark[k-1, c3, i, j, 1] = time.time() - start_time
                 except:
                     Exec_time_bark[k-1, c3, i, j, 1] = None
                     continue
                 try:
                     start_time = time.time()
                     Rate_bark[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    Bark_good_matches[(k, c3, i, j)] = [(m.queryIdx, m.trainIdx, m.distance) for m in good_matches]
                     Exec_time_bark[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_bark[k-1, c3, i, j] = None
@@ -755,60 +573,35 @@ for k in range(1, len(img)):
                     continue
 np.save(maindir + "/arrays/Rate_bark.npy", Rate_bark)
 np.save(maindir + "/arrays/Exec_time_bark.npy", Exec_time_bark)
-np.save(maindir + "/arrays/Bark_keypoints.npy", keypoints_cache)
-np.save(maindir + "/arrays/Bark_descriptors.npy", descriptors_cache)
-np.save(maindir + "/arrays/Bark_good_matches.npy", Bark_good_matches)
+
 ##############################################################
 # MARK: BOAT
 ################ Scenario 9: boat ############################
 print("Scenario 9 boat")
 folder = "/boat"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.pgm") for i in range(1, 7)]
-
-Rate_boat       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
-Exec_time_boat  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
-keypoints_cache = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
-Boat_good_matches = {}
 for k in range(1, len(img)):
-    for c3 in range(len(matching)):
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]            
-            if keypoints_cache[k, i, 0] is None:
-                keypoints1 = method_dtect.detect(img[0], None)
-                keypoints_cache[k, i, 0] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints1]
-            else:
-                keypoints1 = keypoints_cache[k, i, 0]    
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img[1], None)
-                detector_time = time.time() - start_time
-                keypoints_cache[k, i, 1] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints2]
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
-            for j in range(len(Descriptors)):
+    for i in range(len(Detectors)):
+        method_dtect = Detectors[i]            
+        keypoints1 = method_dtect.detect(img[0], None)
+        start_time = time.time()
+        keypoints2 = method_dtect.detect(img[k], None)
+        detector_time = time.time() - start_time
+        for j in range(len(Descriptors)):
+            for c3 in range(len(matching)):
                 Exec_time_boat[k-1, c3, i, j, 0] = detector_time
                 method_dscrpt = Descriptors[j]
                 try:
-                    if descriptors_cache[k, i, j, 0] is None:
-                        descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                        descriptors_cache[k, i, j, 0] = descriptors1
-                    else:
-                        descriptors1 = descriptors_cache[k, i, j, 0]
-                    if descriptors_cache[k, i, j, 1] is None:
-                        start_time = time.time()
-                        descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                        Exec_time_boat[k, c3, i, j, 1] = time.time() - start_time
-                        descriptors_cache[k, i, j, 1] = descriptors2
-                    else:
-                        descriptors2 = descriptors_cache[k, i, j, 1]
+                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                    start_time = time.time()
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_boat[k-1, c3, i, j, 1] = time.time() - start_time
                 except:
                     Exec_time_boat[k-1, c3, i, j, 1] = None
                     continue
                 try:
                     start_time = time.time()
                     Rate_boat[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    Boat_good_matches[(k, c3, i, j)] = [(m.queryIdx, m.trainIdx, m.distance) for m in good_matches]
                     Exec_time_boat[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_boat[k-1, c3, i, j] = None
@@ -816,60 +609,35 @@ for k in range(1, len(img)):
                     continue
 np.save(maindir + "/arrays/Rate_boat.npy", Rate_boat)
 np.save(maindir + "/arrays/Exec_time_boat.npy", Exec_time_boat)
-np.save(maindir + "/arrays/Boat_keypoints.npy", keypoints_cache)
-np.save(maindir + "/arrays/Boat_descriptors.npy", descriptors_cache)
-np.save(maindir + "/arrays/Boat_good_matches.npy", Boat_good_matches)
+
 #################################################################
 # MARK: LEUVEN
 ################ Scenario 10: leuven ############################
 print("Scenario 10 leuven")
 folder = "/leuven"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
-
-Rate_leuven       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
-Exec_time_leuven  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
-keypoints_cache = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
-Leuven_good_matches = {}
 for k in range(1, len(img)):
-    for c3 in range(len(matching)):
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]            
-            if keypoints_cache[k, i, 0] is None:
-                keypoints1 = method_dtect.detect(img[0], None)
-                keypoints_cache[k, i, 0] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints1]
-            else:
-                keypoints1 = keypoints_cache[k, i, 0]    
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img[1], None)
-                detector_time = time.time() - start_time
-                keypoints_cache[k, i, 1] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints2]
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
-            for j in range(len(Descriptors)):
+    for i in range(len(Detectors)):
+        method_dtect = Detectors[i]            
+        keypoints1 = method_dtect.detect(img[0], None)
+        start_time = time.time()
+        keypoints2 = method_dtect.detect(img[k], None)
+        detector_time = time.time() - start_time
+        for j in range(len(Descriptors)):
+            for c3 in range(len(matching)):
                 Exec_time_leuven[k-1, c3, i, j, 0] = detector_time
                 method_dscrpt = Descriptors[j]
                 try:
-                    if descriptors_cache[k, i, j, 0] is None:
-                        descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                        descriptors_cache[k, i, j, 0] = descriptors1
-                    else:
-                        descriptors1 = descriptors_cache[k, i, j, 0]
-                    if descriptors_cache[k, i, j, 1] is None:
-                        start_time = time.time()
-                        descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                        Exec_time_leuven[k, c3, i, j, 1] = time.time() - start_time
-                        descriptors_cache[k, i, j, 1] = descriptors2
-                    else:
-                        descriptors2 = descriptors_cache[k, i, j, 1]
+                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                    start_time = time.time()
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_leuven[k-1, c3, i, j, 1] = time.time() - start_time
                 except:
                     Exec_time_leuven[k-1, c3, i, j, 1] = None
                     continue
                 try:
                     start_time = time.time()
                     Rate_leuven[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    Leuven_good_matches[(k, c3, i, j)] = [(m.queryIdx, m.trainIdx, m.distance) for m in good_matches]
                     Exec_time_leuven[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_leuven[k-1, c3, i, j] = None
@@ -877,60 +645,35 @@ for k in range(1, len(img)):
                     continue
 np.save(maindir + "/arrays/Rate_leuven.npy", Rate_leuven)
 np.save(maindir + "/arrays/Exec_time_leuven.npy", Exec_time_leuven)
-np.save(maindir + "/arrays/Leuven_keypoints.npy", keypoints_cache)
-np.save(maindir + "/arrays/Leuven_descriptors.npy", descriptors_cache)
-np.save(maindir + "/arrays/Leuven_good_matches.npy", Leuven_good_matches)
+
 ##############################################################
 # MARK: UBC
 ################ Scenario 11: ubc ############################
 print("Scenario 11 ubc")
 folder = "/ubc"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
-
-Rate_ubc       = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors)))
-Exec_time_ubc  = np.zeros((len(img)-1, len(matching), len(Detectors), len(Descriptors), 3))
-keypoints_cache = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
-Ubc_good_matches = {}
 for k in range(1, len(img)):
-    for c3 in range(len(matching)):
-        for i in range(len(Detectors)):
-            method_dtect = Detectors[i]            
-            if keypoints_cache[k, i, 0] is None:
-                keypoints1 = method_dtect.detect(img[0], None)
-                keypoints_cache[k, i, 0] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints1]
-            else:
-                keypoints1 = keypoints_cache[k, i, 0]    
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img[1], None)
-                detector_time = time.time() - start_time
-                keypoints_cache[k, i, 1] = [(kp.pt, kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints2]
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
-            for j in range(len(Descriptors)):
+    for i in range(len(Detectors)):
+        method_dtect = Detectors[i]            
+        keypoints1 = method_dtect.detect(img[0], None)
+        start_time = time.time()
+        keypoints2 = method_dtect.detect(img[k], None)
+        detector_time = time.time() - start_time
+        for j in range(len(Descriptors)):
+            for c3 in range(len(matching)):
                 Exec_time_ubc[k-1, c3, i, j, 0] = detector_time
                 method_dscrpt = Descriptors[j]
                 try:
-                    if descriptors_cache[k, i, j, 0] is None:
-                        descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                        descriptors_cache[k, i, j, 0] = descriptors1
-                    else:
-                        descriptors1 = descriptors_cache[k, i, j, 0]
-                    if descriptors_cache[k, i, j, 1] is None:
-                        start_time = time.time()
-                        descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                        Exec_time_ubc[k, c3, i, j, 1] = time.time() - start_time
-                        descriptors_cache[k, i, j, 1] = descriptors2
-                    else:
-                        descriptors2 = descriptors_cache[k, i, j, 1]
+                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                    start_time = time.time()
+                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
+                    Exec_time_ubc[k-1, c3, i, j, 1] = time.time() - start_time
                 except:
                     Exec_time_ubc[k-1, c3, i, j, 1] = None
                     continue
                 try:
                     start_time = time.time()
                     Rate_ubc[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                    Ubc_good_matches[(k, c3, i, j)] = [(m.queryIdx, m.trainIdx, m.distance) for m in good_matches]
                     Exec_time_ubc[k-1, c3, i, j, 2] = time.time() - start_time
                 except:
                     Rate_ubc[k-1, c3, i, j] = None
@@ -938,7 +681,4 @@ for k in range(1, len(img)):
                     continue
 np.save(maindir + "/arrays/Rate_ubc.npy", Rate_ubc)
 np.save(maindir + "/arrays/Exec_time_ubc.npy", Exec_time_ubc)
-np.save(maindir + "/arrays/Ubc_keypoints.npy", keypoints_cache)
-np.save(maindir + "/arrays/Ubc_descriptors.npy", descriptors_cache)
-np.save(maindir + "/arrays/Ubc_good_matches.npy", Ubc_good_matches)
 ##########################################################
