@@ -8,8 +8,10 @@ val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
 scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈ [0.5 : 0.2 : 1.5]
 rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
-DetectorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'agast', 'gftt', 'gftt_harris', 'star', 'hl', 'msd', 'tbmr']
+DetectorsLegend   = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'agast', 'gftt', 'gftt_harris', 'star', 'hl', 'msd', 'tbmr']
 DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
+# DetectorsLegend = ['sift', 'hl']
+# DescriptorsLegend = ['sift', 'beblid']
 line_styles = ['solid', 'dash', 'dot']
 Norm = ['L2', 'HAM']
 
@@ -87,10 +89,10 @@ fig2.update_layout(hovermode="x unified")
 for j in range(len(DescriptorsLegend)):
     for i in range(len(DetectorsLegend)):
         for c3 in range(len(Norm)):
-            Rate_G = Rate_graf[1:,  c3, i, j]
-            Rate_W = Rate_wall[1:,  c3, i, j]
-            Rate_T = Rate_trees[1:, c3, i, j]
-            Rate_B = Rate_bikes[1:, c3, i, j]
+            Rate_G = Rate_graf[:,  c3, i, j]
+            Rate_W = Rate_wall[:,  c3, i, j]
+            Rate_T = Rate_trees[:, c3, i, j]
+            Rate_B = Rate_bikes[:, c3, i, j]
 
             color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
@@ -137,10 +139,10 @@ fig3.update_layout(hovermode="x unified")
 for j in range(len(DescriptorsLegend)):
     for i in range(len(DetectorsLegend)):
         for c3 in range(len(Norm)):
-            Rate_B = Rate_bark[1:, c3, i, j]
-            Rate_Bo = Rate_boat[1:, c3, i, j]
-            Rate_L = Rate_leuven[1:, c3, i, j]
-            Rate_U = Rate_ubc[1:, c3, i, j]
+            Rate_B = Rate_bark[:, c3, i, j]
+            Rate_Bo = Rate_boat[:, c3, i, j]
+            Rate_L = Rate_leuven[:, c3, i, j]
+            Rate_U = Rate_ubc[:, c3, i, j]
 
             color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
             style = line_styles[j % len(line_styles)]  # Cycle through line styles
