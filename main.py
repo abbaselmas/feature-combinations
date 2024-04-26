@@ -346,6 +346,7 @@ np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
 # MARK: Scale
 ################ Scenario 2: Scale #######################
 print("Scenario 2 Scale")
+print(time.ctime())
 keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(len(scale)):
@@ -396,11 +397,12 @@ for k in range(len(scale)):
                     continue
 np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
 np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
-print(time.ctime()) 
+
 ##########################################################
 # MARK: Rotation
 ################ Scenario 3: Rotation ####################
 print("Scenario 3 Rotation")
+print(time.ctime())
 keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(len(rot)):
@@ -456,6 +458,7 @@ np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
 # MARK: GRAF
 ################ Scenario 4: graf ############################
 print("Scenario 4 graf")
+print(time.ctime())
 folder = "/graf"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
@@ -512,6 +515,7 @@ np.save(maindir + "/arrays/Exec_time_graf.npy", Exec_time_graf)
 # MARK: WALL
 ################ Scenario 5: wall ############################
 print("Scenario 5 wall")
+print(time.ctime())
 folder = "/wall"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
@@ -568,6 +572,7 @@ np.save(maindir + "/arrays/Exec_time_wall.npy", Exec_time_wall)
 # MARK: TREES
 ################ Scenario 6: trees ############################
 print("Scenario 6 trees")
+print(time.ctime())
 folder = "/trees"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
@@ -624,6 +629,7 @@ np.save(maindir + "/arrays/Exec_time_trees.npy", Exec_time_trees)
 # MARK: BIKES
 ################ Scenario 7: bikes ############################
 print("Scenario 7 bikes")
+print(time.ctime())
 folder = "/bikes"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
@@ -680,6 +686,7 @@ np.save(maindir + "/arrays/Exec_time_bikes.npy", Exec_time_bikes)
 # MARK: BARK
 ################ Scenario 8: bark ############################
 print("Scenario 8 bark")
+print(time.ctime())
 folder = "/bark"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
@@ -736,6 +743,7 @@ np.save(maindir + "/arrays/Exec_time_bark.npy", Exec_time_bark)
 # MARK: BOAT
 ################ Scenario 9: boat ############################
 print("Scenario 9 boat")
+print(time.ctime())
 folder = "/boat"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.pgm") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
@@ -792,6 +800,7 @@ np.save(maindir + "/arrays/Exec_time_boat.npy", Exec_time_boat)
 # MARK: LEUVEN
 ################ Scenario 10: leuven ############################
 print("Scenario 10 leuven")
+print(time.ctime())
 folder = "/leuven"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
@@ -848,6 +857,7 @@ np.save(maindir + "/arrays/Exec_time_leuven.npy", Exec_time_leuven)
 # MARK: UBC
 ################ Scenario 11: ubc ############################
 print("Scenario 11 ubc")
+print(time.ctime())
 folder = "/ubc"
 img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)

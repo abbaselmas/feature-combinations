@@ -10,8 +10,6 @@ rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
 DetectorsLegend   = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'agast', 'gftt', 'gftt_harris', 'star', 'hl', 'msd', 'tbmr']
 DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
-# DetectorsLegend = ['sift', 'hl']
-# DescriptorsLegend = ['sift', 'beblid']
 
 line_styles = ['solid', 'dash', 'dot']
 Norm = ['L2', 'HAM']

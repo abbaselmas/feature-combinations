@@ -10,8 +10,7 @@ rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
 DetectorsLegend   = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'agast', 'gftt', 'gftt_harris', 'star', 'hl', 'msd', 'tbmr']
 DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
-# DetectorsLegend = ['sift', 'hl']
-# DescriptorsLegend = ['sift', 'beblid']
+
 line_styles = ['solid', 'dash', 'dot']
 Norm = ['L2', 'HAM']
 
@@ -24,11 +23,7 @@ Rate_rot        = np.load(maindir + '/arrays/Rate_rot.npy')
 
 fig = make_subplots(rows=2, cols=2, shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig.update_layout(margin=dict(l=20, r=20, t=25, b=25))
-fig.update_layout(   xaxis = dict(tickvals = val_b),
-                    xaxis2 = dict(tickvals = val_c),
-                    xaxis3 = dict(tickvals = scale),
-                    xaxis4 = dict(tickvals = rot))
-
+fig.update_layout(xaxis = dict(tickvals = val_b), xaxis2 = dict(tickvals = val_c), xaxis3 = dict(tickvals = scale), xaxis4 = dict(tickvals = rot))
 fig.update_xaxes(title_text="Intensity changing I+b", row=1, col=1)
 fig.update_xaxes(title_text="Intensity changing Ixc", row=1, col=2)
 fig.update_xaxes(title_text="Scale changing", row=2, col=1)
@@ -46,21 +41,21 @@ for j in range(len(DescriptorsLegend)):
             Rate2_S  = Rate_scale[:, c3, i, j]
             Rate2_R  = Rate_rot[:, c3, i, j]
 
-            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
-            style = line_styles[j % len(line_styles)]  # Cycle through line styles
+            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'
+            style = line_styles[j % len(line_styles)]
 
             legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}' 
             if not (np.isnan(Rate_intensity[:len(val_b), c3, i, j]).any() or np.all(Rate_intensity[:len(val_b), c3, i, j]==0)):
-                trace_I1 = go.Scatter(x=val_b, y=Rate2_I1, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
+                trace_I1 = go.Scatter(x=val_b, y=Rate2_I1, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend=True)
                 fig.add_trace(trace_I1, row=1, col=1)
             if not (np.isnan(Rate_intensity[len(val_c):, c3, i, j]).any() or np.all(Rate_intensity[len(val_c):, c3, i, j]==0)):   
-                trace_I2 = go.Scatter(x=val_c, y=Rate2_I2, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+                trace_I2 = go.Scatter(x=val_c, y=Rate2_I2, mode='lines', line=dict(color=color, dash=style), name='',           legendgroup=legend_group, showlegend=False)
                 fig.add_trace(trace_I2, row=1, col=2)
-            if not (np.isnan(Rate_scale[:, c3, i, j]).any() or np.all(Rate_scale[:, c3, i, j] == 0)):
-                trace_S  = go.Scatter(x=scale, y=Rate2_S,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            if not (np.isnan(Rate_scale[:, c3, i, j]).any()               or np.all(Rate_scale[:, c3, i, j]==0)):
+                trace_S  = go.Scatter(x=scale, y=Rate2_S,  mode='lines', line=dict(color=color, dash=style), name='',           legendgroup=legend_group, showlegend=False)
                 fig.add_trace(trace_S,  row=2, col=1)
-            if not (np.isnan(Rate_rot[:, c3, i, j]).any() or np.all(Rate_rot[:, c3, i, j] == 0)):
-                trace_R  = go.Scatter(x=rot,   y=Rate2_R,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            if not (np.isnan(Rate_rot[:, c3, i, j]).any()                 or np.all(Rate_rot[:, c3, i, j]==0)):
+                trace_R  = go.Scatter(x=rot,   y=Rate2_R,  mode='lines', line=dict(color=color, dash=style), name='',           legendgroup=legend_group, showlegend=False)
                 fig.add_trace(trace_R,  row=2, col=2)
                 
     fig.write_html(f'./html/SyntheticData_Descriptor_{DescriptorsLegend[j]}.html')
@@ -76,11 +71,7 @@ Rate_bikes = np.load(maindir + '/arrays/Rate_bikes.npy')
 fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf(Viewpoint)', 'Wall(Viewpoint)', 'Trees(Blur)', 'Bikes(Blur)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig2.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
-fig2.update_layout(  xaxis = dict(tickmode = 'array', tickvals = x),
-                    xaxis2 = dict(tickmode = 'array', tickvals = x),
-                    xaxis3 = dict(tickmode = 'array', tickvals = x),
-                    xaxis4 = dict(tickmode = 'array', tickvals = x))
-
+fig2.update_layout( xaxis = dict(tickmode = 'array', tickvals = x), xaxis2 = dict(tickmode = 'array', tickvals = x), xaxis3 = dict(tickmode = 'array', tickvals = x), xaxis4 = dict(tickmode = 'array', tickvals = x))
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
@@ -89,18 +80,17 @@ fig2.update_layout(hovermode="x unified")
 for j in range(len(DescriptorsLegend)):
     for i in range(len(DetectorsLegend)):
         for c3 in range(len(Norm)):
-            Rate_G = Rate_graf[:,  c3, i, j]
-            Rate_W = Rate_wall[:,  c3, i, j]
+            Rate_G = Rate_graf [:, c3, i, j]
+            Rate_W = Rate_wall [:, c3, i, j]
             Rate_T = Rate_trees[:, c3, i, j]
             Rate_B = Rate_bikes[:, c3, i, j]
 
-            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
-            style = line_styles[j % len(line_styles)]  # Cycle through line styles
-            x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
+            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'
+            style = line_styles[j % len(line_styles)]
 
-            legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
+            legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
             if not (np.isnan(Rate_graf[1:, c3, i, j]).any() or np.all(Rate_graf[1:, c3, i, j] == 0)):
-                trace_G = go.Scatter(x=x, y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
+                trace_G = go.Scatter(x=x, y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend=True)
                 fig2.add_trace(trace_G, row=1, col=1)
             if not (np.isnan(Rate_wall[1:, c3, i, j]).any() or np.all(Rate_wall[1:, c3, i, j] == 0)):
                 trace_W = go.Scatter(x=x, y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
@@ -116,7 +106,6 @@ for j in range(len(DescriptorsLegend)):
     fig2.data = []
     trace_G = trace_W = trace_T  = trace_B  = legend_group = None
 ##############################################################################################################
-    
 # MARK: - Oxford 5678
 Rate_bark   = np.load(maindir + '/arrays/Rate_bark.npy')
 Rate_boat   = np.load(maindir + '/arrays/Rate_boat.npy')
@@ -126,11 +115,7 @@ Rate_ubc    = np.load(maindir + '/arrays/Rate_ubc.npy')
 fig3 = make_subplots(rows=2, cols=2, subplot_titles=['Bark(Rotation)', 'Boat(Rotation)', 'Leuven(Viewpoint)', 'UBC(Blur)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig3.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
-fig3.update_layout(  xaxis = dict(tickmode = 'array', tickvals = x),
-                    xaxis2 = dict(tickmode = 'array', tickvals = x),
-                    xaxis3 = dict(tickmode = 'array', tickvals = x),
-                    xaxis4 = dict(tickmode = 'array', tickvals = x))
-
+fig3.update_layout(xaxis = dict(tickmode = 'array', tickvals = x), xaxis2 = dict(tickmode = 'array', tickvals = x), xaxis3 = dict(tickmode = 'array', tickvals = x), xaxis4 = dict(tickmode = 'array', tickvals = x))
 fig3.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
 fig3.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig3.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
@@ -139,17 +124,17 @@ fig3.update_layout(hovermode="x unified")
 for j in range(len(DescriptorsLegend)):
     for i in range(len(DetectorsLegend)):
         for c3 in range(len(Norm)):
-            Rate_B = Rate_bark[:, c3, i, j]
-            Rate_Bo = Rate_boat[:, c3, i, j]
-            Rate_L = Rate_leuven[:, c3, i, j]
-            Rate_U = Rate_ubc[:, c3, i, j]
+            Rate_B  = Rate_bark     [:, c3, i, j]
+            Rate_Bo = Rate_boat     [:, c3, i, j]
+            Rate_L  = Rate_leuven   [:, c3, i, j]
+            Rate_U  = Rate_ubc      [:, c3, i, j]
 
-            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'  # Adjust as needed
-            style = line_styles[j % len(line_styles)]  # Cycle through line styles
+            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'
+            style = line_styles[j % len(line_styles)]
 
             legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
             if not (np.isnan(Rate_bark[1:, c3, i, j]).any() or np.all(Rate_bark[1:, c3, i, j] == 0)):
-                trace_B  = go.Scatter(x=x, y=Rate_B,  mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
+                trace_B  = go.Scatter(x=x, y=Rate_B,  mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend=True)
                 fig3.add_trace(trace_B,  row=1, col=1)
             if not (np.isnan(Rate_boat[1:, c3, i, j]).any() or np.all(Rate_boat[1:, c3, i, j] == 0)):
                 trace_Bo = go.Scatter(x=x, y=Rate_Bo, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)

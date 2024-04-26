@@ -5,20 +5,18 @@ import os
 
 val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
 val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
-nbre_img = len(val_b) + len(val_c)
 scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈ [0.5 : 0.2 : 1.5]
 rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
 DetectorsLegend   = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'agast', 'gftt', 'gftt_harris', 'star', 'hl', 'msd', 'tbmr']
 DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'vgg', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'beblid', 'teblid', 'boost']
-# DetectorsLegend   = ['sift', 'hl']
-# DescriptorsLegend = ['sift', 'beblid']
+
 line_styles = ['solid', 'dash', 'dot']
 Norm = ['L2', 'HAM']
 
 maindir = os.path.abspath(os.path.dirname(__file__))
 
-# MARK: - Synthetic
+# MARK: - Synthetic Data
 Rate_intensity  = np.load(maindir + '/arrays/Rate_intensity.npy')
 Rate_scale      = np.load(maindir + '/arrays/Rate_scale.npy')
 Rate_rot        = np.load(maindir + '/arrays/Rate_rot.npy')
@@ -34,6 +32,7 @@ fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
+
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         for c3 in range(len(Norm)):
@@ -107,6 +106,7 @@ fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
+
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         for c3 in range(len(Norm)):
@@ -119,16 +119,16 @@ for i in range(len(DetectorsLegend)):
             style = line_styles[j % len(line_styles)]
 
             legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
-            if not (np.isnan(Rate_graf[:, c3, i, j]).any() or np.all(Rate_graf[:, c3, i, j]==0)):
-                trace_G = go.Scatter(x=x, y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
+            if not (np.isnan(Rate_graf[:, c3, i, j]).any() or np.all(Rate_graf[:, c3, i, j] == 0)):
+                trace_G = go.Scatter(x=x, y=Rate_G, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend=True)
                 fig2.add_trace(trace_G, row=1, col=1)
-            if not (np.isnan(Rate_wall[:, c3, i, j]).any() or np.all(Rate_wall[:, c3, i, j]==0)):
+            if not (np.isnan(Rate_wall[:, c3, i, j]).any() or np.all(Rate_wall[:, c3, i, j] == 0)):
                 trace_W = go.Scatter(x=x, y=Rate_W, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
                 fig2.add_trace(trace_W, row=1, col=2)
-            if not (np.isnan(Rate_trees[:, c3, i, j]).any() or np.all(Rate_trees[:, c3, i, j]==0)):
+            if not (np.isnan(Rate_trees[:, c3, i, j]).any() or np.all(Rate_trees[:, c3, i, j] == 0)):
                 trace_T = go.Scatter(x=x, y=Rate_T, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
                 fig2.add_trace(trace_T, row=2, col=1)
-            if not (np.isnan(Rate_bikes[:, c3, i, j]).any() or np.all(Rate_bikes[:, c3, i, j]==0)):
+            if not (np.isnan(Rate_bikes[:, c3, i, j]).any() or np.all(Rate_bikes[:, c3, i, j] == 0)):
                 trace_B = go.Scatter(x=x, y=Rate_B, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
                 fig2.add_trace(trace_B, row=2, col=2)
 
@@ -148,6 +148,7 @@ fig4.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
 fig4.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig4.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig4.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
+
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         for c3 in range(len(Norm)):
@@ -160,17 +161,17 @@ for i in range(len(DetectorsLegend)):
             style = line_styles[j % len(line_styles)]
 
             legend_group = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
-            if not (np.isnan(Rate_bark[:, c3, i, j]).any() or np.all(Rate_bark[:, c3, i, j]==0)):
-                trace_B = go.Scatter(x=x, y=Rate_B, mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
+            if not (np.isnan(Rate_bark[:, c3, i, j]).any() or np.all(Rate_bark[:, c3, i, j] == 0)):
+                trace_B  = go.Scatter(x=x, y=Rate_B,  mode='lines', line=dict(color=color, dash=style), name=legend_group, legendgroup=legend_group, showlegend= True)
                 fig4.add_trace(trace_B, row=1, col=1)
-            if not (np.isnan(Rate_boat[:, c3, i, j]).any() or np.all(Rate_boat[:, c3, i, j]==0)):
+            if not (np.isnan(Rate_boat[:, c3, i, j]).any() or np.all(Rate_boat[:, c3, i, j] == 0)):
                 trace_Bo = go.Scatter(x=x, y=Rate_Bo, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
                 fig4.add_trace(trace_Bo, row=1, col=2)
-            if not (np.isnan(Rate_leuven[:, c3, i, j]).any() or np.all(Rate_leuven[:, c3, i, j]==0)):
-                trace_L = go.Scatter(x=x, y=Rate_L, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            if not (np.isnan(Rate_leuven[:, c3, i, j]).any() or np.all(Rate_leuven[:, c3, i, j] == 0)):
+                trace_L  = go.Scatter(x=x, y=Rate_L,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
                 fig4.add_trace(trace_L, row=2, col=1)
-            if not (np.isnan(Rate_ubc[:, c3, i, j]).any() or np.all(Rate_ubc[:, c3, i, j]==0)):
-                trace_U = go.Scatter(x=x, y=Rate_U, mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
+            if not (np.isnan(Rate_ubc[:, c3, i, j]).any() or np.all(Rate_ubc[:, c3, i, j] == 0)):
+                trace_U  = go.Scatter(x=x, y=Rate_U,  mode='lines', line=dict(color=color, dash=style), name='', legendgroup=legend_group, showlegend=False)
                 fig4.add_trace(trace_U, row=2, col=2)
 
 fig4.write_html("./html/oxfordAffineData5678.html")
