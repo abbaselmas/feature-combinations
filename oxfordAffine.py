@@ -88,8 +88,8 @@ Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, 
 #                       0       1    2     3      4    5     6      7      8      9      10     11      12     13
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 matcher        = 0 # 0: Brute-force matcher, 1: Flann-based matcher
-a = 0 #i
-b = 0 #j
+a = 20 #i
+b = 20 #j
 ########################################################
 if a == 20 and b == 20:
     Rate_ubc        = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
@@ -129,6 +129,8 @@ else:
     Exec_time_graf   = np.load(maindir + "/arrays/Exec_time_graf.npy")
 ########################################################
 def executeScenarios(folder, Rate, Exec_time):
+    print(time.ctime())
+    print(f"Folder: {folder}")
     img = [cv2.imread(f"{datasetdir}/{folder}/img{i}.ppm") for i in range(1, 7)]
     keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
     descriptors_cache = np.empty((6, len(Detectors), len(Descriptors), 2), dtype=object)
@@ -182,7 +184,6 @@ def executeScenarios(folder, Rate, Exec_time):
                 continue
     np.save(maindir + f"/arrays/Rate_{folder}.npy", Rate)
     np.save(maindir + f"/arrays/Exec_time_{folder}.npy", Exec_time)
-    
 ########################################################
 executeScenarios("bark", Rate_bark, Exec_time_bark)
 executeScenarios("bikes", Rate_bikes, Exec_time_bikes)

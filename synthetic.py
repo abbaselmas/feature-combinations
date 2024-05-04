@@ -103,7 +103,6 @@ def evaluate_scenario_intensity(matcher, KP1, KP2, Dspt1, Dspt2, norm_type):
     good_matches = sorted(good_matches, key = lambda x:x.distance)
     return Prob_True, good_matches
 # ................................................................................
-
 def evaluate_scenario_scale(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, scale):
     if matcher == 0: # Brute-force matcher
         bf = cv2.BFMatcher(norm_type, crossCheck=True) 
@@ -140,7 +139,43 @@ def evaluate_scenario_scale(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, scale):
     good_matches = sorted(good_matches, key = lambda x:x.distance)
     return Prob_True, good_matches
 # ................................................................................
-
+def evaluate_scenario_rotation(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, rot, rot_matrix):
+    if matcher == 0: # Brute-force matcher
+        bf = cv2.BFMatcher(norm_type, crossCheck=True) 
+        matches = bf.match(Dspt1, Dspt2)
+    else: # Flann-based matcher
+        if norm_type == cv2.NORM_L2:
+            index_params = dict(algorithm=1, trees=5)
+            search_params = dict(checks=50)
+        elif norm_type == cv2.NORM_HAMMING:
+            index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
+            search_params = dict(checks=50)
+        flann = cv2.FlannBasedMatcher(index_params, search_params)
+        matches = flann.match(Dspt1, Dspt2)
+    Prob_P = 0
+    Prob_N = 1
+    good_matches = []
+    theta = rot*(np.pi/180) # transformation of the degree of rotation into radian
+    for i in range(len(matches)):
+        m1 = matches[i].queryIdx
+        m2 = matches[i].trainIdx
+        # the coordinates (x,y) of the points detected in the image 1
+        X1 = int(KP1[m1].pt[0])
+        Y1 = int(KP1[m1].pt[1])
+        # the coordinates (x,y) of the points detected in the image 2
+        X2 = int(KP2[m2].pt[0])
+        Y2 = int(KP2[m2].pt[1])
+        X12 = X1*np.cos(theta) + Y1*np.sin(theta) + rot_matrix[0,2]
+        Y12 = -X1*np.sin(theta) + Y1*np.cos(theta) + rot_matrix[1,2]
+        if (abs(X12 - X2) <=2) and (abs(Y12 - Y2) <=2):   #  Tolerance allowance (∼ 1-2 pixels)
+            Prob_P += 1
+            good_matches.append(matches[i])
+        else:
+            Prob_N += 1
+    Prob_True = (Prob_P / (Prob_P + Prob_N))*100
+    good_matches = sorted(good_matches, key = lambda x:x.distance)
+    return Prob_True, good_matches
+# ................................................................................
 ### detectors/descriptors 5
 sift   = cv2.SIFT_create(nfeatures=2000, nOctaveLayers=3, contrastThreshold=0.1, edgeThreshold=10.0, sigma=1.6) #best with layer=3 contrastThreshold=0.1 
 akaze  = cv2.AKAZE_create(descriptor_type=cv2.AKAZE_DESCRIPTOR_MLDB, descriptor_size=0, descriptor_channels=3, threshold=0.01, nOctaves=4, nOctaveLayers=4, diffusivity=cv2.KAZE_DIFF_PM_G2)
@@ -176,8 +211,8 @@ Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, 
 #                       0       1    2     3      4    5     6      7      8      9      10     11      12     13
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 matcher        = 0 # 0: Brute-force matcher, 1: Flann-based matcher
-a = 0 #i
-b = 0 #j
+a = 20 #i
+b = 20 #j
 
 if a == 20 and b == 20:
     Rate_intensity  = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors)))
@@ -197,6 +232,7 @@ else:
 ########################################################
 # MARK: Intensity
 ################ Scenario 1 (Intensity) ################
+print(time.ctime())
 print("Scenario 1 Intensity")
 img, List8Img = get_intensity_8Img(Image, val_b, val_c)
 keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
@@ -255,6 +291,7 @@ np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
 ##########################################################
 # MARK: Scale
 ################ Scenario 2: Scale #######################
+print(time.ctime())
 print("Scenario 2 Scale")
 keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
@@ -312,6 +349,7 @@ np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
 ##########################################################
 # MARK: Rotation
 ################ Scenario 3: Rotation ####################
+print(time.ctime())
 print("Scenario 3 Rotation")
 keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
