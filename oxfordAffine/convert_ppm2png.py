@@ -2,7 +2,7 @@ import os
 from PIL import Image
 
 # Function to convert PPM to PNG
-def convert_ppm_to_png(input_file, output_file):
+def convert_to_png(input_file, output_file):
     try:
         img = Image.open(input_file)
         img.save(output_file, 'PNG')
@@ -19,4 +19,12 @@ for root, dirs, files in os.walk(script_directory):
         if file.endswith('.ppm'):
             ppm_path = os.path.join(root, file)
             png_path = ppm_path.replace('.ppm', '.png')
-            convert_ppm_to_png(ppm_path, png_path)
+            convert_to_png(ppm_path, png_path)
+
+# Loop through all subdirectories and files in the script's directory
+for root, dirs, files in os.walk(script_directory):
+    for file in files:
+        if file.endswith('.pgm'):
+            ppm_path = os.path.join(root, file)
+            png_path = ppm_path.replace('.pgm', '.png')
+            convert_to_png(ppm_path, png_path)
