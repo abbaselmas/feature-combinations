@@ -5,7 +5,7 @@ import time, os
 maindir = os.path.abspath(os.path.dirname(__file__))
 datasetdir = "./oxfordAffine"
 folder = "/graf"
-picture = "/img1.ppm"
+picture = "/img1.jpg"
 data = datasetdir + folder + picture
 
 Image = cv2.imread(data)
@@ -215,16 +215,16 @@ a = 20 #i
 b = 20 #j
 
 if a == 20 and b == 20:
-    Rate_intensity  = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors)))
-    Rate_scale      = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
-    Rate_rot        = np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors)))
+    Rate_intensity      = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors)))
+    Rate_scale          = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
+    Rate_rot            = np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors)))
     Exec_time_intensity = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 3))
     Exec_time_scale     = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
     Exec_time_rot       = np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 3))
 else:
-    Rate_intensity  = np.load(maindir + "/arrays/Rate_intensity.npy")
-    Rate_scale      = np.load(maindir + "/arrays/Rate_scale.npy")
-    Rate_rot        = np.load(maindir + "/arrays/Rate_rot.npy")
+    Rate_intensity      = np.load(maindir + "/arrays/Rate_intensity.npy")
+    Rate_scale          = np.load(maindir + "/arrays/Rate_scale.npy")
+    Rate_rot            = np.load(maindir + "/arrays/Rate_rot.npy")
     Exec_time_intensity = np.load(maindir + "/arrays/Exec_time_intensity.npy")
     Exec_time_scale     = np.load(maindir + "/arrays/Exec_time_scale.npy")
     Exec_time_rot       = np.load(maindir + "/arrays/Exec_time_rot.npy")
@@ -286,7 +286,7 @@ for k in range(nbre_img):
                     continue
         else:
             continue
-np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
+np.save(maindir + "/arrays/Rate_intensity.npy",      Rate_intensity)
 np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
 ##########################################################
 # MARK: Scale
@@ -344,7 +344,7 @@ for k in range(len(scale)):
                     continue
         else:
             continue
-np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
+np.save(maindir + "/arrays/Rate_scale.npy",      Rate_scale)
 np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
 ##########################################################
 # MARK: Rotation
@@ -402,6 +402,6 @@ for k in range(len(rot)):
                     continue
         else:
             continue
-np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
+np.save(maindir + "/arrays/Rate_rot.npy",      Rate_rot)
 np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
 ##########################################################

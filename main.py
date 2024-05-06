@@ -261,57 +261,57 @@ Descriptors    = list([sift, akaze, orb, brisk, kaze, vgg, daisy, freak, brief, 
 #                       0       1    2     3      4    5     6      7      8      9      10     11      12     13
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 matcher        = 0 # 0: Brute-force matcher, 1: Flann-based matcher
-a = 0 #i
-b = 0 #j
+a = 20 #i
+b = 20 #j
 ########################################################
 if a == 20 and b == 20:
-    Rate_intensity  = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors)))
-    Rate_scale      = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
-    Rate_rot        = np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors)))
-    Rate_ubc        = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
-    Rate_leuven     = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
-    Rate_boat       = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
-    Rate_bark       = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
-    Rate_bikes      = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
-    Rate_trees      = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
-    Rate_graf       = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
-    Rate_wall       = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_intensity      = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors)))
+    Rate_scale          = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
+    Rate_rot            = np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors)))
+    Rate_ubc            = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_leuven         = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_boat           = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_bark           = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_bikes          = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_trees          = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_graf           = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_wall           = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
     ########################################################
     Exec_time_intensity = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 3))
     Exec_time_scale     = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
     Exec_time_rot       = np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 3))
-    Exec_time_ubc    = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
-    Exec_time_leuven = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
-    Exec_time_boat   = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
-    Exec_time_bark   = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
-    Exec_time_bikes  = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
-    Exec_time_trees  = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
-    Exec_time_wall   = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
-    Exec_time_graf   = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+    Exec_time_ubc       = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+    Exec_time_leuven    = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+    Exec_time_boat      = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+    Exec_time_bark      = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+    Exec_time_bikes     = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+    Exec_time_trees     = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+    Exec_time_wall      = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
+    Exec_time_graf      = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
 else:
-    Rate_intensity  = np.load(maindir + "/arrays/Rate_intensity.npy")
-    Rate_scale      = np.load(maindir + "/arrays/Rate_scale.npy")
-    Rate_rot        = np.load(maindir + "/arrays/Rate_rot.npy")
-    Rate_ubc        = np.load(maindir + "/arrays/Rate_ubc.npy")
-    Rate_leuven     = np.load(maindir + "/arrays/Rate_leuven.npy")
-    Rate_boat       = np.load(maindir + "/arrays/Rate_boat.npy")
-    Rate_bark       = np.load(maindir + "/arrays/Rate_bark.npy")
-    Rate_bikes      = np.load(maindir + "/arrays/Rate_bikes.npy")
-    Rate_trees      = np.load(maindir + "/arrays/Rate_trees.npy")
-    Rate_graf       = np.load(maindir + "/arrays/Rate_graf.npy")
-    Rate_wall       = np.load(maindir + "/arrays/Rate_wall.npy")
+    Rate_intensity      = np.load(maindir + "/arrays/Rate_intensity.npy")
+    Rate_scale          = np.load(maindir + "/arrays/Rate_scale.npy")
+    Rate_rot            = np.load(maindir + "/arrays/Rate_rot.npy")
+    Rate_ubc            = np.load(maindir + "/arrays/Rate_ubc.npy")
+    Rate_leuven         = np.load(maindir + "/arrays/Rate_leuven.npy")
+    Rate_boat           = np.load(maindir + "/arrays/Rate_boat.npy")
+    Rate_bark           = np.load(maindir + "/arrays/Rate_bark.npy")
+    Rate_bikes          = np.load(maindir + "/arrays/Rate_bikes.npy")
+    Rate_trees          = np.load(maindir + "/arrays/Rate_trees.npy")
+    Rate_graf           = np.load(maindir + "/arrays/Rate_graf.npy")
+    Rate_wall           = np.load(maindir + "/arrays/Rate_wall.npy")
     ########################################################
     Exec_time_intensity = np.load(maindir + "/arrays/Exec_time_intensity.npy")
     Exec_time_scale     = np.load(maindir + "/arrays/Exec_time_scale.npy")
     Exec_time_rot       = np.load(maindir + "/arrays/Exec_time_rot.npy")
-    Exec_time_ubc    = np.load(maindir + "/arrays/Exec_time_ubc.npy")
-    Exec_time_leuven = np.load(maindir + "/arrays/Exec_time_leuven.npy")
-    Exec_time_boat   = np.load(maindir + "/arrays/Exec_time_boat.npy")
-    Exec_time_bark   = np.load(maindir + "/arrays/Exec_time_bark.npy")
-    Exec_time_bikes  = np.load(maindir + "/arrays/Exec_time_bikes.npy")
-    Exec_time_trees  = np.load(maindir + "/arrays/Exec_time_trees.npy")
-    Exec_time_wall   = np.load(maindir + "/arrays/Exec_time_wall.npy")
-    Exec_time_graf   = np.load(maindir + "/arrays/Exec_time_graf.npy")
+    Exec_time_ubc       = np.load(maindir + "/arrays/Exec_time_ubc.npy")
+    Exec_time_leuven    = np.load(maindir + "/arrays/Exec_time_leuven.npy")
+    Exec_time_boat      = np.load(maindir + "/arrays/Exec_time_boat.npy")
+    Exec_time_bark      = np.load(maindir + "/arrays/Exec_time_bark.npy")
+    Exec_time_bikes     = np.load(maindir + "/arrays/Exec_time_bikes.npy")
+    Exec_time_trees     = np.load(maindir + "/arrays/Exec_time_trees.npy")
+    Exec_time_wall      = np.load(maindir + "/arrays/Exec_time_wall.npy")
+    Exec_time_graf      = np.load(maindir + "/arrays/Exec_time_graf.npy")
 ########################################################
 # MARK: Intensity
 ################ Scenario 1 (Intensity) ################
@@ -368,7 +368,7 @@ for k in range(nbre_img):
                     continue
         else:
             continue
-np.save(maindir + "/arrays/Rate_intensity.npy", Rate_intensity)
+np.save(maindir + "/arrays/Rate_intensity.npy",      Rate_intensity)
 np.save(maindir + "/arrays/Exec_time_intensity.npy", Exec_time_intensity)
 ##########################################################
 # MARK: Scale
@@ -425,7 +425,7 @@ for k in range(len(scale)):
                     continue
         else:
             continue
-np.save(maindir + "/arrays/Rate_scale.npy", Rate_scale)
+np.save(maindir + "/arrays/Rate_scale.npy",      Rate_scale)
 np.save(maindir + "/arrays/Exec_time_scale.npy", Exec_time_scale)
 ##########################################################
 # MARK: Rotation
@@ -482,7 +482,7 @@ for k in range(len(rot)):
                     continue
         else:
             continue
-np.save(maindir + "/arrays/Rate_rot.npy", Rate_rot)
+np.save(maindir + "/arrays/Rate_rot.npy",      Rate_rot)
 np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
 ##############################################################
 # MARK: GRAF
@@ -540,7 +540,7 @@ for k in range(1, len(img)):
                     continue
         else:
             continue
-np.save(maindir + "/arrays/Rate_graf.npy", Rate_graf)
+np.save(maindir + "/arrays/Rate_graf.npy",      Rate_graf)
 np.save(maindir + "/arrays/Exec_time_graf.npy", Exec_time_graf)
 ##############################################################
 # MARK: WALL
@@ -598,7 +598,7 @@ for k in range(1, len(img)):
                     continue
         else:
             continue
-np.save(maindir + "/arrays/Rate_wall.npy", Rate_wall)
+np.save(maindir + "/arrays/Rate_wall.npy",      Rate_wall)
 np.save(maindir + "/arrays/Exec_time_wall.npy", Exec_time_wall)
 ###############################################################
 # MARK: TREES
@@ -656,7 +656,7 @@ for k in range(1, len(img)):
                     continue
         else:
             continue
-np.save(maindir + "/arrays/Rate_trees.npy", Rate_trees)
+np.save(maindir + "/arrays/Rate_trees.npy",      Rate_trees)
 np.save(maindir + "/arrays/Exec_time_trees.npy", Exec_time_trees)
 ###############################################################
 # MARK: BIKES
@@ -714,7 +714,7 @@ for k in range(1, len(img)):
                     continue
         else:
             continue
-np.save(maindir + "/arrays/Rate_bikes.npy", Rate_bikes)
+np.save(maindir + "/arrays/Rate_bikes.npy",      Rate_bikes)
 np.save(maindir + "/arrays/Exec_time_bikes.npy", Exec_time_bikes)
 ##############################################################
 # MARK: BARK
@@ -772,7 +772,7 @@ for k in range(1, len(img)):
                     continue
         else:
             continue
-np.save(maindir + "/arrays/Rate_bark.npy", Rate_bark)
+np.save(maindir + "/arrays/Rate_bark.npy",      Rate_bark)
 np.save(maindir + "/arrays/Exec_time_bark.npy", Exec_time_bark)
 ##############################################################
 # MARK: BOAT
@@ -830,7 +830,7 @@ for k in range(1, len(img)):
                     continue
         else:
             continue
-np.save(maindir + "/arrays/Rate_boat.npy", Rate_boat)
+np.save(maindir + "/arrays/Rate_boat.npy",      Rate_boat)
 np.save(maindir + "/arrays/Exec_time_boat.npy", Exec_time_boat)
 #################################################################
 # MARK: LEUVEN
@@ -888,7 +888,7 @@ for k in range(1, len(img)):
                     continue
         else:
             continue
-np.save(maindir + "/arrays/Rate_leuven.npy", Rate_leuven)
+np.save(maindir + "/arrays/Rate_leuven.npy",      Rate_leuven)
 np.save(maindir + "/arrays/Exec_time_leuven.npy", Exec_time_leuven)
 ##############################################################
 # MARK: UBC
@@ -946,6 +946,6 @@ for k in range(1, len(img)):
                     continue
         else:
             continue
-np.save(maindir + "/arrays/Rate_ubc.npy", Rate_ubc)
+np.save(maindir + "/arrays/Rate_ubc.npy",      Rate_ubc)
 np.save(maindir + "/arrays/Exec_time_ubc.npy", Exec_time_ubc)
 ##########################################################

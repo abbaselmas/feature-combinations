@@ -4,7 +4,6 @@ import time, os
 
 maindir = os.path.abspath(os.path.dirname(__file__))
 datasetdir = "./oxfordAffine"
-folder = "/graf"
 
 def match_with_bf_ratio_test(matcher, Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
     if matcher == 0: # Brute-force matcher
@@ -92,14 +91,14 @@ a = 20 #i
 b = 20 #j
 ########################################################
 if a == 20 and b == 20:
-    Rate_ubc        = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
-    Rate_leuven     = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
-    Rate_boat       = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
-    Rate_bark       = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
-    Rate_bikes      = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
-    Rate_trees      = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
-    Rate_graf       = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
-    Rate_wall       = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_ubc         = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_leuven      = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_boat        = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_bark        = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_bikes       = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_trees       = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_graf        = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
+    Rate_wall        = np.zeros((5, len(matching), len(Detectors), len(Descriptors)))
     ########################################################
     Exec_time_ubc    = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
     Exec_time_leuven = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
@@ -110,14 +109,14 @@ if a == 20 and b == 20:
     Exec_time_wall   = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
     Exec_time_graf   = np.zeros((6, len(matching), len(Detectors), len(Descriptors), 3))
 else:
-    Rate_ubc        = np.load(maindir + "/arrays/Rate_ubc.npy")
-    Rate_leuven     = np.load(maindir + "/arrays/Rate_leuven.npy")
-    Rate_boat       = np.load(maindir + "/arrays/Rate_boat.npy")
-    Rate_bark       = np.load(maindir + "/arrays/Rate_bark.npy")
-    Rate_bikes      = np.load(maindir + "/arrays/Rate_bikes.npy")
-    Rate_trees      = np.load(maindir + "/arrays/Rate_trees.npy")
-    Rate_graf       = np.load(maindir + "/arrays/Rate_graf.npy")
-    Rate_wall       = np.load(maindir + "/arrays/Rate_wall.npy")
+    Rate_ubc         = np.load(maindir + "/arrays/Rate_ubc.npy")
+    Rate_leuven      = np.load(maindir + "/arrays/Rate_leuven.npy")
+    Rate_boat        = np.load(maindir + "/arrays/Rate_boat.npy")
+    Rate_bark        = np.load(maindir + "/arrays/Rate_bark.npy")
+    Rate_bikes       = np.load(maindir + "/arrays/Rate_bikes.npy")
+    Rate_trees       = np.load(maindir + "/arrays/Rate_trees.npy")
+    Rate_graf        = np.load(maindir + "/arrays/Rate_graf.npy")
+    Rate_wall        = np.load(maindir + "/arrays/Rate_wall.npy")
     ########################################################
     Exec_time_ubc    = np.load(maindir + "/arrays/Exec_time_ubc.npy")
     Exec_time_leuven = np.load(maindir + "/arrays/Exec_time_leuven.npy")
@@ -131,7 +130,8 @@ else:
 def executeScenarios(folder, Rate, Exec_time):
     print(time.ctime())
     print(f"Folder: {folder}")
-    img = [cv2.imread(f"{datasetdir}/{folder}/img{i}.ppm") for i in range(1, 7)]
+    img = [cv2.imread(f"{datasetdir}/{folder}/img{i}.jpg") for i in range(1, 7)]
+    
     keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
     descriptors_cache = np.empty((6, len(Detectors), len(Descriptors), 2), dtype=object)
     for k in range(1, len(img)):
@@ -185,12 +185,12 @@ def executeScenarios(folder, Rate, Exec_time):
     np.save(maindir + f"/arrays/Rate_{folder}.npy", Rate)
     np.save(maindir + f"/arrays/Exec_time_{folder}.npy", Exec_time)
 ########################################################
-executeScenarios("bark", Rate_bark, Exec_time_bark)
-executeScenarios("bikes", Rate_bikes, Exec_time_bikes)
-executeScenarios("boat", Rate_boat, Exec_time_boat)
-executeScenarios("graf", Rate_graf, Exec_time_graf)
+executeScenarios("bark",   Rate_bark,   Exec_time_bark)
+executeScenarios("bikes",  Rate_bikes,  Exec_time_bikes)
+executeScenarios("boat",   Rate_boat,   Exec_time_boat)
+executeScenarios("graf",   Rate_graf,   Exec_time_graf)
 executeScenarios("leuven", Rate_leuven, Exec_time_leuven)
-executeScenarios("trees", Rate_trees, Exec_time_trees)
-executeScenarios("ubc", Rate_ubc, Exec_time_ubc)
-executeScenarios("wall", Rate_wall, Exec_time_wall)
+executeScenarios("trees",  Rate_trees,  Exec_time_trees)
+executeScenarios("ubc",    Rate_ubc,    Exec_time_ubc)
+executeScenarios("wall",   Rate_wall,   Exec_time_wall)
 ########################################################
