@@ -235,52 +235,27 @@ else:
 print(time.ctime())
 print("Scenario 1 Intensity")
 img, List8Img = get_intensity_8Img(Image, val_b, val_c)
-keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(nbre_img):
     img2 = List8Img[k]
     for i in range(len(Detectors)):
         if i == a or a == 20:
             method_dtect = Detectors[i]
-            if keypoints_cache[0, i, 0] is None:
-                keypoints1 = method_dtect.detect(img, None)
-                keypoints_cache[0, i, 0] = keypoints1
-            else:
-                keypoints1 = keypoints_cache[0, i, 0]
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img2, None)
-                Exec_time_intensity[k, :, i, :, 0] = time.time() - start_time
-                keypoints_cache[k, i, 1] = keypoints2
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
+            keypoints1 = method_dtect.detect(img, None)
+            keypoints2 = method_dtect.detect(img2, None)
             for j in range(len(Descriptors)):
                 if j == b or b == 20:
                     for c3 in range(len(matching)):
                         method_dscrpt = Descriptors[j]
                         try:
-                            if descriptors_cache[0, i, j, 0] is None:
-                                descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
-                                descriptors_cache[0, i, j, 0] = descriptors1
-                            else:
-                                descriptors1 = descriptors_cache[0, i, j, 0]
-                            if descriptors_cache[k, i, j, 1] is None:
-                                start_time = time.time()
-                                descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
-                                Exec_time_intensity[k, c3, i, j, 1] = time.time() - start_time
-                                descriptors_cache[k, i, j, 1] = descriptors2
-                            else:
-                                descriptors2 = descriptors_cache[k, i, j, 1]
+                            descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
+                            descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
                         except Exception as e:
-                            Exec_time_intensity[k, c3, i, j, 1] = None
                             continue
                         try:
-                            start_time = time.time()
                             Rate_intensity[k, c3, i, j], _ = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                            Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
+                            print(Rate_intensity[k, c3, i, j])
                         except Exception as e:
                             Rate_intensity[k, c3, i, j] = None
-                            Exec_time_intensity[k, c3, i, j, 2] = None
                             continue
                 else:
                     continue
@@ -293,52 +268,26 @@ np.save(f"{maindir}/arrays/Exec_time_intensity.npy", Exec_time_intensity)
 ################ Scenario 2: Scale #######################
 print(time.ctime())
 print("Scenario 2 Scale")
-keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(len(scale)):
     img = get_cam_scale(Image, scale[k])
     for i in range(len(Detectors)):
         if i == a or a == 20:
             method_dtect = Detectors[i]
-            if keypoints_cache[0, i, 0] is None:
-                keypoints1 = method_dtect.detect(img[0], None)
-                keypoints_cache[0, i, 0] = keypoints1
-            else:
-                keypoints1 = keypoints_cache[0, i, 0]
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img[1], None)
-                Exec_time_scale[k, :, i, :, 0] = time.time() - start_time
-                keypoints_cache[k, i, 1] = keypoints2
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
+            keypoints1 = method_dtect.detect(img[0], None)
+            keypoints2 = method_dtect.detect(img[1], None)
             for j in range(len(Descriptors)):
                 if j == b or b == 20:
                     for c3 in range(len(matching)): 
                         method_dscrpt = Descriptors[j]
                         try:
-                            if descriptors_cache[0, i, j, 0] is None:
-                                descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                                descriptors_cache[0, i, j, 0] = descriptors1
-                            else:
-                                descriptors1 = descriptors_cache[0, i, j, 0]
-                            if descriptors_cache[k, i, j, 1] is None:
-                                start_time = time.time()
-                                descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                                Exec_time_scale[k, c3, i, j, 1] = time.time() - start_time
-                                descriptors_cache[k, i, j, 1] = descriptors2
-                            else:
-                                descriptors2 = descriptors_cache[k, i, j, 1]
+                            descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                            descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
                         except:
-                            Exec_time_scale[k, c3, i, j, 1] = None
                             continue
                         try:
-                            start_time = time.time()
                             Rate_scale[k, c3, i, j], _ = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
-                            Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_scale[k, c3, i, j] = None
-                            Exec_time_scale[k, c3, i, j, 2] = None
                             continue
                 else:
                     continue
@@ -351,52 +300,26 @@ np.save(f"{maindir}/arrays/Exec_time_scale.npy", Exec_time_scale)
 ################ Scenario 3: Rotation ####################
 print(time.ctime())
 print("Scenario 3 Rotation")
-keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(len(rot)):
     rot_matrix, img = get_cam_rot(Image, rot[k])
     for i in range(len(Detectors)):
         if i == a or a == 20:
             method_dtect = Detectors[i]
-            if keypoints_cache[0, i, 0] is None:
-                keypoints1 = method_dtect.detect(img[0], None)
-                keypoints_cache[0, i, 0] = keypoints1
-            else:
-                keypoints1 = keypoints_cache[0, i, 0] 
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img[1], None)
-                Exec_time_rot[k, :, i, :, 0] = time.time() - start_time
-                keypoints_cache[k, i, 1] = keypoints2
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
+            keypoints1 = method_dtect.detect(img[0], None)
+            keypoints2 = method_dtect.detect(img[1], None)
             for j in range(len(Descriptors)):
                 if j == b or b == 20:
                     for c3 in range(len(matching)):
                         method_dscrpt = Descriptors[j]
                         try:
-                            if descriptors_cache[0, i, j, 0] is None:
-                                descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                                descriptors_cache[0, i, j, 0] = descriptors1
-                            else:
-                                descriptors1 = descriptors_cache[0, i, j, 0]
-                            if descriptors_cache[k, i, j, 1] is None:
-                                start_time = time.time()
-                                descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
-                                Exec_time_scale[k, c3, i, j, 1] = time.time() - start_time
-                                descriptors_cache[k, i, j, 1] = descriptors2
-                            else:
-                                descriptors2 = descriptors_cache[k, i, j, 1]
+                            descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                            descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
                         except:
-                            Exec_time_rot[k, c3, i, j, 1] = None
                             continue
                         try:
-                            start_time = time.time()
                             Rate_rot[k, c3, i, j], _ = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
-                            Exec_time_rot[k, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_rot[k, c3, i, j] = None
-                            Exec_time_rot[k, c3, i, j, 2] = None
                             continue
                 else:
                     continue

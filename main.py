@@ -5,7 +5,7 @@ import time, os
 maindir = os.path.abspath(os.path.dirname(__file__))
 datasetdir = "./oxfordAffine"
 folder = "/graf"
-picture = "/img1.ppm"
+picture = "/img1.jpg"
 data = datasetdir + folder + picture
 
 Image = cv2.imread(data)
@@ -167,7 +167,7 @@ def evaluate_scenario_rotation(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, rot, 
         # the coordinates (x,y) of the points detected in the image 2
         X2 = int(KP2[m2].pt[0])
         Y2 = int(KP2[m2].pt[1])
-        X12 = X1*np.cos(theta) + Y1*np.sin(theta) + rot_matrix[0,2]
+        X12 =  X1*np.cos(theta) + Y1*np.sin(theta) + rot_matrix[0,2]
         Y12 = -X1*np.sin(theta) + Y1*np.cos(theta) + rot_matrix[1,2]
         if (abs(X12 - X2) <=2) and (abs(Y12 - Y2) <=2):   #  Tolerance allowance (∼ 1-2 pixels)
             Prob_P += 1
@@ -358,7 +358,7 @@ for k in range(nbre_img):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_intensity[k, c3, i, j], good_matches = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                            Rate_intensity[k, c3, i, j], _ = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_intensity[k, c3, i, j] = None
@@ -415,7 +415,7 @@ for k in range(len(scale)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_scale[k, c3, i, j], good_matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
+                            Rate_scale[k, c3, i, j], _ = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
                             Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_scale[k, c3, i, j] = None
@@ -472,7 +472,7 @@ for k in range(len(rot)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_rot[k, c3, i, j], good_matches = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
+                            Rate_rot[k, c3, i, j], _ = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
                             Exec_time_rot[k, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_rot[k, c3, i, j] = None
@@ -489,7 +489,7 @@ np.save(maindir + "/arrays/Exec_time_rot.npy", Exec_time_rot)
 ################ Scenario 4: graf ############################
 print("Scenario 4 graf")
 folder = "/graf"
-img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
+img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((6, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(1, len(img)):
@@ -530,7 +530,7 @@ for k in range(1, len(img)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_graf[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                            Rate_graf[k-1, c3, i, j], _ = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_graf[k-1, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_graf[k-1, c3, i, j] = None
@@ -547,7 +547,7 @@ np.save(maindir + "/arrays/Exec_time_graf.npy", Exec_time_graf)
 ################ Scenario 5: wall ############################
 print("Scenario 5 wall")
 folder = "/wall"
-img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
+img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((6, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(1, len(img)):
@@ -588,7 +588,7 @@ for k in range(1, len(img)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_wall[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                            Rate_wall[k-1, c3, i, j], _ = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_wall[k-1, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_wall[k-1, c3, i, j] = None
@@ -605,7 +605,7 @@ np.save(maindir + "/arrays/Exec_time_wall.npy", Exec_time_wall)
 ################ Scenario 6: trees ############################
 print("Scenario 6 trees")
 folder = "/trees"
-img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
+img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((6, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(1, len(img)):
@@ -646,7 +646,7 @@ for k in range(1, len(img)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_trees[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                            Rate_trees[k-1, c3, i, j], _ = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_trees[k-1, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_trees[k-1, c3, i, j] = None
@@ -663,7 +663,7 @@ np.save(maindir + "/arrays/Exec_time_trees.npy", Exec_time_trees)
 ################ Scenario 7: bikes ############################
 print("Scenario 7 bikes")
 folder = "/bikes"
-img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
+img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((6, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(1, len(img)):
@@ -704,7 +704,7 @@ for k in range(1, len(img)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_bikes[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                            Rate_bikes[k-1, c3, i, j], _ = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_bikes[k-1, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_bikes[k-1, c3, i, j] = None
@@ -721,7 +721,7 @@ np.save(maindir + "/arrays/Exec_time_bikes.npy", Exec_time_bikes)
 ################ Scenario 8: bark ############################
 print("Scenario 8 bark")
 folder = "/bark"
-img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
+img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((6, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(1, len(img)):
@@ -762,7 +762,7 @@ for k in range(1, len(img)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_bark[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                            Rate_bark[k-1, c3, i, j], _ = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_bark[k-1, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_bark[k-1, c3, i, j] = None
@@ -779,7 +779,7 @@ np.save(maindir + "/arrays/Exec_time_bark.npy", Exec_time_bark)
 ################ Scenario 9: boat ############################
 print("Scenario 9 boat")
 folder = "/boat"
-img = [cv2.imread(datasetdir + folder + f"/img{i}.pgm") for i in range(1, 7)]
+img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((6, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(1, len(img)):
@@ -820,7 +820,7 @@ for k in range(1, len(img)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_boat[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                            Rate_boat[k-1, c3, i, j], _ = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_boat[k-1, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_boat[k-1, c3, i, j] = None
@@ -837,7 +837,7 @@ np.save(maindir + "/arrays/Exec_time_boat.npy", Exec_time_boat)
 ################ Scenario 10: leuven ############################
 print("Scenario 10 leuven")
 folder = "/leuven"
-img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
+img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((6, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(1, len(img)):
@@ -878,7 +878,7 @@ for k in range(1, len(img)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_leuven[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                            Rate_leuven[k-1, c3, i, j], _ = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_leuven[k-1, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_leuven[k-1, c3, i, j] = None
@@ -895,7 +895,7 @@ np.save(maindir + "/arrays/Exec_time_leuven.npy", Exec_time_leuven)
 ################ Scenario 11: ubc ############################
 print("Scenario 11 ubc")
 folder = "/ubc"
-img = [cv2.imread(datasetdir + folder + f"/img{i}.ppm") for i in range(1, 7)]
+img = [cv2.imread(datasetdir + folder + f"/img{i}.jpg") for i in range(1, 7)]
 keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((6, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(1, len(img)):
@@ -936,7 +936,7 @@ for k in range(1, len(img)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_ubc[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                            Rate_ubc[k-1, c3, i, j], _ = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_ubc[k-1, c3, i, j, 2] = time.time() - start_time
                         except:
                             Rate_ubc[k-1, c3, i, j] = None

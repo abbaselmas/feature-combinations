@@ -60,11 +60,11 @@ brisk  = cv2.BRISK_create(thresh=30, octaves=3, patternScale=1.0)
 kaze   = cv2.KAZE_create(extended=False, upright=False, nOctaves=4, nOctaveLayers=4, diffusivity=cv2.KAZE_DIFF_PM_G2) #, threshold=0.01)
 
 ### detectors 9
-fast  = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_5_8, threshold=10) #, threshold=20)
+fast  = cv2.FastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_5_8)
 mser  = cv2.MSER_create(delta=5, min_area=60, max_area=14400, max_variation=0.25, area_threshold=1.01, min_margin=0.003, edge_blur_size=5) #, min_diversity=0.95, max_evolution=10)
 agast = cv2.AgastFeatureDetector_create(threshold=5,nonmaxSuppression=True,type=cv2.AGAST_FEATURE_DETECTOR_AGAST_7_12D)
-gftt  = cv2.GFTTDetector_create(qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=False, k=0.04, maxCorners=1600) #maxCorners=2000, 
-gftt_harris = cv2.GFTTDetector_create(qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=True, k=0.04, maxCorners=1600) #maxCorners=2000, 
+gftt  = cv2.GFTTDetector_create(maxCorners=2000, qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=False, k=0.04)
+gftt_harris = cv2.GFTTDetector_create(maxCorners=2000, qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=True, k=0.04)
 star  = cv2.xfeatures2d.StarDetector_create(maxSize=20, responseThreshold=5, lineThresholdProjected=100, lineThresholdBinarized=30, suppressNonmaxSize=3)
 hl    = cv2.xfeatures2d.HarrisLaplaceFeatureDetector_create(numOctaves=4, corn_thresh=0.01, DOG_thresh=0.01, maxCorners=2000, num_layers=4)
 msd   = cv2.xfeatures2d.MSDDetector_create(m_patch_radius=3, m_search_area_radius=5, m_nms_radius=5, m_nms_scale_radius=0, m_th_saliency=250.0, m_kNN=4, m_scale_factor=1.25, m_n_scales=-1, m_compute_orientation=0)
@@ -101,53 +101,26 @@ def executeScenarios(folder):
         Exec_time = np.load(f"{maindir}/arrays/Exec_time_{folder}.npy")
     
     img = [cv2.imread(f"{datasetdir}/{folder}/img{i}.jpg") for i in range(1, 7)]
-    keypoints_cache   = np.empty((6, len(Detectors), 2), dtype=object)
-    descriptors_cache = np.empty((6, len(Detectors), len(Descriptors), 2), dtype=object)
+    
     for k in range(1, len(img)):
         for i in range(len(Detectors)):
             if i == a or a == 20:
                 method_dtect = Detectors[i]
-                if keypoints_cache[0, i, 0] is None:
-                    keypoints1 = method_dtect.detect(img[0], None)
-                    keypoints_cache[0, i, 0] = keypoints1
-                else:
-                    keypoints1 = keypoints_cache[0, i, 0]   
-                if keypoints_cache[k-1, i, 1] is None:
-                    start_time = time.time()
-                    keypoints2 = method_dtect.detect(img[k], None)
-                    Exec_time[k-1, :, i, :, 0] = time.time() - start_time
-                    keypoints_cache[k-1, i, 1] = keypoints2
-                else:
-                    keypoints2 = keypoints_cache[k-1, i, 1]
+                keypoints1 = method_dtect.detect(img[0], None)
+                keypoints2 = method_dtect.detect(img[k], None)
                 for j in range(len(Descriptors)):
                     if j == b or b == 20:
                         for c3 in range(len(matching)):
                             method_dscrpt = Descriptors[j]
                             try:
-                                if descriptors_cache[0, i, j, 0] is None:
-                                    descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
-                                    descriptors_cache[0, i, j, 0] = descriptors1
-                                else:
-                                    descriptors1 = descriptors_cache[0, i, j, 0]
-                                if descriptors_cache[k-1, i, j, 1] is None:
-                                    start_time = time.time()
-                                    descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
-                                    Exec_time[k-1, c3, i, j, 1] = time.time() - start_time
-                                    descriptors_cache[k-1, i, j, 1] = descriptors2
-                                else:
-                                    descriptors2 = descriptors_cache[k-1, i, j, 1]
+                                descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                                descriptors2 = method_dscrpt.compute(img[k], keypoints2)[1]
                             except:
-                                Exec_time[k-1, c3, i, j, 1] = None
                                 continue
                             try:
-                                start_time = time.time()
                                 Rate[k-1, c3, i, j], _ = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                                Exec_time[k-1, c3, i, j, 2] = time.time() - start_time
-                            except Exception as e:
-                                if not "batch_distance.cpp" or not "Assertion failed" in str(e):
-                                    print(f"Folder: {folder}, Detector: {i}, Descriptor: {j}, Matching: {c3}, Error: {e}")
+                            except:
                                 Rate[k-1, c3, i, j] = None
-                                Exec_time[k-1, c3, i, j, 2] = None
                                 continue
                     else:
                         continue
