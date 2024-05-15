@@ -158,7 +158,7 @@ def executeScenarios(folder):
                                 continue
                             try:
                                 start_time = time.time()
-                                Rate[k-1, c3, i, j], _ = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                                Rate[k-1, c3, i, j], good_matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                                 Exec_time[k-1, c3, i, j, 2] = time.time() - start_time
                             except Exception as e:
                                 if not "batch_distance.cpp" or not "Assertion failed" in str(e):
@@ -166,6 +166,11 @@ def executeScenarios(folder):
                                 Rate[k-1, c3, i, j] = None
                                 Exec_time[k-1, c3, i, j, 2] = None
                                 continue
+                            if k == 3:
+                                # draw matches
+                                img_matches = cv2.drawMatches(img[0], keypoints1, img[k], keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                                filename = f"{maindir}/draws/{folder}/{k}_{i}_{j}_{matching[c3]}_R_{Rate[k, c3, i, j]:.2f}.png"
+                                cv2.imwrite(filename, img_matches)
                     else:
                         continue
             else:

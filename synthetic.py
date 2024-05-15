@@ -294,7 +294,7 @@ for k in range(nbre_img):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_intensity[k, c3, i, j], _ = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                            Rate_intensity[k, c3, i, j], good_matches = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
                         except Exception as e:
                             if not "batch_distance.cpp" or not "Assertion failed" in str(e):
@@ -302,6 +302,12 @@ for k in range(nbre_img):
                             Rate_intensity[k, c3, i, j] = None
                             Exec_time_intensity[k, c3, i, j, 2] = None
                             continue
+                        
+                        if k == 5:
+                            # draw matches
+                            img_matches = cv2.drawMatches(img, keypoints1, img2, keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                            filename = f"{maindir}/draws/intensity/{k}_{i}_{j}_{matching[c3]}_R_{Rate_intensity[k, c3, i, j]:.2f}.png"
+                            cv2.imwrite(filename, img_matches)
                 else:
                     continue
         else:
@@ -354,7 +360,7 @@ for k in range(len(scale)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_scale[k, c3, i, j], _ = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
+                            Rate_scale[k, c3, i, j], good_matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
                             Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
                         except Exception as e:
                             if not "batch_distance.cpp" or not "Assertion failed" in str(e):
@@ -362,6 +368,11 @@ for k in range(len(scale)):
                             Rate_scale[k, c3, i, j] = None
                             Exec_time_scale[k, c3, i, j, 2] = None
                             continue
+                        if k == 5:
+                            # draw matches
+                            img_matches = cv2.drawMatches(img[0], keypoints1, img[1], keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                            filename = f"{maindir}/draws/scale/{k}_{i}_{j}_{matching[c3]}_R_{Rate_scale[k, c3, i, j]:.2f}.png"
+                            cv2.imwrite(filename, img_matches)
                 else:
                     continue
         else:
@@ -414,7 +425,7 @@ for k in range(len(rot)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_rot[k, c3, i, j], _ = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
+                            Rate_rot[k, c3, i, j], good_matches = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
                             Exec_time_rot[k, c3, i, j, 2] = time.time() - start_time
                         except Exception as e:
                             if not "batch_distance.cpp" or not "Assertion failed" in str(e):
@@ -422,6 +433,11 @@ for k in range(len(rot)):
                             Rate_rot[k, c3, i, j] = None
                             Exec_time_rot[k, c3, i, j, 2] = None
                             continue
+                        if k == 5:
+                            # draw matches
+                            img_matches = cv2.drawMatches(img[0], keypoints1, img[1], keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                            filename = f"{maindir}/draws/rot/{k}_{i}_{j}_{matching[c3]}_R_{Rate_rot[k, c3, i, j]:.2f}.png"
+                            cv2.imwrite(filename, img_matches)
                 else:
                     continue
         else:
