@@ -52,3 +52,18 @@ Oxford Affine All [Timings](https://abbaselmas.github.io/feature-combinations/ht
 |VGG500    | [Synthetic](https://abbaselmas.github.io/feature-combinations/html/SyntheticData_Descriptor_vgg500.html)       | [oxford Affine 1234](https://abbaselmas.github.io/feature-combinations/html/oxfordAffine1234_Descriptor_vgg500.html)      | [oxford Affine 5678](https://abbaselmas.github.io/feature-combinations/html/oxfordAffine5678_Descriptor_vgg500.html)      | [docs](https://docs.opencv.org/4.9.0/d6/d00/classcv_1_1xfeatures2d_1_1VGG.html)                           |
 |VGG625    | [Synthetic](https://abbaselmas.github.io/feature-combinations/html/SyntheticData_Descriptor_vgg625.html)       | [oxford Affine 1234](https://abbaselmas.github.io/feature-combinations/html/oxfordAffine1234_Descriptor_vgg625.html)      | [oxford Affine 5678](https://abbaselmas.github.io/feature-combinations/html/oxfordAffine5678_Descriptor_vgg625.html)      | [docs](https://docs.opencv.org/4.9.0/d6/d00/classcv_1_1xfeatures2d_1_1VGG.html)                           |
 |VGG675    | [Synthetic](https://abbaselmas.github.io/feature-combinations/html/SyntheticData_Descriptor_vgg675.html)       | [oxford Affine 1234](https://abbaselmas.github.io/feature-combinations/html/oxfordAffine1234_Descriptor_vgg675.html)      | [oxford Affine 5678](https://abbaselmas.github.io/feature-combinations/html/oxfordAffine5678_Descriptor_vgg675.html)      | [docs](https://docs.opencv.org/4.9.0/d6/d00/classcv_1_1xfeatures2d_1_1VGG.html)                           |
+
+detector as sift and descriptor as sift
+intensity ![5_0_0_4_R](https://abbaselmas.github.io/feature-combinations/draws/intensity/5_0_0_4_R_99.90.png)
+scale ![5_0_0_4_R](https://abbaselmas.github.io/feature-combinations/draws/scale/5_0_0_4_R_91.90.png)
+rot ![5_0_0_4_R](https://abbaselmas.github.io/feature-combinations/draws/rot/5_0_0_4_R_98.93.png)
+
+graf ![3_0_0_4_R](https://abbaselmas.github.io/feature-combinations/draws/graf/3_0_0_4_R_5.405405405405405.png)
+wall ![3_0_0_4_R](https://abbaselmas.github.io/feature-combinations/draws/wall/3_0_0_4_R_37.6502002670227.png)
+trees ![3_0_0_4_R](https://abbaselmas.github.io/feature-combinations/draws/trees/3_0_0_4_R_16.796875.png)
+bike ![3_0_0_4_R](https://abbaselmas.github.io/feature-combinations/draws/bike/3_0_0_4_R_80.64516129032258.png)
+
+bark ![3_0_0_4_R](https://abbaselmas.github.io/feature-combinations/draws/bark/3_0_0_4_R_48.61111111111111.png)
+boat ![3_0_0_4_R](https://abbaselmas.github.io/feature-combinations/draws/boat/3_0_0_4_R_42.11332312404288.png)
+leuven ![3_0_0_4_R](https://abbaselmas.github.io/feature-combinations/draws/leuven/3_0_0_4_R_66.20370370370371.png)
+ubc ![3_0_0_4_R](https://abbaselmas.github.io/feature-combinations/draws/ubc/3_0_0_4_R_74.21109902067464.png)
