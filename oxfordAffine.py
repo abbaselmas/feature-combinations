@@ -167,10 +167,10 @@ def executeScenarios(folder):
                                 Exec_time[k-1, c3, i, j, 2] = None
                                 continue
                             if k == 3:
-                                keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(  0, 191, 255), flags=0)
-                                ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 10,  10,  10), flags=0)
-                                keypointImage2 = cv2.drawKeypoints(img[k],          keypoints2,  None, color=( 57,   0, 199), flags=0)
-                                Image2         = cv2.drawKeypoints(keypointImage2,  keypoints22, None, color=(200,  10,  10), flags=0)
+                                keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(206, 217, 162), flags=0)
+                                ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 18, 156, 243), flags=0)
+                                keypointImage2 = cv2.drawKeypoints(img[k],          keypoints2,  None, color=(206, 217, 162), flags=0)
+                                Image2         = cv2.drawKeypoints(keypointImage2,  keypoints22, None, color=(173,  68, 142), flags=0)
                                 img_matches    = cv2.drawMatches(ImageGT, keypoints1, Image2, keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                                 text = [
                                     f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
@@ -184,7 +184,7 @@ def executeScenarios(folder):
                                     f"Descriptor2:  {len(descriptors2)}",
                                     f"Time Descrpt: {Exec_time[k-1, c3, i, j, 1]:.4f}",
                                     f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
-                                    f"Match Rate:   {Rate[k, c3, i, j]:.2f}",
+                                    f"Match Rate:   {Rate[k-1, c3, i, j]:.2f}",
                                     f"Time Match:   {Exec_time[k-1, c3, i, j, 2]:.4f}",
                                     f"Inliers:      {len(good_matches)}",
                                     f"All Matches:  {len(matches)}"
@@ -193,7 +193,7 @@ def executeScenarios(folder):
                                     cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (255, 255, 255), 2, cv2.LINE_AA)
                                     cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
                                     
-                                filename = f"{maindir}/draws/{folder}/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
+                                filename = f"{maindir}/draws/{folder}/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{i}_{method_dscrpt.getDefaultName().split('.')[-1]}_{j}_{matching[c3]}.png"
                                 cv2.imwrite(filename, img_matches)
                     else:
                         continue
