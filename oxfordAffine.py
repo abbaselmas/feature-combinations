@@ -199,8 +199,8 @@ def executeScenarios(folder):
                         continue
             else:
                 continue
-    # np.save(f"{maindir}/arrays/Rate_{folder}.npy",      Rate)
-    # np.save(f"{maindir}/arrays/Exec_time_{folder}.npy", Exec_time)
+    np.save(f"{maindir}/arrays/Rate_{folder}.npy",      Rate)
+    np.save(f"{maindir}/arrays/Exec_time_{folder}.npy", Exec_time)
 ########################################################
 executeScenarios("graf")
 executeScenarios("wall")

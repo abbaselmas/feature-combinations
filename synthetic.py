@@ -229,8 +229,8 @@ Descriptors    = list([sift, akaze, orb, brisk, kaze,
                        boost675, boost625, boost500, boost150, boost075]) 
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 matcher        = 0 # 0: Brute-force matcher, 1: Flann-based matcher
-a = 8 #i
-b = 14 #j
+a = 100 #i
+b = 100 #j
 
 if a == 100 and b == 100:
     Rate_intensity      = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors)))
@@ -303,10 +303,10 @@ for k in range(nbre_img):
                             Exec_time_intensity[k, c3, i, j, 2] = None
                             continue
                         if k == 7 or k == 4:
-                            keypointImage1 = cv2.drawKeypoints(img,          keypoints1,  None, color=(  0, 191, 255), flags=0)
-                            ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 10,  10,  10), flags=0)
-                            keypointImage2 = cv2.drawKeypoints(img2,          keypoints2,  None, color=( 57,   0, 199), flags=0)
-                            Image2         = cv2.drawKeypoints(keypointImage2,  keypoints22, None, color=(200,  10,  10), flags=0)
+                            keypointImage1 = cv2.drawKeypoints(img,             keypoints1,  None, color=(206, 217, 162), flags=0)
+                            ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 18, 156, 243), flags=0)
+                            keypointImage2 = cv2.drawKeypoints(img2,            keypoints2,  None, color=(206, 217, 162), flags=0)
+                            Image2         = cv2.drawKeypoints(keypointImage2,  keypoints22, None, color=(173,  68, 142), flags=0)
                             img_matches    = cv2.drawMatches(ImageGT, keypoints1, Image2, keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                             text = [
                                 f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
@@ -392,10 +392,10 @@ for k in range(len(scale)):
                             Exec_time_scale[k, c3, i, j, 2] = None
                             continue
                         if k == 4:
-                            keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(  0, 191, 255), flags=0)
-                            ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 10,  10,  10), flags=0)
-                            keypointImage2 = cv2.drawKeypoints(img[1],          keypoints2,  None, color=( 57,   0, 199), flags=0)
-                            Image2         = cv2.drawKeypoints(keypointImage2,  keypoints22, None, color=(200,  10,  10), flags=0)
+                            keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(206, 217, 162), flags=0)
+                            ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 18, 156, 243), flags=0)
+                            keypointImage2 = cv2.drawKeypoints(img[1],          keypoints2,  None, color=(206, 217, 162), flags=0)
+                            Image2         = cv2.drawKeypoints(keypointImage2,  keypoints22, None, color=(173,  68, 142), flags=0)
                             img_matches    = cv2.drawMatches(ImageGT, keypoints1, Image2, keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                             text = [
                                 f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
@@ -481,10 +481,10 @@ for k in range(len(rot)):
                             Exec_time_rot[k, c3, i, j, 2] = None
                             continue
                         if k == 4:
-                            keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(  0, 191, 255), flags=0)
-                            ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 10,  10,  10), flags=0)
-                            keypointImage2 = cv2.drawKeypoints(img[1],          keypoints2,  None, color=( 57,   0, 199), flags=0)
-                            Image2         = cv2.drawKeypoints(keypointImage2,  keypoints22, None, color=(200,  10,  10), flags=0)
+                            keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(206, 217, 162), flags=0)
+                            ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 18, 156, 243), flags=0)
+                            keypointImage2 = cv2.drawKeypoints(img[1],          keypoints2,  None, color=(206, 217, 162), flags=0)
+                            Image2         = cv2.drawKeypoints(keypointImage2,  keypoints22, None, color=(173,  68, 142), flags=0)
                             img_matches    = cv2.drawMatches(ImageGT, keypoints1, Image2, keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                             text = [
                                 f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
