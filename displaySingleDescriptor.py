@@ -64,7 +64,6 @@ for j in range(len(DescriptorsLegend)):
             if not (np.isnan(Rate_rot[:, c3, i, j]).any() or np.all(Rate_rot[:, c3, i, j] == 0)):
                 figtrace_Rot   = go.Scatter(x=rot,   y=Rate2_R,  mode='lines', line=dict(color=color, dash=style), name='',              legendgroup=legend_groupfig, showlegend=False)
                 fig.add_trace(figtrace_Rot,  row=2, col=2)
-                
     fig.write_html(f'./html/SyntheticData_Descriptor_{DescriptorsLegend[j]}.html')
     fig.data = []
     figtrace_I1 = figtrace_I2 = figtrace_Scale = figtrace_Rot = legend_groupfig = None

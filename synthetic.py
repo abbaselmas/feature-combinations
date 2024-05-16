@@ -101,7 +101,7 @@ def evaluate_scenario_intensity(matcher, KP1, KP2, Dspt1, Dspt2, norm_type):
             Prob_N += 1   
     Prob_True = (Prob_P / (Prob_P + Prob_N))*100
     good_matches = sorted(good_matches, key = lambda x:x.distance)
-    return Prob_True, good_matches
+    return Prob_True, good_matches, matches
 # ................................................................................
 def evaluate_scenario_scale(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, scale):
     if matcher == 0: # Brute-force matcher
@@ -137,7 +137,7 @@ def evaluate_scenario_scale(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, scale):
     # Calculation of the rate (%) of correctly matched homologous points        
     Prob_True = (Prob_P / (Prob_P + Prob_N))*100
     good_matches = sorted(good_matches, key = lambda x:x.distance)
-    return Prob_True, good_matches
+    return Prob_True, good_matches, matches
 # ................................................................................
 def evaluate_scenario_rotation(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, rot, rot_matrix):
     if matcher == 0: # Brute-force matcher
@@ -174,7 +174,7 @@ def evaluate_scenario_rotation(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, rot, 
             Prob_N += 1
     Prob_True = (Prob_P / (Prob_P + Prob_N))*100
     good_matches = sorted(good_matches, key = lambda x:x.distance)
-    return Prob_True, good_matches
+    return Prob_True, good_matches, matches
 # ................................................................................
 
 ### detectors/descriptors 5
@@ -278,13 +278,13 @@ for k in range(nbre_img):
                         method_dscrpt = Descriptors[j]
                         try:
                             if descriptors_cache[0, i, j, 0] is None:
-                                descriptors1 = method_dscrpt.compute(img, keypoints1)[1]
+                                keypoints11, descriptors1 = method_dscrpt.compute(img, keypoints1)
                                 descriptors_cache[0, i, j, 0] = descriptors1
                             else:
                                 descriptors1 = descriptors_cache[0, i, j, 0]
                             if descriptors_cache[k, i, j, 1] is None:
                                 start_time = time.time()
-                                descriptors2 = method_dscrpt.compute(img2, keypoints2)[1]
+                                keypoints22, descriptors2 = method_dscrpt.compute(img2, keypoints2)
                                 Exec_time_intensity[k, c3, i, j, 1] = time.time() - start_time
                                 descriptors_cache[k, i, j, 1] = descriptors2
                             else:
@@ -294,7 +294,7 @@ for k in range(nbre_img):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_intensity[k, c3, i, j], good_matches = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                            Rate_intensity[k, c3, i, j], good_matches, matches = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
                         except Exception as e:
                             if not "batch_distance.cpp" or not "Assertion failed" in str(e):
@@ -302,11 +302,34 @@ for k in range(nbre_img):
                             Rate_intensity[k, c3, i, j] = None
                             Exec_time_intensity[k, c3, i, j, 2] = None
                             continue
-                        
                         if k == 5:
-                            # draw matches
-                            img_matches = cv2.drawMatches(img, keypoints1, img2, keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                            filename = f"{maindir}/draws/intensity/{k}_{i}_{j}_{matching[c3]}_R_{Rate_intensity[k, c3, i, j]:.2f}.png"
+                            keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(  0, 191, 255), flags=0)
+                            ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 10,  10,  10), flags=0)
+                            keypointImage2 = cv2.drawKeypoints(img[k],          keypoints2,  None, color=( 57,   0, 199), flags=0)
+                            Image2         = cv2.drawKeypoints(keypointImage2,  keypoints22, None, color=(200,  10,  10), flags=0)
+                            img_matches    = cv2.drawMatches(ImageGT, keypoints1, Image2, keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                            text = [
+                                f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
+                                f"Keypoint1:    {len(keypoints1)}",
+                                f"Keypoint11:   {len(keypoints11)}",
+                                f"Keypoint2:    {len(keypoints2)}",
+                                f"Keypoint22:   {len(keypoints22)}",
+                                f"Time Detect:  {Exec_time_intensity[k-1, c3, i, j, 0]:.4f}",
+                                f"Descriptor:   {method_dscrpt.getDefaultName().split('.')[-1]}",
+                                f"Descriptor1:  {len(descriptors1)}",
+                                f"Descriptor2:  {len(descriptors2)}",
+                                f"Time Descrpt: {Exec_time_intensity[k-1, c3, i, j, 1]:.4f}",
+                                f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
+                                f"Match Rate:   {Rate_intensity[k, c3, i, j]:.2f}",
+                                f"Time Match:   {Exec_time_intensity[k-1, c3, i, j, 2]:.4f}",
+                                f"Inliers:      {len(good_matches)}",
+                                f"All Matches:  {len(matches)}"
+                            ]                                
+                            for idx, txt in enumerate(text):
+                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (255, 255, 255), 2, cv2.LINE_AA)
+                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
+                                
+                            filename = f"{maindir}/draws/{folder}/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
                             cv2.imwrite(filename, img_matches)
                 else:
                     continue
@@ -344,13 +367,13 @@ for k in range(len(scale)):
                         method_dscrpt = Descriptors[j]
                         try:
                             if descriptors_cache[0, i, j, 0] is None:
-                                descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                                keypoints11, descriptors1 = method_dscrpt.compute(img[0], keypoints1)
                                 descriptors_cache[0, i, j, 0] = descriptors1
                             else:
                                 descriptors1 = descriptors_cache[0, i, j, 0]
                             if descriptors_cache[k, i, j, 1] is None:
                                 start_time = time.time()
-                                descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
+                                keypoints22, descriptors2 = method_dscrpt.compute(img[1], keypoints2)
                                 Exec_time_scale[k, c3, i, j, 1] = time.time() - start_time
                                 descriptors_cache[k, i, j, 1] = descriptors2
                             else:
@@ -360,7 +383,7 @@ for k in range(len(scale)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_scale[k, c3, i, j], good_matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
+                            Rate_scale[k, c3, i, j], good_matches, matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
                             Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
                         except Exception as e:
                             if not "batch_distance.cpp" or not "Assertion failed" in str(e):
@@ -369,9 +392,33 @@ for k in range(len(scale)):
                             Exec_time_scale[k, c3, i, j, 2] = None
                             continue
                         if k == 5:
-                            # draw matches
-                            img_matches = cv2.drawMatches(img[0], keypoints1, img[1], keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                            filename = f"{maindir}/draws/scale/{k}_{i}_{j}_{matching[c3]}_R_{Rate_scale[k, c3, i, j]:.2f}.png"
+                            keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(  0, 191, 255), flags=0)
+                            ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 10,  10,  10), flags=0)
+                            keypointImage2 = cv2.drawKeypoints(img[k],          keypoints2,  None, color=( 57,   0, 199), flags=0)
+                            Image2         = cv2.drawKeypoints(keypointImage2,  keypoints22, None, color=(200,  10,  10), flags=0)
+                            img_matches    = cv2.drawMatches(ImageGT, keypoints1, Image2, keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                            text = [
+                                f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
+                                f"Keypoint1:    {len(keypoints1)}",
+                                f"Keypoint11:   {len(keypoints11)}",
+                                f"Keypoint2:    {len(keypoints2)}",
+                                f"Keypoint22:   {len(keypoints22)}",
+                                f"Time Detect:  {Exec_time_scale[k-1, c3, i, j, 0]:.4f}",
+                                f"Descriptor:   {method_dscrpt.getDefaultName().split('.')[-1]}",
+                                f"Descriptor1:  {len(descriptors1)}",
+                                f"Descriptor2:  {len(descriptors2)}",
+                                f"Time Descrpt: {Exec_time_scale[k-1, c3, i, j, 1]:.4f}",
+                                f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
+                                f"Match Rate:   {Rate_scale[k, c3, i, j]:.2f}",
+                                f"Time Match:   {Exec_time_scale[k-1, c3, i, j, 2]:.4f}",
+                                f"Inliers:      {len(good_matches)}",
+                                f"All Matches:  {len(matches)}"
+                            ]                                
+                            for idx, txt in enumerate(text):
+                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (255, 255, 255), 2, cv2.LINE_AA)
+                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
+                                
+                            filename = f"{maindir}/draws/{folder}/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
                             cv2.imwrite(filename, img_matches)
                 else:
                     continue
@@ -409,13 +456,13 @@ for k in range(len(rot)):
                         method_dscrpt = Descriptors[j]
                         try:
                             if descriptors_cache[0, i, j, 0] is None:
-                                descriptors1 = method_dscrpt.compute(img[0], keypoints1)[1]
+                                keypoints11, descriptors1 = method_dscrpt.compute(img[0], keypoints1)
                                 descriptors_cache[0, i, j, 0] = descriptors1
                             else:
                                 descriptors1 = descriptors_cache[0, i, j, 0]
                             if descriptors_cache[k, i, j, 1] is None:
                                 start_time = time.time()
-                                descriptors2 = method_dscrpt.compute(img[1], keypoints2)[1]
+                                keypoints22, descriptors2 = method_dscrpt.compute(img[1], keypoints2)
                                 Exec_time_scale[k, c3, i, j, 1] = time.time() - start_time
                                 descriptors_cache[k, i, j, 1] = descriptors2
                             else:
@@ -425,7 +472,7 @@ for k in range(len(rot)):
                             continue
                         try:
                             start_time = time.time()
-                            Rate_rot[k, c3, i, j], good_matches = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
+                            Rate_rot[k, c3, i, j], good_matches, matches = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
                             Exec_time_rot[k, c3, i, j, 2] = time.time() - start_time
                         except Exception as e:
                             if not "batch_distance.cpp" or not "Assertion failed" in str(e):
@@ -434,9 +481,33 @@ for k in range(len(rot)):
                             Exec_time_rot[k, c3, i, j, 2] = None
                             continue
                         if k == 5:
-                            # draw matches
-                            img_matches = cv2.drawMatches(img[0], keypoints1, img[1], keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-                            filename = f"{maindir}/draws/rot/{k}_{i}_{j}_{matching[c3]}_R_{Rate_rot[k, c3, i, j]:.2f}.png"
+                            keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(  0, 191, 255), flags=0)
+                            ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 10,  10,  10), flags=0)
+                            keypointImage2 = cv2.drawKeypoints(img[k],          keypoints2,  None, color=( 57,   0, 199), flags=0)
+                            Image2         = cv2.drawKeypoints(keypointImage2,  keypoints22, None, color=(200,  10,  10), flags=0)
+                            img_matches    = cv2.drawMatches(ImageGT, keypoints1, Image2, keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+                            text = [
+                                f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
+                                f"Keypoint1:    {len(keypoints1)}",
+                                f"Keypoint11:   {len(keypoints11)}",
+                                f"Keypoint2:    {len(keypoints2)}",
+                                f"Keypoint22:   {len(keypoints22)}",
+                                f"Time Detect:  {Exec_time_rot[k-1, c3, i, j, 0]:.4f}",
+                                f"Descriptor:   {method_dscrpt.getDefaultName().split('.')[-1]}",
+                                f"Descriptor1:  {len(descriptors1)}",
+                                f"Descriptor2:  {len(descriptors2)}",
+                                f"Time Descrpt: {Exec_time_rot[k-1, c3, i, j, 1]:.4f}",
+                                f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
+                                f"Match Rate:   {Rate_rot[k, c3, i, j]:.2f}",
+                                f"Time Match:   {Exec_time_rot[k-1, c3, i, j, 2]:.4f}",
+                                f"Inliers:      {len(good_matches)}",
+                                f"All Matches:  {len(matches)}"
+                            ]                                
+                            for idx, txt in enumerate(text):
+                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (255, 255, 255), 2, cv2.LINE_AA)
+                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
+                                
+                            filename = f"{maindir}/draws/{folder}/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
                             cv2.imwrite(filename, img_matches)
                 else:
                     continue
