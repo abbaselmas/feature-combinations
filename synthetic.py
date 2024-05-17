@@ -3,9 +3,9 @@ import numpy as np
 import time, os
 
 maindir = os.path.abspath(os.path.dirname(__file__))
-datasetdir = "./oxfordAffine"
-folder = "/graf"
-picture = "/img1.jpg"
+datasetdir = "./hpatches-sequences"  #"./oxfordAffine"
+folder =  "/v_bird" #"/graf"
+picture = "/1.jpg" #"/img1.jpg"
 data = datasetdir + folder + picture
 
 Image = cv2.imread(data)
@@ -80,15 +80,14 @@ def evaluate_scenario_intensity(matcher, KP1, KP2, Dspt1, Dspt2, norm_type):
             search_params = dict(checks=50)
         flann = cv2.FlannBasedMatcher(index_params, search_params)
         matches = flann.match(Dspt1, Dspt2)
-    Prob_P = 0
-    Prob_N = 0
+    Prob_P = Prob_N = 0
     good_matches = []
-    # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points 
+    # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points
     for i in range(len(matches)):
         m1 = matches[i].queryIdx
         m2 = matches[i].trainIdx
         # the coordinates (x,y) of the points detected in the image 1
-        X1 = int(KP1[m1].pt[0]) 
+        X1 = int(KP1[m1].pt[0])
         Y1 = int(KP1[m1].pt[1])
         # the coordinates (x,y) of the points detected in the image 2
         X2 = int(KP2[m2].pt[0])
@@ -99,7 +98,7 @@ def evaluate_scenario_intensity(matcher, KP1, KP2, Dspt1, Dspt2, norm_type):
             good_matches.append(matches[i])
         else:
             Prob_N += 1   
-    Prob_True = (Prob_P / (Prob_P + Prob_N))*100
+    Prob_True = ((Prob_P / (Prob_P + Prob_N))*100 if len(matches) > 0 else 0)
     good_matches = sorted(good_matches, key = lambda x:x.distance)
     return Prob_True, good_matches, matches
 # ................................................................................
@@ -116,8 +115,7 @@ def evaluate_scenario_scale(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, scale):
             search_params = dict(checks=50)
         flann = cv2.FlannBasedMatcher(index_params, search_params)
         matches = flann.match(Dspt1, Dspt2)
-    Prob_P = 0
-    Prob_N = 0
+    Prob_P = Prob_N = 0
     good_matches = []
     # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points 
     for i in range(len(matches)):
@@ -134,8 +132,7 @@ def evaluate_scenario_scale(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, scale):
             good_matches.append(matches[i])
         else:
             Prob_N += 1   
-    # Calculation of the rate (%) of correctly matched homologous points        
-    Prob_True = (Prob_P / (Prob_P + Prob_N))*100
+    Prob_True = ((Prob_P / (Prob_P + Prob_N))*100 if len(matches) > 0 else 0)
     good_matches = sorted(good_matches, key = lambda x:x.distance)
     return Prob_True, good_matches, matches
 # ................................................................................
@@ -152,8 +149,7 @@ def evaluate_scenario_rotation(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, rot, 
             search_params = dict(checks=50)
         flann = cv2.FlannBasedMatcher(index_params, search_params)
         matches = flann.match(Dspt1, Dspt2)
-    Prob_P = 0
-    Prob_N = 0
+    Prob_P = Prob_N = 0
     good_matches = []
     theta = rot*(np.pi/180) # transformation of the degree of rotation into radian
     for i in range(len(matches)):
@@ -172,11 +168,10 @@ def evaluate_scenario_rotation(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, rot, 
             good_matches.append(matches[i])
         else:
             Prob_N += 1
-    Prob_True = (Prob_P / (Prob_P + Prob_N))*100
+    Prob_True = ((Prob_P / (Prob_P + Prob_N))*100 if len(matches) > 0 else 0)
     good_matches = sorted(good_matches, key = lambda x:x.distance)
     return Prob_True, good_matches, matches
 # ................................................................................
-
 ### detectors/descriptors 5
 sift   = cv2.SIFT_create(nfeatures=2000, nOctaveLayers=3, contrastThreshold=0.1, edgeThreshold=10.0, sigma=1.6) #best with layer=3 contrastThreshold=0.1 
 akaze  = cv2.AKAZE_create(descriptor_type=cv2.AKAZE_DESCRIPTOR_MLDB, descriptor_size=0, descriptor_channels=3, threshold=0.01, nOctaves=4, nOctaveLayers=4, diffusivity=cv2.KAZE_DIFF_PM_G2)
@@ -185,9 +180,14 @@ brisk  = cv2.BRISK_create(thresh=30, octaves=3, patternScale=1.0)
 kaze   = cv2.KAZE_create(extended=False, upright=False, threshold=0.01, nOctaves=4, nOctaveLayers=4, diffusivity=cv2.KAZE_DIFF_PM_G2)
 
 ### detectors 9
-fast  = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_5_8, threshold=20)
-mser  = cv2.MSER_create(delta=5, min_area=60, max_area=14400, max_variation=0.25, min_diversity=0.90, max_evolution=20, area_threshold=1.01, min_margin=0.003, edge_blur_size=5)
-agast = cv2.AgastFeatureDetector_create(threshold=5,nonmaxSuppression=True,type=cv2.AGAST_FEATURE_DETECTOR_AGAST_7_12D)
+fast58    = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_5_8,  threshold=5)
+fast712   = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_7_12, threshold=18)
+fast916   = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_9_16, threshold=25)
+mser      = cv2.MSER_create(delta=5, min_area=60, max_area=14400, max_variation=0.25, min_diversity=0.90, max_evolution=20, area_threshold=1.01, min_margin=0.003, edge_blur_size=5)
+agast58   = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_AGAST_5_8)
+agast712d = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_AGAST_7_12D)
+agast712s = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_AGAST_7_12S)
+oagast916 = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_OAST_9_16)
 gftt  = cv2.GFTTDetector_create(qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=False, k=0.04, maxCorners=2000)
 gftt_harris = cv2.GFTTDetector_create(qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=True, k=0.04, maxCorners=2000) 
 star  = cv2.xfeatures2d.StarDetector_create(maxSize=20, responseThreshold=5, lineThresholdProjected=100, lineThresholdBinarized=30, suppressNonmaxSize=3)
@@ -219,18 +219,16 @@ boost500 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True
 boost150 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=1.50) #default in original implementation
 boost075 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=0.75) #for ORB
 
-Detectors      = list([sift, akaze, orb, brisk, kaze,
-                       fast, mser, agast, gftt, gftt_harris, star, hl, msd, tbmr])
-Descriptors    = list([sift, akaze, orb, brisk, kaze,
-                       vgg675, vgg625, vgg500, vgg075,
-                       daisy, freak, brief, lucid, latch,
-                       beblid675, beblid625, beblid500, beblid100,
-                       teblid675, teblid625, teblid500, teblid100,
-                       boost675, boost625, boost500, boost150, boost075]) 
+Detectors      = list([sift, akaze, orb, brisk, kaze, fast58, fast712, fast916, mser, agast58, agast712d, agast712s, oagast916, gftt, gftt_harris, star, hl, msd, tbmr])
+#                      0     1      2    3      4     5       6        7        8     9        10         11         12         13    14           15    16  17   18
+Descriptors    = list([sift, akaze, orb, brisk, kaze, daisy, freak, brief, lucid, latch,
+#                      0     1      2    3      4     5      6      7      8      9
+                       vgg675, vgg625, vgg500, vgg075, beblid675, beblid625, beblid500, beblid100, teblid675, teblid625, teblid500, teblid100, boost675, boost625, boost500, boost150, boost075]) 
+#                      10      11      12      13      14         15         16         17         18         19         20         21         22        23        24        25        26
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 matcher        = 0 # 0: Brute-force matcher, 1: Flann-based matcher
-a = 100 #i
-b = 100 #j
+a = 6 #i
+b = 0 #j
 
 if a == 100 and b == 100:
     Rate_intensity      = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors)))
@@ -240,12 +238,12 @@ if a == 100 and b == 100:
     Exec_time_scale     = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
     Exec_time_rot       = np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 3))
 else:
-    Rate_intensity      = np.load(f"{maindir}/arrays/Rate_intensity.npy")
-    Rate_scale          = np.load(f"{maindir}/arrays/Rate_scale.npy")
-    Rate_rot            = np.load(f"{maindir}/arrays/Rate_rot.npy")
-    Exec_time_intensity = np.load(f"{maindir}/arrays/Exec_time_intensity.npy")
-    Exec_time_scale     = np.load(f"{maindir}/arrays/Exec_time_scale.npy")
-    Exec_time_rot       = np.load(f"{maindir}/arrays/Exec_time_rot.npy")
+    Rate_intensity      = np.load(f"{maindir}/arrays/Rate_intensity.npy")      if os.path.exists(f"{maindir}/arrays/Rate_intensity.npy")      else np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors)))
+    Rate_scale          = np.load(f"{maindir}/arrays/Rate_scale.npy")          if os.path.exists(f"{maindir}/arrays/Rate_scale.npy")          else np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
+    Rate_rot            = np.load(f"{maindir}/arrays/Rate_rot.npy")            if os.path.exists(f"{maindir}/arrays/Rate_rot.npy")            else np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors)))
+    Exec_time_intensity = np.load(f"{maindir}/arrays/Exec_time_intensity.npy") if os.path.exists(f"{maindir}/arrays/Exec_time_intensity.npy") else np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 3))
+    Exec_time_scale     = np.load(f"{maindir}/arrays/Exec_time_scale.npy")     if os.path.exists(f"{maindir}/arrays/Exec_time_scale.npy")     else np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
+    Exec_time_rot       = np.load(f"{maindir}/arrays/Exec_time_rot.npy")       if os.path.exists(f"{maindir}/arrays/Exec_time_rot.npy")       else np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 3))
 
 ########################################################
 # MARK: Intensity
@@ -296,9 +294,7 @@ for k in range(nbre_img):
                             start_time = time.time()
                             Rate_intensity[k, c3, i, j], good_matches, matches = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
-                        except Exception as e:
-                            if not "batch_distance.cpp" or not "Assertion failed" in str(e):
-                                print(f"Folder: {folder}, Detector: {i}, Descriptor: {j}, Matching: {c3}, Error: {e}")
+                        except:
                             Rate_intensity[k, c3, i, j] = None
                             Exec_time_intensity[k, c3, i, j, 2] = None
                             continue
@@ -310,16 +306,17 @@ for k in range(nbre_img):
                             img_matches    = cv2.drawMatches(ImageGT, keypoints1, Image2, keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                             text = [
                                 f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
-                                f"Keypoint1:    {len(keypoints1)}",
+                                f"Keypoint1:    {len(keypoints1) if keypoints1 is not None else 0}",
                                 f"Keypoint11:   {len(keypoints11)}",
-                                f"Keypoint2:    {len(keypoints2)}",
+                                f"Keypoint2:    {len(keypoints2) if keypoints2 is not None else 0}",
                                 f"Keypoint22:   {len(keypoints22)}",
                                 f"Time Detect:  {Exec_time_intensity[k, c3, i, j, 0]:.4f}",
                                 f"Descriptor:   {method_dscrpt.getDefaultName().split('.')[-1]}",
-                                f"Descriptor1:  {len(descriptors1)}",
-                                f"Descriptor2:  {len(descriptors2)}",
+                                f"Descriptor1:  {len(descriptors1) if descriptors1 is not None else 0}",
+                                f"Descriptor2:  {len(descriptors2) if descriptors2 is not None else 0}",
                                 f"Time Descrpt: {Exec_time_intensity[k, c3, i, j, 1]:.4f}",
                                 f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
+                                f"Matcher:      {'Brute-force' if matcher == 0 else 'Flann-based'}",
                                 f"Match Rate:   {Rate_intensity[k, c3, i, j]:.2f}",
                                 f"Time Match:   {Exec_time_intensity[k, c3, i, j, 2]:.4f}",
                                 f"Inliers:      {len(good_matches)}",
@@ -385,9 +382,7 @@ for k in range(len(scale)):
                             start_time = time.time()
                             Rate_scale[k, c3, i, j], good_matches, matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
                             Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
-                        except Exception as e:
-                            if not "batch_distance.cpp" or not "Assertion failed" in str(e):
-                                print(f"Folder: {folder}, Detector: {i}, Descriptor: {j}, Matching: {c3}, Error: {e}")
+                        except:
                             Rate_scale[k, c3, i, j] = None
                             Exec_time_scale[k, c3, i, j, 2] = None
                             continue
@@ -399,16 +394,17 @@ for k in range(len(scale)):
                             img_matches    = cv2.drawMatches(ImageGT, keypoints1, Image2, keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                             text = [
                                 f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
-                                f"Keypoint1:    {len(keypoints1)}",
+                                f"Keypoint1:    {len(keypoints1) if keypoints1 is not None else 0}",
                                 f"Keypoint11:   {len(keypoints11)}",
-                                f"Keypoint2:    {len(keypoints2)}",
+                                f"Keypoint2:    {len(keypoints2) if keypoints2 is not None else 0}",
                                 f"Keypoint22:   {len(keypoints22)}",
                                 f"Time Detect:  {Exec_time_scale[k, c3, i, j, 0]:.4f}",
                                 f"Descriptor:   {method_dscrpt.getDefaultName().split('.')[-1]}",
-                                f"Descriptor1:  {len(descriptors1)}",
-                                f"Descriptor2:  {len(descriptors2)}",
+                                f"Descriptor1:  {len(descriptors1) if descriptors1 is not None else 0}",
+                                f"Descriptor2:  {len(descriptors2) if descriptors2 is not None else 0}",
                                 f"Time Descrpt: {Exec_time_scale[k, c3, i, j, 1]:.4f}",
                                 f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
+                                f"Matcher:      {'Brute-force' if matcher == 0 else 'Flann-based'}",
                                 f"Match Rate:   {Rate_scale[k, c3, i, j]:.2f}",
                                 f"Time Match:   {Exec_time_scale[k, c3, i, j, 2]:.4f}",
                                 f"Inliers:      {len(good_matches)}",
@@ -474,9 +470,7 @@ for k in range(len(rot)):
                             start_time = time.time()
                             Rate_rot[k, c3, i, j], good_matches, matches = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
                             Exec_time_rot[k, c3, i, j, 2] = time.time() - start_time
-                        except Exception as e:
-                            if not "batch_distance.cpp" or not "Assertion failed" in str(e):
-                                print(f"Folder: {folder}, Detector: {i}, Descriptor: {j}, Matching: {c3}, Error: {e}")
+                        except:
                             Rate_rot[k, c3, i, j] = None
                             Exec_time_rot[k, c3, i, j, 2] = None
                             continue
@@ -488,16 +482,17 @@ for k in range(len(rot)):
                             img_matches    = cv2.drawMatches(ImageGT, keypoints1, Image2, keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                             text = [
                                 f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
-                                f"Keypoint1:    {len(keypoints1)}",
+                                f"Keypoint1:    {len(keypoints1) if keypoints1 is not None else 0}",
                                 f"Keypoint11:   {len(keypoints11)}",
-                                f"Keypoint2:    {len(keypoints2)}",
+                                f"Keypoint2:    {len(keypoints2) if keypoints2 is not None else 0}",
                                 f"Keypoint22:   {len(keypoints22)}",
                                 f"Time Detect:  {Exec_time_rot[k, c3, i, j, 0]:.4f}",
                                 f"Descriptor:   {method_dscrpt.getDefaultName().split('.')[-1]}",
-                                f"Descriptor1:  {len(descriptors1)}",
-                                f"Descriptor2:  {len(descriptors2)}",
+                                f"Descriptor1:  {len(descriptors1) if descriptors1 is not None else 0}",
+                                f"Descriptor2:  {len(descriptors2) if descriptors2 is not None else 0}",
                                 f"Time Descrpt: {Exec_time_rot[k, c3, i, j, 1]:.4f}",
                                 f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
+                                f"Matcher:      {'Brute-force' if matcher == 0 else 'Flann-based'}",
                                 f"Match Rate:   {Rate_rot[k, c3, i, j]:.2f}",
                                 f"Time Match:   {Exec_time_rot[k, c3, i, j, 2]:.4f}",
                                 f"Inliers:      {len(good_matches)}",
