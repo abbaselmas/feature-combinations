@@ -8,8 +8,8 @@ val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
 scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈ [0.5 : 0.2 : 1.5]
 rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
-DetectorsLegend   = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast58', 'fast712', 'fast916', 'mser', 'agast58', 'agast712d', 'agast712s', 'oagast916', 'gftt', 'gftt_harris', 'star', 'hl', 'msd', 'tbmr']
-DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'vgg675', 'vgg625', 'vgg500', 'vgg075', 'beblid675', 'beblid625', 'beblid500', 'beblid100', 'teblid675', 'teblid625', 'teblid500', 'teblid100', 'boost675', 'boost625', 'boost500', 'boost150', 'boost075']
+DetectorsLegend   = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast58', 'fast712', 'fast916', 'mser', 'agast58', 'agast712d', 'agast712s', 'oagast916', 'gftt', 'gftt_harris', 'star', 'hl', 'msd', 'tbmr'] # number of detectors = 19
+DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'vgg675', 'vgg625', 'vgg500', 'vgg075', 'beblid675', 'beblid625', 'beblid500', 'beblid100', 'teblid675', 'teblid625', 'teblid500', 'teblid100', 'boost675', 'boost625', 'boost500', 'boost150', 'boost075'] # number of descriptors = 27
 line_styles = ['solid', 'dash', 'dot']
 Norm = ['L2', 'HAM']
 
@@ -42,7 +42,7 @@ for i in range(len(DetectorsLegend)):
             Rate2_S  = Rate_scale    [          :, c3, i, j]
             Rate2_R  = Rate_rot      [          :, c3, i, j]
 
-            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'
+            color = f'rgba({i * 13}, {j * 9}, {(i + j) * 2}, 1)'
             style = line_styles[j % len(line_styles)]
             legend_group_fig = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
             if not (np.isnan(Rate_intensity[:len(val_b), c3, i, j]).any() or np.all(Rate_intensity[:len(val_b), c3, i, j]==0)):
@@ -116,7 +116,7 @@ for i in range(len(DetectorsLegend)):
             Rate_Trees = Rate_trees[:, c3, i, j]
             Rate_Bikes = Rate_bikes[:, c3, i, j]
 
-            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'
+            color = f'rgba({i * 13}, {j * 9}, {(i + j) * 2}, 1)'
             style = line_styles[j % len(line_styles)]
             legend_group_fig2 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
             if not (np.isnan(Rate_graf[:, c3, i, j]).any() or np.all(Rate_graf[:, c3, i, j] == 0)):
@@ -159,7 +159,7 @@ for i in range(len(DetectorsLegend)):
             Rate_Leuven = Rate_leuven[:, c3, i, j]
             Rate_Ubc    = Rate_ubc   [:, c3, i, j]
 
-            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'
+            color = f'rgba({i * 13}, {j * 9}, {(i + j) * 2}, 1)'
             style = line_styles[j % len(line_styles)]
             legend_group_fig4 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
             if not (np.isnan(Rate_bark[:, c3, i, j]).any() or np.all(Rate_bark[:, c3, i, j] == 0)):

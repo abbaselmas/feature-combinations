@@ -42,7 +42,7 @@ for j in range(len(DescriptorsLegend)):
             Rate2_S  = Rate_scale    [          :, c3, i, j]
             Rate2_R  = Rate_rot      [          :, c3, i, j]
 
-            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'
+            color = f'rgba({i * 13}, {j * 9}, {(i + j) * 2}, 1)'
             style = line_styles[j % len(line_styles)]
             legend_groupfig = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}' 
             if not (np.isnan(Rate_intensity[:len(val_b), c3, i, j]).any() or np.all(Rate_intensity[:len(val_b), c3, i, j]==0)):
@@ -86,7 +86,7 @@ for j in range(len(DescriptorsLegend)):
             Rate_Trees = Rate_trees[:, c3, i, j]
             Rate_Bikes = Rate_bikes[:, c3, i, j]
 
-            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'
+            color = f'rgba({i * 13}, {j * 9}, {(i + j) * 2}, 1)'
             style = line_styles[j % len(line_styles)]
             legend_groupfig2 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
             if not (np.isnan(Rate_graf[:, c3, i, j]).any() or np.all(Rate_graf[:, c3, i, j] == 0)):
@@ -130,7 +130,7 @@ for j in range(len(DescriptorsLegend)):
             Rate_Leuven = Rate_leuven[:, c3, i, j]
             Rate_Ubc    = Rate_ubc   [:, c3, i, j]
 
-            color = f'rgba({i * 30}, {j * 20}, {(i + j) * 2}, 1)'
+            color = f'rgba({i * 13}, {j * 9}, {(i + j) * 2}, 1)'
             style = line_styles[j % len(line_styles)]
             legend_groupfig3 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
             if not (np.isnan(Rate_bark[:, c3, i, j]).any() or np.all(Rate_bark[:, c3, i, j] == 0)):
