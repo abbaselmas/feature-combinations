@@ -1,5 +1,6 @@
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
+from plotly.colors import sample_colorscale
 import numpy as np
 import os
 
@@ -14,6 +15,10 @@ line_styles = ['solid', 'dash', 'dot']
 Norm = ['L2', 'HAM']
 
 maindir = os.path.abspath(os.path.dirname(__file__))
+
+# Generate a color spectrum for the combinations
+num_combinations = len(DetectorsLegend) * len(DescriptorsLegend) * len(Norm)
+colors = sample_colorscale('Turbo', [i / num_combinations for i in range(num_combinations)])
 
 ########################
 # MARK: - Synthetic Data
@@ -33,7 +38,7 @@ fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
-
+color_index = 0
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         for c3 in range(len(Norm)):
@@ -42,7 +47,7 @@ for i in range(len(DetectorsLegend)):
             Rate2_S  = Rate_scale    [          :, c3, i, j]
             Rate2_R  = Rate_rot      [          :, c3, i, j]
 
-            color = f'rgba({i * 13}, {j * 9}, {(i + j) * 2}, 1)'
+            color = colors[color_index]
             style = line_styles[j % len(line_styles)]
             legend_group_fig = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
             if not (np.isnan(Rate_intensity[:len(val_b), c3, i, j]).any() or np.all(Rate_intensity[:len(val_b), c3, i, j]==0)):
@@ -56,7 +61,8 @@ for i in range(len(DetectorsLegend)):
                 fig.add_trace(figtrace_Scale,  row=2, col=1)
             if not (np.isnan(Rate_rot[:, c3, i, j]).any()                 or np.all(Rate_rot[:, c3, i, j]==0)):
                 figtrace_Rot  = go.Scatter(x=rot,   y=Rate2_R,   mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_group_fig, showlegend=False)
-                fig.add_trace(figtrace_Rot,  row=2, col=2)               
+                fig.add_trace(figtrace_Rot,  row=2, col=2)
+            color_index += 1               
 fig.write_html("./html/SyntheticData.html")
 fig.data = []
 figtrace_I1 = figtrace_I2 = figtrace_Scale = figtrace_Rot = legend_groupfig = None
@@ -107,7 +113,7 @@ fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
-
+color_index = 0
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         for c3 in range(len(Norm)):
@@ -116,7 +122,7 @@ for i in range(len(DetectorsLegend)):
             Rate_Trees = Rate_trees[:, c3, i, j]
             Rate_Bikes = Rate_bikes[:, c3, i, j]
 
-            color = f'rgba({i * 13}, {j * 9}, {(i + j) * 2}, 1)'
+            color = colors[color_index]
             style = line_styles[j % len(line_styles)]
             legend_group_fig2 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
             if not (np.isnan(Rate_graf[:, c3, i, j]).any() or np.all(Rate_graf[:, c3, i, j] == 0)):
@@ -131,6 +137,7 @@ for i in range(len(DetectorsLegend)):
             if not (np.isnan(Rate_bikes[:, c3, i, j]).any() or np.all(Rate_bikes[:, c3, i, j] == 0)):
                 fig2trace_Bikes = go.Scatter(x=x, y=Rate_Bikes, mode='lines', line=dict(color=color, dash=style), name='',                legendgroup=legend_group_fig2, showlegend=False)
                 fig2.add_trace(fig2trace_Bikes, row=2, col=2)
+            color_index += 1
 fig2.write_html("./html/oxfordAffineData1234.html")
 fig2.data = []
 fig2trace_Graf = fig2trace_Wall = fig2trace_Trees  = fig2trace_Bikes  = legend_group_fig2 = None
@@ -150,7 +157,7 @@ fig4.update_yaxes(title_text="Correctly matched point rates %", row=1, col=1)
 fig4.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig4.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig4.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
-
+color_index = 0
 for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         for c3 in range(len(Norm)):
@@ -159,7 +166,7 @@ for i in range(len(DetectorsLegend)):
             Rate_Leuven = Rate_leuven[:, c3, i, j]
             Rate_Ubc    = Rate_ubc   [:, c3, i, j]
 
-            color = f'rgba({i * 13}, {j * 9}, {(i + j) * 2}, 1)'
+            color = colors[color_index]
             style = line_styles[j % len(line_styles)]
             legend_group_fig4 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
             if not (np.isnan(Rate_bark[:, c3, i, j]).any() or np.all(Rate_bark[:, c3, i, j] == 0)):
@@ -174,6 +181,7 @@ for i in range(len(DetectorsLegend)):
             if not (np.isnan(Rate_ubc[:, c3, i, j]).any() or np.all(Rate_ubc[:, c3, i, j] == 0)):
                 fig4trace_Ubc    = go.Scatter(x=x, y=Rate_Ubc,    mode='lines', line=dict(color=color, dash=style), name='',                legendgroup=legend_group_fig4, showlegend=False)
                 fig4.add_trace(fig4trace_Ubc,  row=2, col=2)
+            color_index += 1
 fig4.write_html("./html/oxfordAffineData5678.html")
 fig4.data = []
 fig4trace_Bark = fig4trace_Boat = fig4trace_Leuven = fig4trace_Ubc = legend_group_fig4 = None

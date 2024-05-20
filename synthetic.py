@@ -229,6 +229,7 @@ matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 matcher        = 0 # 0: Brute-force matcher, 1: Flann-based matcher
 a = 100 #i
 b = 100 #j
+drawing = False
 
 if a == 100 and b == 100:
     Rate_intensity      = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors)))
@@ -298,7 +299,7 @@ for k in range(nbre_img):
                             Rate_intensity[k, c3, i, j] = None
                             Exec_time_intensity[k, c3, i, j, 2] = None
                             continue
-                        if k == 7:# or k == 4:
+                        if k == 7 and drawing:
                             keypointImage1 = cv2.drawKeypoints(img,             keypoints1,  None, color=(206, 217, 162), flags=0)
                             ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 18, 156, 243), flags=0)
                             keypointImage2 = cv2.drawKeypoints(img2,            keypoints2,  None, color=(206, 217, 162), flags=0)
@@ -323,7 +324,7 @@ for k in range(nbre_img):
                                 f"All Matches:  {len(matches)}"
                             ]                                
                             for idx, txt in enumerate(text):
-                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (255, 255, 255), 2, cv2.LINE_AA)
+                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (198, 198, 198), 2, cv2.LINE_AA)
                                 cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
                                 
                             filename = f"{maindir}/draws/intensity/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{i}_{method_dscrpt.getDefaultName().split('.')[-1]}_{j}_{matching[c3]}.png"
@@ -386,7 +387,7 @@ for k in range(len(scale)):
                             Rate_scale[k, c3, i, j] = None
                             Exec_time_scale[k, c3, i, j, 2] = None
                             continue
-                        if k == 4:
+                        if k == 4 and drawing:
                             keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(206, 217, 162), flags=0)
                             ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 18, 156, 243), flags=0)
                             keypointImage2 = cv2.drawKeypoints(img[1],          keypoints2,  None, color=(206, 217, 162), flags=0)
@@ -411,7 +412,7 @@ for k in range(len(scale)):
                                 f"All Matches:  {len(matches)}"
                             ]                                
                             for idx, txt in enumerate(text):
-                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (255, 255, 255), 2, cv2.LINE_AA)
+                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (198, 198, 198), 2, cv2.LINE_AA)
                                 cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
                                 
                             filename = f"{maindir}/draws/scale/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{i}_{method_dscrpt.getDefaultName().split('.')[-1]}_{j}_{matching[c3]}.png"
@@ -474,7 +475,7 @@ for k in range(len(rot)):
                             Rate_rot[k, c3, i, j] = None
                             Exec_time_rot[k, c3, i, j, 2] = None
                             continue
-                        if k == 4:
+                        if k == 4 and drawing:
                             keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(206, 217, 162), flags=0)
                             ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 18, 156, 243), flags=0)
                             keypointImage2 = cv2.drawKeypoints(img[1],          keypoints2,  None, color=(206, 217, 162), flags=0)
@@ -499,7 +500,7 @@ for k in range(len(rot)):
                                 f"All Matches:  {len(matches)}"
                             ]                                
                             for idx, txt in enumerate(text):
-                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (255, 255, 255), 2, cv2.LINE_AA)
+                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (198, 198, 198), 2, cv2.LINE_AA)
                                 cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
                                 
                             filename = f"{maindir}/draws/rot/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{i}_{method_dscrpt.getDefaultName().split('.')[-1]}_{j}_{matching[c3]}.png"

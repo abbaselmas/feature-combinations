@@ -1,5 +1,6 @@
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
+from plotly.colors import sample_colorscale
 import numpy as np
 import os
 
@@ -14,6 +15,10 @@ line_styles = ['solid', 'dash', 'dot']
 Norm = ['L2', 'HAM']
 
 maindir = os.path.abspath(os.path.dirname(__file__))
+
+# Generate a color spectrum for the combinations
+num_combinations = len(DetectorsLegend) * len(Norm)
+colors = sample_colorscale('Turbo', [i / num_combinations for i in range(num_combinations)])
 
 ########################
 # MARK: - Synthetic Data
@@ -34,7 +39,9 @@ fig.update_yaxes(title_text="Correctly matched point rates %", row=1, col=2)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 fig.update_layout(hovermode="x unified")
+
 for j in range(len(DescriptorsLegend)):
+    color_index = 0
     for i in range(len(DetectorsLegend)):
         for c3 in range(len(Norm)):
             Rate2_I1 = Rate_intensity[:len(val_b), c3, i, j]
@@ -42,8 +49,8 @@ for j in range(len(DescriptorsLegend)):
             Rate2_S  = Rate_scale    [          :, c3, i, j]
             Rate2_R  = Rate_rot      [          :, c3, i, j]
 
-            color = f'rgba({i * 13}, {j * 9}, {(i + j) * 2}, 1)'
-            style = line_styles[j % len(line_styles)]
+            color = colors[color_index]
+            style = line_styles[i % len(line_styles)]
             legend_groupfig = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}' 
             if not (np.isnan(Rate_intensity[:len(val_b), c3, i, j]).any() or np.all(Rate_intensity[:len(val_b), c3, i, j]==0)):
                 figtrace_I1    = go.Scatter(x=val_b, y=Rate2_I1, mode='lines', line=dict(color=color, dash=style), name=legend_groupfig, legendgroup=legend_groupfig, showlegend=True)
@@ -57,6 +64,7 @@ for j in range(len(DescriptorsLegend)):
             if not (np.isnan(Rate_rot[:, c3, i, j]).any() or np.all(Rate_rot[:, c3, i, j] == 0)):
                 figtrace_Rot   = go.Scatter(x=rot,   y=Rate2_R,  mode='lines', line=dict(color=color, dash=style), name='',              legendgroup=legend_groupfig, showlegend=False)
                 fig.add_trace(figtrace_Rot,  row=2, col=2)
+            color_index += 1
     fig.write_html(f'./html/SyntheticData_Descriptor_{DescriptorsLegend[j]}.html')
     fig.data = []
     figtrace_I1 = figtrace_I2 = figtrace_Scale = figtrace_Rot = legend_groupfig = None
@@ -79,6 +87,7 @@ fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig2.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 fig2.update_layout(hovermode="x unified")
 for j in range(len(DescriptorsLegend)):
+    color_index = 0
     for i in range(len(DetectorsLegend)):
         for c3 in range(len(Norm)):
             Rate_Graf  = Rate_graf [:, c3, i, j]
@@ -86,8 +95,8 @@ for j in range(len(DescriptorsLegend)):
             Rate_Trees = Rate_trees[:, c3, i, j]
             Rate_Bikes = Rate_bikes[:, c3, i, j]
 
-            color = f'rgba({i * 13}, {j * 9}, {(i + j) * 2}, 1)'
-            style = line_styles[j % len(line_styles)]
+            color = colors[color_index]
+            style = line_styles[i % len(line_styles)]
             legend_groupfig2 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'  # Unique legend group for each trace
             if not (np.isnan(Rate_graf[:, c3, i, j]).any() or np.all(Rate_graf[:, c3, i, j] == 0)):
                 fig2trace_Graf  = go.Scatter(x=x, y=Rate_Graf,  mode='lines', line=dict(color=color, dash=style), name=legend_groupfig2, legendgroup=legend_groupfig2, showlegend=True)
@@ -101,6 +110,7 @@ for j in range(len(DescriptorsLegend)):
             if not (np.isnan(Rate_bikes[:, c3, i, j]).any() or np.all(Rate_bikes[:, c3, i, j] == 0)):
                 fig2trace_Bikes = go.Scatter(x=x, y=Rate_Bikes, mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig2, showlegend=False)
                 fig2.add_trace(fig2trace_Bikes, row=2, col=2)
+            color_index += 1
     fig2.write_html(f'./html/oxfordAffine1234_Descriptor_{DescriptorsLegend[j]}.html')
     fig2.data = []
     fig2trace_Graf = fig2trace_Wall = fig2trace_Trees  = fig2trace_Bikes  = legend_groupfig2 = None
@@ -123,6 +133,7 @@ fig3.update_yaxes(title_text="Correctly matched point rates %", row=2, col=1)
 fig3.update_yaxes(title_text="Correctly matched point rates %", row=2, col=2)
 fig3.update_layout(hovermode="x unified")
 for j in range(len(DescriptorsLegend)):
+    color_index = 0
     for i in range(len(DetectorsLegend)):
         for c3 in range(len(Norm)):
             Rate_Bark   = Rate_bark  [:, c3, i, j]
@@ -130,8 +141,8 @@ for j in range(len(DescriptorsLegend)):
             Rate_Leuven = Rate_leuven[:, c3, i, j]
             Rate_Ubc    = Rate_ubc   [:, c3, i, j]
 
-            color = f'rgba({i * 13}, {j * 9}, {(i + j) * 2}, 1)'
-            style = line_styles[j % len(line_styles)]
+            color = colors[color_index]
+            style = line_styles[i % len(line_styles)]
             legend_groupfig3 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
             if not (np.isnan(Rate_bark[:, c3, i, j]).any() or np.all(Rate_bark[:, c3, i, j] == 0)):
                 fig3trace_Bark   = go.Scatter(x=x, y=Rate_Bark,   mode='lines', line=dict(color=color, dash=style), name=legend_groupfig3, legendgroup=legend_groupfig3, showlegend=True)
@@ -145,6 +156,7 @@ for j in range(len(DescriptorsLegend)):
             if not (np.isnan(Rate_ubc[:, c3, i, j]).any() or np.all(Rate_ubc[:, c3, i, j] == 0)):
                 fig3trace_Ubc    = go.Scatter(x=x, y=Rate_Ubc,    mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig3, showlegend=False)
                 fig3.add_trace(fig3trace_Ubc,  row=2, col=2)
+            color_index += 1
     fig3.write_html(f'./html/oxfordAffine5678_Descriptor_{DescriptorsLegend[j]}.html')
     fig3.data = []
     fig3trace_Bark = fig3trace_Boat = fig3trace_Leuven = fig3trace_Ubc = legend_groupfig3 = None
