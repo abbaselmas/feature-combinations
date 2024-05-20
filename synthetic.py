@@ -227,8 +227,8 @@ Descriptors    = list([sift, akaze, orb, brisk, kaze, daisy, freak, brief, lucid
 #                      10      11      12      13      14         15         16         17         18         19         20         21         22        23        24        25        26
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 matcher        = 0 # 0: Brute-force matcher, 1: Flann-based matcher
-a = 6 #i
-b = 0 #j
+a = 100 #i
+b = 100 #j
 
 if a == 100 and b == 100:
     Rate_intensity      = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors)))
@@ -298,7 +298,7 @@ for k in range(nbre_img):
                             Rate_intensity[k, c3, i, j] = None
                             Exec_time_intensity[k, c3, i, j, 2] = None
                             continue
-                        if k == 7 or k == 4:
+                        if k == 7:# or k == 4:
                             keypointImage1 = cv2.drawKeypoints(img,             keypoints1,  None, color=(206, 217, 162), flags=0)
                             ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 18, 156, 243), flags=0)
                             keypointImage2 = cv2.drawKeypoints(img2,            keypoints2,  None, color=(206, 217, 162), flags=0)
