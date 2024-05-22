@@ -201,12 +201,12 @@ fig3 = make_subplots(rows=2, cols=2, subplot_titles=['Detectors', 'Descriptors',
 fig3.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 # detector time
 for i in range(len(DetectorsLegend)):
-    mean_detector_time = np.mean(np.concatenate((Exec_time_graf[:, :, i, :, 0], Exec_time_wall[:, :, i, :, 0], Exec_time_trees[:, :, i, :, 0], Exec_time_bikes[:, :, i, :, 0], Exec_time_bark[:, :, i, :, 0], Exec_time_boat[:, :, i, :, 0], Exec_time_leuven[:, :, i, :, 0], Exec_time_ubc[:, :, i, :, 0]), axis=0))    
+    mean_detector_time = np.nanmean(np.concatenate((Exec_time_graf[:, :, i, :, 0], Exec_time_wall[:, :, i, :, 0], Exec_time_trees[:, :, i, :, 0], Exec_time_bikes[:, :, i, :, 0], Exec_time_bark[:, :, i, :, 0], Exec_time_boat[:, :, i, :, 0], Exec_time_leuven[:, :, i, :, 0], Exec_time_ubc[:, :, i, :, 0]), axis=0))    
     trace_detect_oxf   = go.Bar(x=[DetectorsLegend[i]], y=[mean_detector_time], name=DetectorsLegend[i], showlegend=True, text=[f'{mean_detector_time:.4f}'], textposition='auto')
     fig3.add_trace(trace_detect_oxf, row=1, col=1)
 # descriptor time
 for j in range(len(DescriptorsLegend)):
-    mean_descriptor_time = np.mean(np.concatenate((Exec_time_graf[:, :, :, j, 1], Exec_time_wall[:, :, :, j, 1], Exec_time_trees[:, :, :, j, 1], Exec_time_bikes[:, :, :, j, 1], Exec_time_bark[:, :, :, j, 1], Exec_time_boat[:, :, :, j, 1], Exec_time_leuven[:, :, :, j, 1], Exec_time_ubc[:, :, :, j, 1]), axis=0))
+    mean_descriptor_time = np.nanmean(np.concatenate((Exec_time_graf[:, :, :, j, 1], Exec_time_wall[:, :, :, j, 1], Exec_time_trees[:, :, :, j, 1], Exec_time_bikes[:, :, :, j, 1], Exec_time_bark[:, :, :, j, 1], Exec_time_boat[:, :, :, j, 1], Exec_time_leuven[:, :, :, j, 1], Exec_time_ubc[:, :, :, j, 1]), axis=0))
     trace_descr_oxf      = go.Bar(x=[DescriptorsLegend[j]], y=[mean_descriptor_time], name=DescriptorsLegend[j], showlegend=True, text=[f'{mean_descriptor_time:.4f}'], textposition='auto')
     fig3.add_trace(trace_descr_oxf, row=1, col=2)
 # matching time
