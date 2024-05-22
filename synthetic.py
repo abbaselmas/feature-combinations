@@ -290,7 +290,7 @@ for k in range(nbre_img):
                             if descriptors_cache[k, i, j, 1] is None:
                                 start_time = time.time()
                                 keypoints22, descriptors2 = method_dscrpt.compute(img2, keypoints2)
-                                Exec_time_intensity[k, c3, i, j, 1] = time.time() - start_time
+                                Exec_time_intensity[k, :, i, j, 1] = time.time() - start_time
                                 descriptors_cache[k, i, j, 1] = descriptors2
                             else:
                                 descriptors2 = descriptors_cache[k, i, j, 1]
@@ -411,7 +411,7 @@ for k in range(len(scale)):
                             if descriptors_cache[k, i, j, 1] is None:
                                 start_time = time.time()
                                 keypoints22, descriptors2 = method_dscrpt.compute(img[1], keypoints2)
-                                Exec_time_scale[k, c3, i, j, 1] = time.time() - start_time
+                                Exec_time_scale[k, :, i, j, 1] = time.time() - start_time
                                 descriptors_cache[k, i, j, 1] = descriptors2
                             else:
                                 descriptors2 = descriptors_cache[k, i, j, 1]
@@ -532,7 +532,7 @@ for k in range(len(rot)):
                             if descriptors_cache[k, i, j, 1] is None:
                                 start_time = time.time()
                                 keypoints22, descriptors2 = method_dscrpt.compute(img[1], keypoints2)
-                                Exec_time_scale[k, c3, i, j, 1] = time.time() - start_time
+                                Exec_time_scale[k, :, i, j, 1] = time.time() - start_time
                                 descriptors_cache[k, i, j, 1] = descriptors2
                             else:
                                 descriptors2 = descriptors_cache[k, i, j, 1]

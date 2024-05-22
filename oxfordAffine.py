@@ -160,7 +160,7 @@ def executeScenarios(folder):
                                 if descriptors_cache[k, i, j, 1] is None:
                                     start_time = time.time()
                                     keypoints22, descriptors2 = method_dscrpt.compute(img[k], keypoints2)
-                                    Exec_time[k, c3, i, j, 1] = time.time() - start_time
+                                    Exec_time[k, :, i, j, 1] = time.time() - start_time
                                     descriptors_cache[k, i, j, 1] = descriptors2
                                 else:
                                     descriptors2 = descriptors_cache[k, i, j, 1]
