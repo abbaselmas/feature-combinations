@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import time, os
+import csv
 
 maindir = os.path.abspath(os.path.dirname(__file__))
 datasetdir = "./hpatches-sequences"  #"./oxfordAffine"
@@ -232,16 +233,16 @@ b = 100 #j
 drawing = False
 
 if a == 100 and b == 100:
-    Rate_intensity      = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors)))
-    Rate_scale          = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
-    Rate_rot            = np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors)))
+    Rate_intensity      = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 14))
+    Rate_scale          = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 14))
+    Rate_rot            = np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 14))
     Exec_time_intensity = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 3))
     Exec_time_scale     = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
     Exec_time_rot       = np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 3))
 else:
-    Rate_intensity      = np.load(f"{maindir}/arrays/Rate_intensity.npy")      if os.path.exists(f"{maindir}/arrays/Rate_intensity.npy")      else np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors)))
-    Rate_scale          = np.load(f"{maindir}/arrays/Rate_scale.npy")          if os.path.exists(f"{maindir}/arrays/Rate_scale.npy")          else np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors)))
-    Rate_rot            = np.load(f"{maindir}/arrays/Rate_rot.npy")            if os.path.exists(f"{maindir}/arrays/Rate_rot.npy")            else np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors)))
+    Rate_intensity      = np.load(f"{maindir}/arrays/Rate_intensity.npy")      if os.path.exists(f"{maindir}/arrays/Rate_intensity.npy")      else np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 14))
+    Rate_scale          = np.load(f"{maindir}/arrays/Rate_scale.npy")          if os.path.exists(f"{maindir}/arrays/Rate_scale.npy")          else np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 14))
+    Rate_rot            = np.load(f"{maindir}/arrays/Rate_rot.npy")            if os.path.exists(f"{maindir}/arrays/Rate_rot.npy")            else np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 14))
     Exec_time_intensity = np.load(f"{maindir}/arrays/Exec_time_intensity.npy") if os.path.exists(f"{maindir}/arrays/Exec_time_intensity.npy") else np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 3))
     Exec_time_scale     = np.load(f"{maindir}/arrays/Exec_time_scale.npy")     if os.path.exists(f"{maindir}/arrays/Exec_time_scale.npy")     else np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
     Exec_time_rot       = np.load(f"{maindir}/arrays/Exec_time_rot.npy")       if os.path.exists(f"{maindir}/arrays/Exec_time_rot.npy")       else np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 3))
@@ -274,6 +275,11 @@ for k in range(nbre_img):
             for j in range(len(Descriptors)):
                 if j == b or b == 100:
                     for c3 in range(len(matching)):
+                        Rate_intensity[k, c3, i, j, 0] = k
+                        Rate_intensity[k, c3, i, j, 1] = i
+                        Rate_intensity[k, c3, i, j, 6] = j
+                        Rate_intensity[k, c3, i, j, 9] = matching[c3]
+                        Rate_intensity[k, c3, i, j,10] = matcher
                         method_dscrpt = Descriptors[j]
                         try:
                             if descriptors_cache[0, i, j, 0] is None:
@@ -288,17 +294,30 @@ for k in range(nbre_img):
                                 descriptors_cache[k, i, j, 1] = descriptors2
                             else:
                                 descriptors2 = descriptors_cache[k, i, j, 1]
-                        except:
-                            Exec_time_intensity[k, c3, i, j, 1] = None
-                            continue
-                        try:
                             start_time = time.time()
-                            Rate_intensity[k, c3, i, j], good_matches, matches = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                            Rate_intensity[k, c3, i, j, 13], good_matches, matches = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
+                            Rate_intensity[k, c3, i, j, 2] = len(keypoints1)
+                            Rate_intensity[k, c3, i, j, 3] = len(keypoints11)
+                            Rate_intensity[k, c3, i, j, 4] = len(keypoints2)
+                            Rate_intensity[k, c3, i, j, 5] = len(keypoints22)
+                            Rate_intensity[k, c3, i, j, 7] = len(descriptors1)
+                            Rate_intensity[k, c3, i, j, 8] = len(descriptors2)
+                            Rate_intensity[k, c3, i, j,11] = len(good_matches)
+                            Rate_intensity[k, c3, i, j,12] = len(matches)
                         except:
-                            Rate_intensity[k, c3, i, j] = None
-                            Exec_time_intensity[k, c3, i, j, 2] = None
+                            Exec_time_intensity[k, c3, i, j, :] = None
+                            Rate_intensity[k, c3, i, j, 2] = None
+                            Rate_intensity[k, c3, i, j, 3] = None
+                            Rate_intensity[k, c3, i, j, 4] = None
+                            Rate_intensity[k, c3, i, j, 5] = None
+                            Rate_intensity[k, c3, i, j, 7] = None
+                            Rate_intensity[k, c3, i, j, 8] = None
+                            Rate_intensity[k, c3, i, j,11] = None
+                            Rate_intensity[k, c3, i, j,12] = None
+                            Rate_intensity[k, c3, i, j,13] = None
                             continue
+                        
                         if k == 7 and drawing:
                             keypointImage1 = cv2.drawKeypoints(img,             keypoints1,  None, color=(206, 217, 162), flags=0)
                             ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 18, 156, 243), flags=0)
@@ -318,7 +337,7 @@ for k in range(nbre_img):
                                 f"Time Descrpt: {Exec_time_intensity[k, c3, i, j, 1]:.4f}",
                                 f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
                                 f"Matcher:      {'Brute-force' if matcher == 0 else 'Flann-based'}",
-                                f"Match Rate:   {Rate_intensity[k, c3, i, j]:.2f}",
+                                f"Match Rate:   {Rate_intensity[k, c3, i, j, 13]:.2f}",
                                 f"Time Match:   {Exec_time_intensity[k, c3, i, j, 2]:.4f}",
                                 f"Inliers:      {len(good_matches)}",
                                 f"All Matches:  {len(matches)}"
@@ -335,6 +354,21 @@ for k in range(nbre_img):
             continue
 np.save(f"{maindir}/arrays/Rate_intensity.npy",      Rate_intensity)
 np.save(f"{maindir}/arrays/Exec_time_intensity.npy", Exec_time_intensity)
+headers = [
+        "K", "Detector", "Keypoint1", "Keypoint11", "Keypoint2", "Keypoint22",
+        "Descriptor", "Descriptor1", "Descriptor2", "Matching", "Matcher",
+        "Inliers", "Total Matches", "Match Rate",
+        "Detect time", "Descript time", "Match time"
+    ]
+with open('intensity_analysis.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile, delimiter=';')
+    writer.writerow(headers)
+    for k in range(Rate_intensity.shape[0]):
+        for c3 in range(Rate_intensity.shape[1]):
+            for i in range(Rate_intensity.shape[2]):
+                for j in range(Rate_intensity.shape[3]):
+                    row = np.append(Rate_intensity[k, c3, i, j, :], Exec_time_intensity[k, c3, i, j, :])
+                    writer.writerow(row)
 ##########################################################
 # MARK: Scale
 ################ Scenario 2: Scale #######################
@@ -361,7 +395,12 @@ for k in range(len(scale)):
                 keypoints2 = keypoints_cache[k, i, 1]
             for j in range(len(Descriptors)):
                 if j == b or b == 100:
-                    for c3 in range(len(matching)): 
+                    for c3 in range(len(matching)):
+                        Rate_scale[k, c3, i, j, 0] = k
+                        Rate_scale[k, c3, i, j, 1] = i
+                        Rate_scale[k, c3, i, j, 6] = j
+                        Rate_scale[k, c3, i, j, 9] = matching[c3]
+                        Rate_scale[k, c3, i, j,10] = matcher
                         method_dscrpt = Descriptors[j]
                         try:
                             if descriptors_cache[0, i, j, 0] is None:
@@ -376,17 +415,30 @@ for k in range(len(scale)):
                                 descriptors_cache[k, i, j, 1] = descriptors2
                             else:
                                 descriptors2 = descriptors_cache[k, i, j, 1]
-                        except:
-                            Exec_time_scale[k, c3, i, j, 1] = None
-                            continue
-                        try:
                             start_time = time.time()
-                            Rate_scale[k, c3, i, j], good_matches, matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
+                            Rate_scale[k, c3, i, j, 13], good_matches, matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
                             Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
+                            Rate_scale[k, c3, i, j, 2] = len(keypoints1)
+                            Rate_scale[k, c3, i, j, 3] = len(keypoints11)
+                            Rate_scale[k, c3, i, j, 4] = len(keypoints2)
+                            Rate_scale[k, c3, i, j, 5] = len(keypoints22)
+                            Rate_scale[k, c3, i, j, 7] = len(descriptors1)
+                            Rate_scale[k, c3, i, j, 8] = len(descriptors2)
+                            Rate_scale[k, c3, i, j,11] = len(good_matches)
+                            Rate_scale[k, c3, i, j,12] = len(matches)
                         except:
-                            Rate_scale[k, c3, i, j] = None
-                            Exec_time_scale[k, c3, i, j, 2] = None
+                            Exec_time_scale[k, c3, i, j, :] = None
+                            Rate_scale[k, c3, i, j, 2] = None
+                            Rate_scale[k, c3, i, j, 3] = None
+                            Rate_scale[k, c3, i, j, 4] = None
+                            Rate_scale[k, c3, i, j, 5] = None
+                            Rate_scale[k, c3, i, j, 7] = None
+                            Rate_scale[k, c3, i, j, 8] = None
+                            Rate_scale[k, c3, i, j,11] = None
+                            Rate_scale[k, c3, i, j,12] = None
+                            Rate_scale[k, c3, i, j,13] = None
                             continue
+                        
                         if k == 4 and drawing:
                             keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(206, 217, 162), flags=0)
                             ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 18, 156, 243), flags=0)
@@ -406,7 +458,7 @@ for k in range(len(scale)):
                                 f"Time Descrpt: {Exec_time_scale[k, c3, i, j, 1]:.4f}",
                                 f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
                                 f"Matcher:      {'Brute-force' if matcher == 0 else 'Flann-based'}",
-                                f"Match Rate:   {Rate_scale[k, c3, i, j]:.2f}",
+                                f"Match Rate:   {Rate_scale[k, c3, i, j, 13]:.2f}",
                                 f"Time Match:   {Exec_time_scale[k, c3, i, j, 2]:.4f}",
                                 f"Inliers:      {len(good_matches)}",
                                 f"All Matches:  {len(matches)}"
@@ -423,6 +475,21 @@ for k in range(len(scale)):
             continue
 np.save(f"{maindir}/arrays/Rate_scale.npy",      Rate_scale)
 np.save(f"{maindir}/arrays/Exec_time_scale.npy", Exec_time_scale)
+headers = [
+        "K", "Detector", "Keypoint1", "Keypoint11", "Keypoint2", "Keypoint22",
+        "Descriptor", "Descriptor1", "Descriptor2", "Matching", "Matcher",
+        "Inliers", "Total Matches", "Match Rate",
+        "Detect time", "Descript time", "Match time"
+    ]
+with open('scale_analysis.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile, delimiter=';')
+    writer.writerow(headers)
+    for k in range(Rate_scale.shape[0]):
+        for c3 in range(Rate_scale.shape[1]):
+            for i in range(Rate_scale.shape[2]):
+                for j in range(Rate_scale.shape[3]):
+                    row = np.append(Rate_scale[k, c3, i, j, :], Exec_time_scale[k, c3, i, j, :])
+                    writer.writerow(row)
 ##########################################################
 # MARK: Rotation
 ################ Scenario 3: Rotation ####################
@@ -452,6 +519,11 @@ for k in range(len(rot)):
                     for c3 in range(len(matching)):
                         method_dscrpt = Descriptors[j]
                         try:
+                            Rate_rot[k, c3, i, j, 0] = k
+                            Rate_rot[k, c3, i, j, 1] = i
+                            Rate_rot[k, c3, i, j, 6] = j
+                            Rate_rot[k, c3, i, j, 9] = matching[c3]
+                            Rate_rot[k, c3, i, j,10] = matcher
                             if descriptors_cache[0, i, j, 0] is None:
                                 keypoints11, descriptors1 = method_dscrpt.compute(img[0], keypoints1)
                                 descriptors_cache[0, i, j, 0] = descriptors1
@@ -464,16 +536,27 @@ for k in range(len(rot)):
                                 descriptors_cache[k, i, j, 1] = descriptors2
                             else:
                                 descriptors2 = descriptors_cache[k, i, j, 1]
-                        except:
-                            Exec_time_rot[k, c3, i, j, 1] = None
-                            continue
-                        try:
                             start_time = time.time()
-                            Rate_rot[k, c3, i, j], good_matches, matches = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
+                            Rate_rot[k, c3, i, j, 13], good_matches, matches = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
                             Exec_time_rot[k, c3, i, j, 2] = time.time() - start_time
+                            Rate_rot[k, c3, i, j, 2] = len(keypoints1)
+                            Rate_rot[k, c3, i, j, 3] = len(keypoints11)
+                            Rate_rot[k, c3, i, j, 4] = len(keypoints2)
+                            Rate_rot[k, c3, i, j, 5] = len(keypoints22)
+                            Rate_rot[k, c3, i, j, 7] = len(descriptors1)
+                            Rate_rot[k, c3, i, j, 8] = len(descriptors2)
+                            Rate_rot[k, c3, i, j,11] = len(good_matches)
+                            Rate_rot[k, c3, i, j,12] = len(matches)
                         except:
-                            Rate_rot[k, c3, i, j] = None
-                            Exec_time_rot[k, c3, i, j, 2] = None
+                            Exec_time_rot[k, c3, i, j, :] = None
+                            Rate_rot[k, c3, i, j, 2] = None
+                            Rate_rot[k, c3, i, j, 3] = None
+                            Rate_rot[k, c3, i, j, 4] = None
+                            Rate_rot[k, c3, i, j, 5] = None
+                            Rate_rot[k, c3, i, j, 7] = None
+                            Rate_rot[k, c3, i, j, 8] = None
+                            Rate_rot[k, c3, i, j,11] = None
+                            Rate_rot[k, c3, i, j,12] = None
                             continue
                         if k == 4 and drawing:
                             keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(206, 217, 162), flags=0)
@@ -494,7 +577,7 @@ for k in range(len(rot)):
                                 f"Time Descrpt: {Exec_time_rot[k, c3, i, j, 1]:.4f}",
                                 f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
                                 f"Matcher:      {'Brute-force' if matcher == 0 else 'Flann-based'}",
-                                f"Match Rate:   {Rate_rot[k, c3, i, j]:.2f}",
+                                f"Match Rate:   {Rate_rot[k, c3, i, j, 13]:.2f}",
                                 f"Time Match:   {Exec_time_rot[k, c3, i, j, 2]:.4f}",
                                 f"Inliers:      {len(good_matches)}",
                                 f"All Matches:  {len(matches)}"
@@ -511,5 +594,20 @@ for k in range(len(rot)):
             continue
 np.save(f"{maindir}/arrays/Rate_rot.npy",      Rate_rot)
 np.save(f"{maindir}/arrays/Exec_time_rot.npy", Exec_time_rot)
+headers = [
+        "K", "Detector", "Keypoint1", "Keypoint11", "Keypoint2", "Keypoint22",
+        "Descriptor", "Descriptor1", "Descriptor2", "Matching", "Matcher",
+        "Inliers", "Total Matches", "Match Rate",
+        "Detect time", "Descript time", "Match time"
+    ]
+with open('rot_analysis.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile, delimiter=';')
+    writer.writerow(headers)
+    for k in range(Rate_rot.shape[0]):
+        for c3 in range(Rate_rot.shape[1]):
+            for i in range(Rate_rot.shape[2]):
+                for j in range(Rate_rot.shape[3]):
+                    row = np.append(Rate_rot[k, c3, i, j, :], Exec_time_rot[k, c3, i, j, :])
+                    writer.writerow(row)
 ##########################################################
 print(time.ctime())
