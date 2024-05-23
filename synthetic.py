@@ -360,7 +360,7 @@ headers = [
         "Inliers", "Total Matches", "Match Rate",
         "Detect time", "Descript time", "Match time"
     ]
-with open('intensity_analysis.csv', 'w', newline='') as csvfile:
+with open(f'{maindir}/csv/intensity_analysis.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=';')
     writer.writerow(headers)
     for k in range(Rate_intensity.shape[0]):
@@ -481,7 +481,7 @@ headers = [
         "Inliers", "Total Matches", "Match Rate",
         "Detect time", "Descript time", "Match time"
     ]
-with open('scale_analysis.csv', 'w', newline='') as csvfile:
+with open(f'{maindir}/csv/scale_analysis.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=';')
     writer.writerow(headers)
     for k in range(Rate_scale.shape[0]):
@@ -600,7 +600,7 @@ headers = [
         "Inliers", "Total Matches", "Match Rate",
         "Detect time", "Descript time", "Match time"
     ]
-with open('rot_analysis.csv', 'w', newline='') as csvfile:
+with open(f'{maindir}/csv/rot_analysis.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=';')
     writer.writerow(headers)
     for k in range(Rate_rot.shape[0]):

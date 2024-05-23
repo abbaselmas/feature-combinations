@@ -232,7 +232,7 @@ def executeScenarios(folder):
         "Detect time", "Descript time", "Match time"
     ]
 
-    with open(f'{folder}_analysis.csv', 'w', newline='') as csvfile:
+    with open(f'./csv/{folder}_analysis.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=';')
         writer.writerow(headers)
         for k in range(Rate.shape[0]):
