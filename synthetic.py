@@ -274,13 +274,13 @@ for k in range(nbre_img):
                 keypoints2 = keypoints_cache[k, i, 1]
             for j in range(len(Descriptors)):
                 if j == b or b == 100:
+                    method_dscrpt = Descriptors[j]
                     for c3 in range(len(matching)):
                         Rate_intensity[k, c3, i, j, 0] = k
                         Rate_intensity[k, c3, i, j, 1] = i
                         Rate_intensity[k, c3, i, j, 6] = j
                         Rate_intensity[k, c3, i, j, 9] = matching[c3]
                         Rate_intensity[k, c3, i, j,10] = matcher
-                        method_dscrpt = Descriptors[j]
                         try:
                             if descriptors_cache[0, i, j, 0] is None:
                                 keypoints11, descriptors1 = method_dscrpt.compute(img, keypoints1)
@@ -395,13 +395,13 @@ for k in range(len(scale)):
                 keypoints2 = keypoints_cache[k, i, 1]
             for j in range(len(Descriptors)):
                 if j == b or b == 100:
+                    method_dscrpt = Descriptors[j]
                     for c3 in range(len(matching)):
                         Rate_scale[k, c3, i, j, 0] = k
                         Rate_scale[k, c3, i, j, 1] = i
                         Rate_scale[k, c3, i, j, 6] = j
                         Rate_scale[k, c3, i, j, 9] = matching[c3]
                         Rate_scale[k, c3, i, j,10] = matcher
-                        method_dscrpt = Descriptors[j]
                         try:
                             if descriptors_cache[0, i, j, 0] is None:
                                 keypoints11, descriptors1 = method_dscrpt.compute(img[0], keypoints1)
@@ -516,14 +516,14 @@ for k in range(len(rot)):
                 keypoints2 = keypoints_cache[k, i, 1]
             for j in range(len(Descriptors)):
                 if j == b or b == 100:
+                    method_dscrpt = Descriptors[j]
                     for c3 in range(len(matching)):
-                        method_dscrpt = Descriptors[j]
+                        Rate_rot[k, c3, i, j, 0] = k
+                        Rate_rot[k, c3, i, j, 1] = i
+                        Rate_rot[k, c3, i, j, 6] = j
+                        Rate_rot[k, c3, i, j, 9] = matching[c3]
+                        Rate_rot[k, c3, i, j,10] = matcher
                         try:
-                            Rate_rot[k, c3, i, j, 0] = k
-                            Rate_rot[k, c3, i, j, 1] = i
-                            Rate_rot[k, c3, i, j, 6] = j
-                            Rate_rot[k, c3, i, j, 9] = matching[c3]
-                            Rate_rot[k, c3, i, j,10] = matcher
                             if descriptors_cache[0, i, j, 0] is None:
                                 keypoints11, descriptors1 = method_dscrpt.compute(img[0], keypoints1)
                                 descriptors_cache[0, i, j, 0] = descriptors1

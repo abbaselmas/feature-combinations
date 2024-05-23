@@ -144,13 +144,13 @@ def executeScenarios(folder):
                     keypoints2 = keypoints_cache[k, i, 1]
                 for j in range(len(Descriptors)):
                     if j == b or b == 100:
+                        method_dscrpt = Descriptors[j]
                         for c3 in range(len(matching)):
                             Rate[k, c3, i, j, 0] = k
                             Rate[k, c3, i, j, 1] = i
                             Rate[k, c3, i, j, 6] = j
                             Rate[k, c3, i, j, 9] = matching[c3]
                             Rate[k, c3, i, j,10] = matcher
-                            method_dscrpt = Descriptors[j]
                             try:
                                 if descriptors_cache[0, i, j, 0] is None:
                                     keypoints11, descriptors1 = method_dscrpt.compute(img[0], keypoints1)
