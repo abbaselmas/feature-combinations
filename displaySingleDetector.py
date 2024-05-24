@@ -9,8 +9,8 @@ val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
 scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈ [0.5 : 0.2 : 1.5]
 rot   = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
 
-DetectorsLegend   = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast58', 'fast712', 'fast916', 'mser', 'agast58', 'agast712d', 'agast712s', 'oagast916', 'gftt', 'gftt_harris', 'star', 'hl', 'msd', 'tbmr']
-DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'vgg675', 'vgg625', 'vgg500', 'vgg075', 'beblid675', 'beblid625', 'beblid500', 'beblid100', 'teblid675', 'teblid625', 'teblid500', 'teblid100', 'boost675', 'boost625', 'boost500', 'boost150', 'boost075']
+DetectorsLegend   = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'agast', 'gftt', 'gftt_harris', 'star', 'hl', 'msd', 'tbmr']
+DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'vgg', 'beblid', 'teblid', 'boost']
 line_styles = ['solid', 'dash', 'dot']
 Norm = ['L2', 'HAM']
 

@@ -61,14 +61,14 @@ brisk  = cv2.BRISK_create(thresh=30, octaves=3, patternScale=1.0)
 kaze   = cv2.KAZE_create(extended=False, upright=False, threshold=0.01, nOctaves=4, nOctaveLayers=4, diffusivity=cv2.KAZE_DIFF_PM_G2)
 
 ### detectors 9
-fast58    = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_5_8,  threshold=5)
-fast712   = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_7_12, threshold=18)
-fast916   = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_9_16, threshold=25)
+fast    = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_5_8,  threshold=5)
+# fast712   = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_7_12, threshold=18)
+# fast916   = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_9_16, threshold=25)
 mser  = cv2.MSER_create(delta=5, min_area=60, max_area=14400, max_variation=0.25, min_diversity=0.90, max_evolution=20, area_threshold=1.01, min_margin=0.003, edge_blur_size=5)
-agast58   = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_AGAST_5_8)
-agast712d = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_AGAST_7_12D)
-agast712s = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_AGAST_7_12S)
-oagast916 = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_OAST_9_16)
+agast   = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_AGAST_5_8)
+# agast712d = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_AGAST_7_12D)
+# agast712s = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_AGAST_7_12S)
+# oagast916 = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_OAST_9_16)
 gftt  = cv2.GFTTDetector_create(qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=False, k=0.04, maxCorners=2000)
 gftt_harris = cv2.GFTTDetector_create(qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=True, k=0.04, maxCorners=2000) 
 star  = cv2.xfeatures2d.StarDetector_create(maxSize=20, responseThreshold=5, lineThresholdProjected=100, lineThresholdBinarized=30, suppressNonmaxSize=3)
@@ -77,35 +77,33 @@ msd   = cv2.xfeatures2d.MSDDetector_create(m_patch_radius=3, m_search_area_radiu
 tbmr  = cv2.xfeatures2d.TBMR_create(min_area=40, max_area_relative=0.01, scale_factor=1.25, n_scales=-1)
 
 ### descriptors 9
-vgg675 = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=6.75, dsc_normalize=False) # for SIFT
-vgg625 = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=6.25, dsc_normalize=False) # for KAZE, SURF
-vgg500 = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=5.00, dsc_normalize=False) # for AKAZE, MSD, AGAST, FAST, BRISK
-vgg075 = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=0.75, dsc_normalize=False) # for ORB
+#vgg675 = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=6.75, dsc_normalize=False) # for SIFT
+vgg = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=6.25, dsc_normalize=False) # for KAZE, SURF
+# vgg500 = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=5.00, dsc_normalize=False) # for AKAZE, MSD, AGAST, FAST, BRISK
+# vgg075 = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=0.75, dsc_normalize=False) # for ORB
 daisy = cv2.xfeatures2d.DAISY_create(radius=15, q_radius=3, q_theta=8, q_hist=8, norm=cv2.xfeatures2d.DAISY_NRM_NONE, interpolation=True, use_orientation=False)
 freak = cv2.xfeatures2d.FREAK_create(orientationNormalized=True, scaleNormalized=False, patternScale=22.0, nOctaves=3)
 brief = cv2.xfeatures2d.BriefDescriptorExtractor_create(bytes=16, use_orientation=True)
 lucid = cv2.xfeatures2d.LUCID_create(lucid_kernel=3, blur_kernel=6)
 latch = cv2.xfeatures2d.LATCH_create(bytes=2, rotationInvariance=True, half_ssd_size=1, sigma=1.4)
-beblid675 = cv2.xfeatures2d.BEBLID_create(scale_factor=6.75, n_bits=100) #for SIFT
-beblid625 = cv2.xfeatures2d.BEBLID_create(scale_factor=6.25, n_bits=100) #for KAZE, SURF
-beblid500 = cv2.xfeatures2d.BEBLID_create(scale_factor=5.00, n_bits=100) #for AKAZE, MSD, AGAST, FAST, BRISK
-beblid100 = cv2.xfeatures2d.BEBLID_create(scale_factor=1.00, n_bits=100) # for ORB
-teblid675 = cv2.xfeatures2d.TEBLID_create(scale_factor=6.75, n_bits=102) #for SIFT
-teblid625 = cv2.xfeatures2d.TEBLID_create(scale_factor=6.25, n_bits=102) #for KAZE, SURF
-teblid500 = cv2.xfeatures2d.TEBLID_create(scale_factor=5.00, n_bits=102) # for AKAZE, MSD, AGAST, FAST, BRISK
-teblid100 = cv2.xfeatures2d.TEBLID_create(scale_factor=1.00, n_bits=102) # ORB
-boost675 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=6.75) #for SIFT
-boost625 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=6.25) #for KAZE, SURF 
-boost500 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=5.00) #for AKAZE, MSD, AGAST, FAST, BRISK
-boost150 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=1.50) #default in original implementation
-boost075 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=0.75) #for ORB
+# beblid675 = cv2.xfeatures2d.BEBLID_create(scale_factor=6.75, n_bits=100) #for SIFT
+beblid = cv2.xfeatures2d.BEBLID_create(scale_factor=6.25, n_bits=100) #for KAZE, SURF
+# beblid500 = cv2.xfeatures2d.BEBLID_create(scale_factor=5.00, n_bits=100) #for AKAZE, MSD, AGAST, FAST, BRISK
+# beblid100 = cv2.xfeatures2d.BEBLID_create(scale_factor=1.00, n_bits=100) # for ORB
+# teblid675 = cv2.xfeatures2d.TEBLID_create(scale_factor=6.75, n_bits=102) #for SIFT
+teblid = cv2.xfeatures2d.TEBLID_create(scale_factor=6.25, n_bits=102) #for KAZE, SURF
+# teblid500 = cv2.xfeatures2d.TEBLID_create(scale_factor=5.00, n_bits=102) # for AKAZE, MSD, AGAST, FAST, BRISK
+# teblid100 = cv2.xfeatures2d.TEBLID_create(scale_factor=1.00, n_bits=102) # ORB
+# boost675 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=6.75) #for SIFT
+boost = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=6.25) #for KAZE, SURF 
+# boost500 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=5.00) #for AKAZE, MSD, AGAST, FAST, BRISK
+# boost150 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=1.50) #default in original implementation
+# boost075 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=0.75) #for ORB
 
-Detectors      = list([sift, akaze, orb, brisk, kaze, fast58, fast712, fast916, mser, agast58, agast712d, agast712s, oagast916, gftt, gftt_harris, star, hl, msd, tbmr])
-#                      0     1      2    3      4     5       6        7        8     9        10         11         12         13    14           15    16  17   18
-Descriptors    = list([sift, akaze, orb, brisk, kaze, daisy, freak, brief, lucid, latch,
-#                      0     1      2    3      4     5      6      7      8      9
-                       vgg675, vgg625, vgg500, vgg075, beblid675, beblid625, beblid500, beblid100, teblid675, teblid625, teblid500, teblid100, boost675, boost625, boost500, boost150, boost075]) 
-#                      10      11      12      13      14         15         16         17         18         19         20         21         22        23        24        25        26
+Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, gftt_harris, star, hl, msd, tbmr])
+#                      0     1      2    3      4     5     6     7      8      9          10    11   12    13
+Descriptors    = list([sift, akaze, orb, brisk, kaze, daisy, freak, brief, lucid, latch, vgg, beblid, teblid, boost]) 
+#                      0     1      2    3      4     5      6      7      8      9     10    11      12      13
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 matcher        = 0 # 0: Brute-force matcher, 1: Flann-based matcher
 a = 100 #i
