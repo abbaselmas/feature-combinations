@@ -1,11 +1,10 @@
 import cv2
 import numpy as np
-import time, os
-import csv
+import time, os, csv
 
 maindir = os.path.abspath(os.path.dirname(__file__))
 datasetdir = "./hpatches-sequences"  #"./oxfordAffine"
-folder =  "/v_bird" #"/graf"
+folder =  "/v_dogman" #"/graf"
 picture = "/1.jpg" #"/img1.jpg"
 data = datasetdir + folder + picture
 
@@ -83,18 +82,14 @@ def evaluate_scenario_intensity(matcher, KP1, KP2, Dspt1, Dspt2, norm_type):
         matches = flann.match(Dspt1, Dspt2)
     Prob_P = Prob_N = 0
     good_matches = []
-    # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points
     for i in range(len(matches)):
         m1 = matches[i].queryIdx
         m2 = matches[i].trainIdx
-        # the coordinates (x,y) of the points detected in the image 1
         X1 = int(KP1[m1].pt[0])
         Y1 = int(KP1[m1].pt[1])
-        # the coordinates (x,y) of the points detected in the image 2
         X2 = int(KP2[m2].pt[0])
         Y2 = int(KP2[m2].pt[1])
-        # comparison between these coordinates (x,y)
-        if (abs(X1 - X2) <=2) and (abs(Y1 - Y2) <=2):   #  Tolerance allowance (∼ 1-2 pixels)
+        if (abs(X1 - X2) <=4) and (abs(Y1 - Y2) <=4):   #  Tolerance allowance (∼ 4 pixels)
             Prob_P += 1
             good_matches.append(matches[i])
         else:
@@ -118,17 +113,14 @@ def evaluate_scenario_scale(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, scale):
         matches = flann.match(Dspt1, Dspt2)
     Prob_P = Prob_N = 0
     good_matches = []
-    # A comparison between the coordinates (x,y) of the detected points between the two images => correct and not correct homologous points 
     for i in range(len(matches)):
         m1 = matches[i].queryIdx
         m2 = matches[i].trainIdx
-        # the coordinates (x,y) of the points detected in the image 1
         X1 = int(KP1[m1].pt[0])
         Y1 = int(KP1[m1].pt[1])
-        # the coordinates (x,y) of the points detected in the image 2
         X2 = int(KP2[m2].pt[0])
         Y2 = int(KP2[m2].pt[1])
-        if (abs(X1*scale - X2) <=2) and (abs(Y1*scale - Y2) <=2):   #  Tolerance allowance (∼ 1-2 pixels)
+        if (abs(X1*scale - X2) <=4) and (abs(Y1*scale - Y2) <=4):   #  Tolerance allowance (∼ 4 pixels)
             Prob_P += 1
             good_matches.append(matches[i])
         else:
@@ -152,19 +144,17 @@ def evaluate_scenario_rotation(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, rot, 
         matches = flann.match(Dspt1, Dspt2)
     Prob_P = Prob_N = 0
     good_matches = []
-    theta = rot*(np.pi/180) # transformation of the degree of rotation into radian
+    theta = rot*(np.pi/180)
     for i in range(len(matches)):
         m1 = matches[i].queryIdx
         m2 = matches[i].trainIdx
-        # the coordinates (x,y) of the points detected in the image 1
         X1 = int(KP1[m1].pt[0])
         Y1 = int(KP1[m1].pt[1])
-        # the coordinates (x,y) of the points detected in the image 2
         X2 = int(KP2[m2].pt[0])
         Y2 = int(KP2[m2].pt[1])
         X12 =  X1*np.cos(theta) + Y1*np.sin(theta) + rot_matrix[0,2]
         Y12 = -X1*np.sin(theta) + Y1*np.cos(theta) + rot_matrix[1,2]
-        if (abs(X12 - X2) <=2) and (abs(Y12 - Y2) <=2):   #  Tolerance allowance (∼ 1-2 pixels)
+        if (abs(X12 - X2) <=4) and (abs(Y12 - Y2) <=4):   #  Tolerance allowance (∼ 1-2 pixels)
             Prob_P += 1
             good_matches.append(matches[i])
         else:
@@ -175,7 +165,7 @@ def evaluate_scenario_rotation(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, rot, 
 # ................................................................................
 
 ### detectors/descriptors 5
-sift   = cv2.SIFT_create(nfeatures=2000, nOctaveLayers=3, contrastThreshold=0.1, edgeThreshold=10.0, sigma=1.6) #best with layer=3 contrastThreshold=0.1 
+sift   = cv2.SIFT_create(nfeatures=2000, nOctaveLayers=3, contrastThreshold=0.1, edgeThreshold=10.0, sigma=1.6)
 akaze  = cv2.AKAZE_create(descriptor_type=cv2.AKAZE_DESCRIPTOR_MLDB, descriptor_size=0, descriptor_channels=3, threshold=0.01, nOctaves=4, nOctaveLayers=4, diffusivity=cv2.KAZE_DIFF_PM_G2)
 orb    = cv2.ORB_create(nfeatures=2000, scaleFactor=1.1, nlevels=6, edgeThreshold=60, firstLevel=1, WTA_K=2, scoreType=cv2.ORB_HARRIS_SCORE, patchSize=60, fastThreshold=60)
 brisk  = cv2.BRISK_create(thresh=30, octaves=3, patternScale=1.0)
@@ -183,13 +173,8 @@ kaze   = cv2.KAZE_create(extended=False, upright=False, threshold=0.01, nOctaves
 
 ### detectors 9
 fast    = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_5_8,  threshold=5)
-# fast712   = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_7_12, threshold=18)
-# fast916   = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_9_16, threshold=25)
 mser  = cv2.MSER_create(delta=5, min_area=60, max_area=14400, max_variation=0.25, min_diversity=0.90, max_evolution=20, area_threshold=1.01, min_margin=0.003, edge_blur_size=5)
 agast   = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_AGAST_5_8)
-# agast712d = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_AGAST_7_12D)
-# agast712s = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_AGAST_7_12S)
-# oagast916 = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_OAST_9_16)
 gftt  = cv2.GFTTDetector_create(qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=False, k=0.04, maxCorners=2000)
 gftt_harris = cv2.GFTTDetector_create(qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=True, k=0.04, maxCorners=2000) 
 star  = cv2.xfeatures2d.StarDetector_create(maxSize=20, responseThreshold=5, lineThresholdProjected=100, lineThresholdBinarized=30, suppressNonmaxSize=3)
@@ -198,28 +183,15 @@ msd   = cv2.xfeatures2d.MSDDetector_create(m_patch_radius=3, m_search_area_radiu
 tbmr  = cv2.xfeatures2d.TBMR_create(min_area=40, max_area_relative=0.01, scale_factor=1.25, n_scales=-1)
 
 ### descriptors 9
-#vgg675 = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=6.75, dsc_normalize=False) # for SIFT
-vgg = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=6.25, dsc_normalize=False) # for KAZE, SURF
-# vgg500 = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=5.00, dsc_normalize=False) # for AKAZE, MSD, AGAST, FAST, BRISK
-# vgg075 = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=0.75, dsc_normalize=False) # for ORB
+vgg = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=6.25, dsc_normalize=False)
 daisy = cv2.xfeatures2d.DAISY_create(radius=15, q_radius=3, q_theta=8, q_hist=8, norm=cv2.xfeatures2d.DAISY_NRM_NONE, interpolation=True, use_orientation=False)
 freak = cv2.xfeatures2d.FREAK_create(orientationNormalized=True, scaleNormalized=False, patternScale=22.0, nOctaves=3)
 brief = cv2.xfeatures2d.BriefDescriptorExtractor_create(bytes=16, use_orientation=True)
 lucid = cv2.xfeatures2d.LUCID_create(lucid_kernel=3, blur_kernel=6)
 latch = cv2.xfeatures2d.LATCH_create(bytes=2, rotationInvariance=True, half_ssd_size=1, sigma=1.4)
-# beblid675 = cv2.xfeatures2d.BEBLID_create(scale_factor=6.75, n_bits=100) #for SIFT
-beblid = cv2.xfeatures2d.BEBLID_create(scale_factor=6.25, n_bits=100) #for KAZE, SURF
-# beblid500 = cv2.xfeatures2d.BEBLID_create(scale_factor=5.00, n_bits=100) #for AKAZE, MSD, AGAST, FAST, BRISK
-# beblid100 = cv2.xfeatures2d.BEBLID_create(scale_factor=1.00, n_bits=100) # for ORB
-# teblid675 = cv2.xfeatures2d.TEBLID_create(scale_factor=6.75, n_bits=102) #for SIFT
-teblid = cv2.xfeatures2d.TEBLID_create(scale_factor=6.25, n_bits=102) #for KAZE, SURF
-# teblid500 = cv2.xfeatures2d.TEBLID_create(scale_factor=5.00, n_bits=102) # for AKAZE, MSD, AGAST, FAST, BRISK
-# teblid100 = cv2.xfeatures2d.TEBLID_create(scale_factor=1.00, n_bits=102) # ORB
-# boost675 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=6.75) #for SIFT
-boost = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=6.25) #for KAZE, SURF 
-# boost500 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=5.00) #for AKAZE, MSD, AGAST, FAST, BRISK
-# boost150 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=1.50) #default in original implementation
-# boost075 = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=0.75) #for ORB
+beblid = cv2.xfeatures2d.BEBLID_create(scale_factor=6.25, n_bits=100)
+teblid = cv2.xfeatures2d.TEBLID_create(scale_factor=6.25, n_bits=102)
+boost = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=6.25) 
 
 Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, gftt_harris, star, hl, msd, tbmr])
 #                      0     1      2    3      4     5     6     7      8      9          10    11   12    13
@@ -229,7 +201,7 @@ matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 matcher        = 0 # 0: Brute-force matcher, 1: Flann-based matcher
 a = 100 #i
 b = 100 #j
-drawing = False
+drawing = True
 
 if a == 100 and b == 100:
     Rate_intensity      = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 14))
@@ -255,6 +227,9 @@ img, List8Img = get_intensity_8Img(Image, val_b, val_c)
 keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(nbre_img):
+    # if drawing:
+    #         if k != 7:
+    #             continue
     img2 = List8Img[k]
     for i in range(len(Detectors)):
         if i == a or a == 100:
@@ -267,7 +242,7 @@ for k in range(nbre_img):
             if keypoints_cache[k, i, 1] is None:
                 start_time = time.time()
                 keypoints2 = method_dtect.detect(img2, None)
-                Exec_time_intensity[k, :, i, :, 0] = time.time() - start_time
+                detect_time = time.time() - start_time
                 keypoints_cache[k, i, 1] = keypoints2
             else:
                 keypoints2 = keypoints_cache[k, i, 1]
@@ -275,6 +250,7 @@ for k in range(nbre_img):
                 if j == b or b == 100:
                     method_dscrpt = Descriptors[j]
                     for c3 in range(len(matching)):
+                        Exec_time_intensity[k, c3, i, j, 0] = detect_time
                         Rate_intensity[k, c3, i, j, 0] = k
                         Rate_intensity[k, c3, i, j, 1] = i
                         Rate_intensity[k, c3, i, j, 6] = j
@@ -289,10 +265,11 @@ for k in range(nbre_img):
                             if descriptors_cache[k, i, j, 1] is None:
                                 start_time = time.time()
                                 keypoints22, descriptors2 = method_dscrpt.compute(img2, keypoints2)
-                                Exec_time_intensity[k, :, i, j, 1] = time.time() - start_time
+                                descript_time = time.time() - start_time
                                 descriptors_cache[k, i, j, 1] = descriptors2
                             else:
                                 descriptors2 = descriptors_cache[k, i, j, 1]
+                            Exec_time_intensity[k, c3, i, j, 1] = descript_time
                             start_time = time.time()
                             Rate_intensity[k, c3, i, j, 13], good_matches, matches = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                             Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
@@ -317,7 +294,7 @@ for k in range(nbre_img):
                             Rate_intensity[k, c3, i, j,13] = None
                             continue
                         
-                        if k == 7 and drawing:
+                        if drawing and k == 7:
                             keypointImage1 = cv2.drawKeypoints(img,             keypoints1,  None, color=(206, 217, 162), flags=0)
                             ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 18, 156, 243), flags=0)
                             keypointImage2 = cv2.drawKeypoints(img2,            keypoints2,  None, color=(206, 217, 162), flags=0)
@@ -345,7 +322,7 @@ for k in range(nbre_img):
                                 cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (198, 198, 198), 2, cv2.LINE_AA)
                                 cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
                                 
-                            filename = f"{maindir}/draws/intensity/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{i}_{method_dscrpt.getDefaultName().split('.')[-1]}_{j}_{matching[c3]}.png"
+                            filename = f"{maindir}/draws/intensity/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
                             cv2.imwrite(filename, img_matches)
                 else:
                     continue
@@ -376,6 +353,9 @@ print("Scenario 2 Scale")
 keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(len(scale)):
+    # if drawing:
+    #         if k != 4:
+    #             continue
     img = get_cam_scale(Image, scale[k])
     for i in range(len(Detectors)):
         if i == a or a == 100:
@@ -388,7 +368,7 @@ for k in range(len(scale)):
             if keypoints_cache[k, i, 1] is None:
                 start_time = time.time()
                 keypoints2 = method_dtect.detect(img[1], None)
-                Exec_time_scale[k, :, i, :, 0] = time.time() - start_time
+                detect_time = time.time() - start_time
                 keypoints_cache[k, i, 1] = keypoints2
             else:
                 keypoints2 = keypoints_cache[k, i, 1]
@@ -396,6 +376,7 @@ for k in range(len(scale)):
                 if j == b or b == 100:
                     method_dscrpt = Descriptors[j]
                     for c3 in range(len(matching)):
+                        Exec_time_scale[k, c3, i, j, 0] = detect_time
                         Rate_scale[k, c3, i, j, 0] = k
                         Rate_scale[k, c3, i, j, 1] = i
                         Rate_scale[k, c3, i, j, 6] = j
@@ -410,10 +391,11 @@ for k in range(len(scale)):
                             if descriptors_cache[k, i, j, 1] is None:
                                 start_time = time.time()
                                 keypoints22, descriptors2 = method_dscrpt.compute(img[1], keypoints2)
-                                Exec_time_scale[k, :, i, j, 1] = time.time() - start_time
+                                descript_time = time.time() - start_time
                                 descriptors_cache[k, i, j, 1] = descriptors2
                             else:
                                 descriptors2 = descriptors_cache[k, i, j, 1]
+                            Exec_time_scale[k, c3, i, j, 1] = descript_time
                             start_time = time.time()
                             Rate_scale[k, c3, i, j, 13], good_matches, matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
                             Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
@@ -438,7 +420,7 @@ for k in range(len(scale)):
                             Rate_scale[k, c3, i, j,13] = None
                             continue
                         
-                        if k == 4 and drawing:
+                        if drawing and k == 4:
                             keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(206, 217, 162), flags=0)
                             ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 18, 156, 243), flags=0)
                             keypointImage2 = cv2.drawKeypoints(img[1],          keypoints2,  None, color=(206, 217, 162), flags=0)
@@ -466,7 +448,7 @@ for k in range(len(scale)):
                                 cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (198, 198, 198), 2, cv2.LINE_AA)
                                 cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
                                 
-                            filename = f"{maindir}/draws/scale/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{i}_{method_dscrpt.getDefaultName().split('.')[-1]}_{j}_{matching[c3]}.png"
+                            filename = f"{maindir}/draws/scale/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
                             cv2.imwrite(filename, img_matches)
                 else:
                     continue
@@ -497,6 +479,9 @@ print("Scenario 3 Rotation")
 keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
 descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
 for k in range(len(rot)):
+    # if drawing:
+    #         if k != 4:
+    #             continue
     rot_matrix, img = get_cam_rot(Image, rot[k])
     for i in range(len(Detectors)):
         if i == a or a == 100:
@@ -509,7 +494,7 @@ for k in range(len(rot)):
             if keypoints_cache[k, i, 1] is None:
                 start_time = time.time()
                 keypoints2 = method_dtect.detect(img[1], None)
-                Exec_time_rot[k, :, i, :, 0] = time.time() - start_time
+                detect_time = time.time() - start_time
                 keypoints_cache[k, i, 1] = keypoints2
             else:
                 keypoints2 = keypoints_cache[k, i, 1]
@@ -517,6 +502,7 @@ for k in range(len(rot)):
                 if j == b or b == 100:
                     method_dscrpt = Descriptors[j]
                     for c3 in range(len(matching)):
+                        Exec_time_rot[k, c3, i, j, 0] = detect_time
                         Rate_rot[k, c3, i, j, 0] = k
                         Rate_rot[k, c3, i, j, 1] = i
                         Rate_rot[k, c3, i, j, 6] = j
@@ -531,10 +517,11 @@ for k in range(len(rot)):
                             if descriptors_cache[k, i, j, 1] is None:
                                 start_time = time.time()
                                 keypoints22, descriptors2 = method_dscrpt.compute(img[1], keypoints2)
-                                Exec_time_scale[k, :, i, j, 1] = time.time() - start_time
+                                descript_time = time.time() - start_time
                                 descriptors_cache[k, i, j, 1] = descriptors2
                             else:
                                 descriptors2 = descriptors_cache[k, i, j, 1]
+                            Exec_time_scale[k, c3, i, j, 1] = descript_time
                             start_time = time.time()
                             Rate_rot[k, c3, i, j, 13], good_matches, matches = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
                             Exec_time_rot[k, c3, i, j, 2] = time.time() - start_time
@@ -557,7 +544,7 @@ for k in range(len(rot)):
                             Rate_rot[k, c3, i, j,11] = None
                             Rate_rot[k, c3, i, j,12] = None
                             continue
-                        if k == 4 and drawing:
+                        if drawing and k == 4:
                             keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(206, 217, 162), flags=0)
                             ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 18, 156, 243), flags=0)
                             keypointImage2 = cv2.drawKeypoints(img[1],          keypoints2,  None, color=(206, 217, 162), flags=0)
@@ -585,7 +572,7 @@ for k in range(len(rot)):
                                 cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (198, 198, 198), 2, cv2.LINE_AA)
                                 cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
                                 
-                            filename = f"{maindir}/draws/rot/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{i}_{method_dscrpt.getDefaultName().split('.')[-1]}_{j}_{matching[c3]}.png"
+                            filename = f"{maindir}/draws/rot/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
                             cv2.imwrite(filename, img_matches)
                 else:
                     continue
