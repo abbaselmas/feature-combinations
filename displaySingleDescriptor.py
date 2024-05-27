@@ -74,7 +74,7 @@ Rate_bikes  = np.load(maindir + '/arrays/Rate_bikes.npy')
 Rate_boat   = np.load(maindir + '/arrays/Rate_boat.npy')
 Rate_leuven = np.load(maindir + '/arrays/Rate_leuven.npy')
 
-fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf(Viewpoint)', 'Bikes(Blur)', 'Boat(Rotation)', 'Leuven(Viewpoint)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
+fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf(Viewpoint)', 'Bikes(Blur)', 'Boat(Zoom + Rotation)', 'Leuven(Light)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig2.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
 fig2.update_layout(xaxis = dict(tickmode = 'array', tickvals = x), xaxis2 = dict(tickmode = 'array', tickvals = x), xaxis3 = dict(tickmode = 'array', tickvals = x), xaxis4 = dict(tickmode = 'array', tickvals = x))
@@ -119,7 +119,7 @@ Rate_trees = np.load(maindir + '/arrays/Rate_trees.npy')
 Rate_bark  = np.load(maindir + '/arrays/Rate_bark.npy')
 Rate_ubc   = np.load(maindir + '/arrays/Rate_ubc.npy')
 
-fig3 = make_subplots(rows=2, cols=2, subplot_titles=['Wall(Viewpoint)', 'Trees(Blur)', 'Bark(Rotation)', 'UBC(Blur)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
+fig3 = make_subplots(rows=2, cols=2, subplot_titles=['Wall(Viewpoint)', 'Trees(Blur)', 'Bark(Zoom + Rotation)', 'UBC(JPEG)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig3.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
 fig3.update_layout(xaxis = dict(tickmode = 'array', tickvals = x), xaxis2 = dict(tickmode = 'array', tickvals = x), xaxis3 = dict(tickmode = 'array', tickvals = x), xaxis4 = dict(tickmode = 'array', tickvals = x))
