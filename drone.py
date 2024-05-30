@@ -3,7 +3,7 @@ import numpy as np
 import time, os, csv
 
 maindir = os.path.abspath(os.path.dirname(__file__))
-datasetdir = "./oxfordAffine"
+datasetdir = "./Small_Buildings"
 
 def match_with_bf_ratio_test(matcher, Dspt1, Dspt2, norm_type, threshold_ratio=0.8):
     if matcher == 0: # Brute-force matcher
@@ -81,9 +81,9 @@ teblid = cv2.xfeatures2d.TEBLID_create(scale_factor=6.25, n_bits=102)
 boost = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=6.25)
 
 Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, gftt_harris, star, hl, msd, tbmr])
-#                      0     1      2    3      4     5     6     7      8     9            10    11  12   13
+#                      0     1      2    3      4     5     6     7      8      9          10    11   12    13
 Descriptors    = list([sift, akaze, orb, brisk, kaze, daisy, freak, brief, lucid, latch, vgg, beblid, teblid, boost]) 
-#                      0     1      2    3      4     5      6      7      8      9      10   11      12      13
+#                      0     1      2    3      4     5      6      7      8      9     10    11      12      13
 matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
 matcher        = 0 # 0: Brute-force matcher, 1: Flann-based matcher
 a = 100 #i
@@ -94,7 +94,7 @@ drawing = True
 def executeScenarios(folder):
     print(time.ctime())
     print(f"Folder: {folder}")
-    img = [cv2.imread(f"{datasetdir}/{folder}/img{i}.jpg") for i in range(1, 7)]
+    img = [cv2.imread(f"{datasetdir}/{folder}/DSC00{i}.JPG") for i in range(153, 189)]
     if a == 100 and b == 100:
         Rate      = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 14))
         Exec_time = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))
@@ -104,21 +104,21 @@ def executeScenarios(folder):
     
     keypoints_cache   = np.empty((len(img), len(Detectors), 2), dtype=object)
     descriptors_cache = np.empty((len(img), len(Detectors), len(Descriptors), 2), dtype=object)
-    for k in range(len(img)):
-        # if drawing:
-        #     if k != 3:
-        #         continue
+    for k in range(len(img)-1):
+        if drawing:
+            if k != 3:
+                continue
         for i in range(len(Detectors)):
             if (i == a or a == 100):
                 method_dtect = Detectors[i]
                 if keypoints_cache[0, i, 0] is None:
-                    keypoints1 = method_dtect.detect(img[0], None)
+                    keypoints1 = method_dtect.detect(img[k], None)
                     keypoints_cache[0, i, 0] = keypoints1
                 else:
-                    keypoints1 = keypoints_cache[0, i, 0]   
+                    keypoints1 = keypoints_cache[0, i, 0]
                 if keypoints_cache[k, i, 1] is None:
                     start_time = time.time()
-                    keypoints2 = method_dtect.detect(img[k], None)
+                    keypoints2 = method_dtect.detect(img[k+1], None)
                     detect_time = time.time() - start_time
                     keypoints_cache[k, i, 1] = keypoints2
                 else:
@@ -135,13 +135,13 @@ def executeScenarios(folder):
                             Rate[k, c3, i, j,10] = matcher
                             try:
                                 if descriptors_cache[0, i, j, 0] is None:
-                                    keypoints11, descriptors1 = method_dscrpt.compute(img[0], keypoints1)
+                                    keypoints11, descriptors1 = method_dscrpt.compute(img[k], keypoints1)
                                     descriptors_cache[0, i, j, 0] = descriptors1
                                 else:
                                     descriptors1 = descriptors_cache[0, i, j, 0]
                                 if descriptors_cache[k, i, j, 1] is None:
                                     start_time = time.time()
-                                    keypoints22, descriptors2 = method_dscrpt.compute(img[k], keypoints2)
+                                    keypoints22, descriptors2 = method_dscrpt.compute(img[k+1], keypoints2)
                                     descript_time = time.time() - start_time
                                     descriptors_cache[k, i, j, 1] = descriptors2
                                 else:
@@ -172,9 +172,9 @@ def executeScenarios(folder):
                                 continue
                             
                             if drawing and k == 3:
-                                keypointImage1 = cv2.drawKeypoints(img[0],          keypoints1,  None, color=(206, 217, 162), flags=0)
+                                keypointImage1 = cv2.drawKeypoints(img[k],          keypoints1,  None, color=(206, 217, 162), flags=0)
                                 ImageGT        = cv2.drawKeypoints(keypointImage1,  keypoints11, None, color=( 18, 156, 243), flags=0)
-                                keypointImage2 = cv2.drawKeypoints(img[k],          keypoints2,  None, color=(206, 217, 162), flags=0)
+                                keypointImage2 = cv2.drawKeypoints(img[k+1],          keypoints2,  None, color=(206, 217, 162), flags=0)
                                 Image2         = cv2.drawKeypoints(keypointImage2,  keypoints22, None, color=(173,  68, 142), flags=0)
                                 img_matches    = cv2.drawMatches(ImageGT, keypoints1, Image2, keypoints2, good_matches[:], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
                                 text = [
@@ -225,14 +225,7 @@ def executeScenarios(folder):
                         row = np.append(Rate[k, c3, i, j, :], Exec_time[k, c3, i, j, :])
                         writer.writerow(row)
 ########################################################
-executeScenarios("graf")
-executeScenarios("bikes")
-executeScenarios("boat")
-executeScenarios("leuven")
-
-executeScenarios("wall")
-executeScenarios("trees")
-executeScenarios("bark")
-executeScenarios("ubc")
+executeScenarios("drone")
+# executeScenarios
 ########################################################
 print(time.ctime())
