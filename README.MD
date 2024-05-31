@@ -1,10 +1,10 @@
 
 All Synthetic Data [Results](https://abbaselmas.github.io/feature-combinations/html/SyntheticData.html)  
-Synthetic Data [Timings](https://abbaselmas.github.io/feature-combinations/html/SyntheticData_timing.html)
+Synthetic Data [Timings](https://abbaselmas.github.io/feature-combinations/html/SyntheticData_timing_Average1k.html)
 
 All oxford Affine 1234 [Results](https://abbaselmas.github.io/feature-combinations/html/oxfordAffineData1234.html)  
 All oxford Affine 5678 [Results](https://abbaselmas.github.io/feature-combinations/html/oxfordAffineData5678.html)  
-Oxford Affine All [Timings](https://abbaselmas.github.io/feature-combinations/html/oxfordAffine_timing.html)
+Oxford Affine All [Timings](https://abbaselmas.github.io/feature-combinations/html/oxfordAffine_timing_Average1k.html)
 
 |Detector Methods|Synthetic data|oxford Affine 1234|oxford Affine 5678| OpenCV Ref |
 |---|---|---|---|---|
