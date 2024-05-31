@@ -22,9 +22,9 @@ colors = sample_colorscale('Turbo', [i / num_combinations for i in range(num_com
 ########################
 # MARK: - Synthetic Data
 ########################
-Rate_intensity  = np.load(maindir + '/arrays/Rate_intensity.npy')
-Rate_scale      = np.load(maindir + '/arrays/Rate_scale.npy')
-Rate_rot        = np.load(maindir + '/arrays/Rate_rot.npy')
+Rate_intensity = np.load(maindir + '/arrays/Rate_intensity.npy')
+Rate_scale     = np.load(maindir + '/arrays/Rate_scale.npy')
+Rate_rot       = np.load(maindir + '/arrays/Rate_rot.npy')
 
 fig1 = make_subplots(rows=2, cols=2, shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig1.update_layout(margin=dict(l=20, r=20, t=25, b=25))
@@ -42,24 +42,24 @@ for j in range(len(DescriptorsLegend)):
     color_index = 0
     for i in range(len(DetectorsLegend)):
         for c3 in range(len(Norm)):
-            Rate2_I1 = Rate_intensity[:len(val_b), c3, i, j, 13]
-            Rate2_I2 = Rate_intensity[len(val_c):, c3, i, j, 13]
-            Rate2_S  = Rate_scale    [          :, c3, i, j, 13]
-            Rate2_R  = Rate_rot      [          :, c3, i, j, 13]
+            Rate2_I1 = Rate_intensity[:len(val_b), c3, i, j, 11]
+            Rate2_I2 = Rate_intensity[len(val_c):, c3, i, j, 11]
+            Rate2_S  = Rate_scale    [          :, c3, i, j, 11]
+            Rate2_R  = Rate_rot      [          :, c3, i, j, 11]
 
             color = colors[color_index]
             style = line_styles[i % len(line_styles)]
             legend_groupfig1 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
-            if not (np.isnan(Rate_intensity[:len(val_b), c3, i, j, 13]).any()):
+            if not (np.isnan(Rate_intensity[:len(val_b), c3, i, j, 11]).any()):
                 fig1trace_I1    = go.Scatter(x=val_b, y=Rate2_I1, mode='lines', line=dict(color=color, dash=style), name=legend_groupfig1, legendgroup=legend_groupfig1, showlegend=True)
                 fig1.add_trace(fig1trace_I1, row=1, col=1)
-            if not (np.isnan(Rate_intensity[len(val_c):, c3, i, j, 13]).any()):
+            if not (np.isnan(Rate_intensity[len(val_c):, c3, i, j, 11]).any()):
                 fig1trace_I2    = go.Scatter(x=val_c, y=Rate2_I2, mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig1, showlegend=False)
                 fig1.add_trace(fig1trace_I2, row=1, col=2)
-            if not (np.isnan(Rate_scale[1:, c3, i, j, 13]).any()):
+            if not (np.isnan(Rate_scale[1:, c3, i, j, 11]).any()):
                 fig1trace_Scale = go.Scatter(x=scale, y=Rate2_S,  mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig1, showlegend=False)
                 fig1.add_trace(fig1trace_Scale,  row=2, col=1)
-            if not (np.isnan(Rate_rot[1:, c3, i, j, 13]).any()):
+            if not (np.isnan(Rate_rot[1:, c3, i, j, 11]).any()):
                 fig1trace_Rot   = go.Scatter(x=rot,   y=Rate2_R,  mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig1, showlegend=False)
                 fig1.add_trace(fig1trace_Rot,  row=2, col=2)
             color_index += 1
@@ -87,24 +87,24 @@ for j in range(len(DescriptorsLegend)):
     color_index = 0
     for i in range(len(DetectorsLegend)):
         for c3 in range(len(Norm)):
-            Rate_Graf   = Rate_graf  [1:, c3, i, j, 13]
-            Rate_Bikes  = Rate_bikes [1:, c3, i, j, 13]
-            Rate_Boat   = Rate_boat  [1:, c3, i, j, 13]
-            Rate_Leuven = Rate_leuven[1:, c3, i, j, 13]
+            Rate_Graf   = Rate_graf  [1:, c3, i, j, 11]
+            Rate_Bikes  = Rate_bikes [1:, c3, i, j, 11]
+            Rate_Boat   = Rate_boat  [1:, c3, i, j, 11]
+            Rate_Leuven = Rate_leuven[1:, c3, i, j, 11]
 
             color = colors[color_index]
             style = line_styles[i % len(line_styles)]
             legend_groupfig2 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
-            if not (np.isnan(Rate_graf[1:, c3, i, j, 13]).any()):
-                fig2trace_Graf  = go.Scatter(x=x, y=Rate_Graf,    mode='lines', line=dict(color=color, dash=style), name=legend_groupfig2, legendgroup=legend_groupfig2, showlegend=True)
+            if not (np.isnan(Rate_graf[1:, c3, i, j, 11]).any()):
+                fig2trace_Graf   = go.Scatter(x=x, y=Rate_Graf,   mode='lines', line=dict(color=color, dash=style), name=legend_groupfig2, legendgroup=legend_groupfig2, showlegend=True)
                 fig2.add_trace(fig2trace_Graf, row=1, col=1)
-            if not (np.isnan(Rate_bikes[1:, c3, i, j, 13]).any()):
-                fig2trace_Bikes = go.Scatter(x=x, y=Rate_Bikes,   mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig2, showlegend=False)
+            if not (np.isnan(Rate_bikes[1:, c3, i, j, 11]).any()):
+                fig2trace_Bikes  = go.Scatter(x=x, y=Rate_Bikes,  mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig2, showlegend=False)
                 fig2.add_trace(fig2trace_Bikes, row=2, col=2)
-            if not (np.isnan(Rate_boat[1:, c3, i, j, 13]).any()):
+            if not (np.isnan(Rate_boat[1:, c3, i, j, 11]).any()):
                 fig2trace_Boat   = go.Scatter(x=x, y=Rate_Boat,   mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig2, showlegend=False)
                 fig2.add_trace(fig2trace_Boat, row=1, col=2)
-            if not (np.isnan(Rate_leuven[1:, c3, i, j, 13]).any()):
+            if not (np.isnan(Rate_leuven[1:, c3, i, j, 11]).any()):
                 fig2trace_Leuven = go.Scatter(x=x, y=Rate_Leuven, mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig2, showlegend=False)
                 fig2.add_trace(fig2trace_Leuven,  row=2, col=1)
             color_index += 1
@@ -132,25 +132,25 @@ for j in range(len(DescriptorsLegend)):
     color_index = 0
     for i in range(len(DetectorsLegend)):
         for c3 in range(len(Norm)):
-            Rate_Wall  = Rate_wall [1:, c3, i, j, 13]
-            Rate_Trees = Rate_trees[1:, c3, i, j, 13]
-            Rate_Bark  = Rate_bark [1:, c3, i, j, 13]
-            Rate_Ubc   = Rate_ubc  [1:, c3, i, j, 13]
+            Rate_Wall  = Rate_wall [1:, c3, i, j, 11]
+            Rate_Trees = Rate_trees[1:, c3, i, j, 11]
+            Rate_Bark  = Rate_bark [1:, c3, i, j, 11]
+            Rate_Ubc   = Rate_ubc  [1:, c3, i, j, 11]
 
             color = colors[color_index]
             style = line_styles[i % len(line_styles)]
             legend_groupfig3 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
-            if not (np.isnan(Rate_bark[1:, c3, i, j, 13]).any()):
-                fig3trace_Bark   = go.Scatter(x=x, y=Rate_Bark, mode='lines', line=dict(color=color, dash=style), name=legend_groupfig3, legendgroup=legend_groupfig3, showlegend=True)
+            if not (np.isnan(Rate_bark[1:, c3, i, j, 11]).any()):
+                fig3trace_Bark  = go.Scatter(x=x, y=Rate_Bark, mode='lines', line=dict(color=color, dash=style),  name=legend_groupfig3, legendgroup=legend_groupfig3, showlegend=True)
                 fig3.add_trace(fig3trace_Bark,  row=1, col=1)
-            if not (np.isnan(Rate_wall[1:, c3, i, j, 13]).any()):
+            if not (np.isnan(Rate_wall[1:, c3, i, j, 11]).any()):
                 fig3trace_Wall  = go.Scatter(x=x, y=Rate_Wall,  mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig3, showlegend=False)
                 fig3.add_trace(fig3trace_Wall, row=1, col=2)
-            if not (np.isnan(Rate_trees[1:, c3, i, j, 13]).any()):
+            if not (np.isnan(Rate_trees[1:, c3, i, j, 11]).any()):
                 fig3trace_Trees = go.Scatter(x=x, y=Rate_Trees, mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig3, showlegend=False)
                 fig3.add_trace(fig3trace_Trees, row=2, col=1)
-            if not (np.isnan(Rate_ubc[1:, c3, i, j, 13]).any()):
-                fig3trace_Ubc    = go.Scatter(x=x, y=Rate_Ubc,  mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig3, showlegend=False)
+            if not (np.isnan(Rate_ubc[1:, c3, i, j, 11]).any()):
+                fig3trace_Ubc   = go.Scatter(x=x, y=Rate_Ubc,  mode='lines', line=dict(color=color, dash=style),  name='',               legendgroup=legend_groupfig3, showlegend=False)
                 fig3.add_trace(fig3trace_Ubc,  row=2, col=2)
             color_index += 1
     fig3.write_html(f'./html/oxfordAffine5678_Descriptor_{DescriptorsLegend[j]}.html')
