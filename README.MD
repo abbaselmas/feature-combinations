@@ -6,8 +6,8 @@ All oxford Affine 1234 [Results](https://abbaselmas.github.io/feature-combinatio
 All oxford Affine 5678 [Results](https://abbaselmas.github.io/feature-combinations/html/oxfordAffineData5678.html)  
 Oxford Affine All [Timings](https://abbaselmas.github.io/feature-combinations/html/oxfordAffine_timing_Average1k.html)
 
-All Drone Data [Results](https://abbaselmas.github.io/feature-combinations/html/droneData.html)
-Drone Data [Timings](https://abbaselmas.github.io/feature-combinations/html/droneData_timing_Average1k.html)
+All Drone Data [Results](https://abbaselmas.github.io/feature-combinations/html/droneData.html)  
+Drone Data [Timings](https://abbaselmas.github.io/feature-combinations/html/drone_timing_Average1k.html)
 
 |Detector Methods|Synthetic data|oxford 1234|oxford 5678| OpenCV Ref | Drone Data |
 |---|---|---|---|---|---|

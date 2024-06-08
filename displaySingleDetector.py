@@ -46,7 +46,7 @@ for i in range(len(DetectorsLegend)):
             if not (np.isnan(Rate_rot[1:, c3, i, j, 11]).any()):
                 fig1trace_Rot   = go.Scatter(x=rot,   y=Rate2_R,  mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig1, showlegend=False)
                 fig1.add_trace(fig1trace_Rot,  row=2, col=2)
-            color_index += 1
+            color_index += 10
     fig1.write_html(f'./html/SyntheticData_Detector_{DetectorsLegend[i]}.html')
     fig1.data = []
     fig1trace_I1 = fig1trace_I2 = fig1trace_Scale = fig1trace_Rot = legend_groupfig1 = None
@@ -91,7 +91,7 @@ for i in range(len(DetectorsLegend)):
             if not (np.isnan(Rate_leuven[1:, c3, i, j, 11]).any()):
                 fig2trace_Leuven = go.Scatter(x=x, y=Rate_Leuven, mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig2, showlegend=False)
                 fig2.add_trace(fig2trace_Leuven,  row=2, col=1)
-            color_index += 1
+            color_index += 10
     fig2.write_html(f'./html/oxfordAffine1234_Detector_{DetectorsLegend[i]}.html')
     fig2.data = []
     fig2trace_Graf = fig2trace_Bikes = fig2trace_Boat  = fig2trace_Leuven  = legend_groupfig2 = None
@@ -122,7 +122,7 @@ for i in range(len(DetectorsLegend)):
             Rate_Ubc   = Rate_ubc  [1:, c3, i, j, 11]
 
             color = colors[color_index]
-            style = line_styles[i % len(line_styles)]
+            style = line_styles[j % len(line_styles)]
             legend_groupfig3 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
             if not (np.isnan(Rate_bark[1:, c3, i, j, 11]).any()):
                 fig3trace_Bark  = go.Scatter(x=x, y=Rate_Bark,  mode='lines', line=dict(color=color, dash=style), name=legend_groupfig3, legendgroup=legend_groupfig3, showlegend=True)
@@ -136,7 +136,7 @@ for i in range(len(DetectorsLegend)):
             if not (np.isnan(Rate_ubc[1:, c3, i, j, 11]).any()):
                 fig3trace_Ubc   = go.Scatter(x=x, y=Rate_Ubc,   mode='lines', line=dict(color=color, dash=style), name='',               legendgroup=legend_groupfig3, showlegend=False)
                 fig3.add_trace(fig3trace_Ubc,  row=2, col=2)
-            color_index += 1
+            color_index += 10
     fig3.write_html(f'./html/oxfordAffine5678_Detector_{DetectorsLegend[i]}.html')
     fig3.data = []
     fig3trace_Bark = fig3trace_Wall = fig3trace_Trees = fig3trace_Ubc = legend_groupfig3 = None
@@ -159,12 +159,12 @@ for i in range(len(DetectorsLegend)):
             Rate_dr = Rate_drone[:, c3, i, j, 11]
 
             color = colors[color_index]
-            style = line_styles[i % len(line_styles)]
+            style = line_styles[j % len(line_styles)]
             legend_groupfig4 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
             if not (np.isnan(Rate_drone[:, c3, i, j, 11]).any()):
                 fig4trace_Drone  = go.Scatter(x=x, y=Rate_dr, mode='lines', line=dict(color=color, dash=style),  name=legend_groupfig4, legendgroup=legend_groupfig4, showlegend=True)
                 fig4.add_trace(fig4trace_Drone)
-            color_index += 1
+            color_index += 10
     fig4.write_html(f'./html/drone_Detector_{DetectorsLegend[i]}.html')
     fig4.data = []
     fig4trace_Drone = legend_groupfig4 = None
