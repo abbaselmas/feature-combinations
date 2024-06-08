@@ -77,7 +77,7 @@ for i in range(len(DetectorsLegend)):
             Rate_Leuven = Rate_leuven[1:, c3, i, j, 11]
 
             color = colors[color_index]
-            style = line_styles[i % len(line_styles)]
+            style = line_styles[j % len(line_styles)]
             legend_groupfig2 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
             if not (np.isnan(Rate_graf[1:, c3, i, j, 11]).any()):
                 fig2trace_Graf   = go.Scatter(x=x, y=Rate_Graf,   mode='lines', line=dict(color=color, dash=style), name=legend_groupfig2, legendgroup=legend_groupfig2, showlegend=True)
@@ -140,4 +140,32 @@ for i in range(len(DetectorsLegend)):
     fig3.write_html(f'./html/oxfordAffine5678_Detector_{DetectorsLegend[i]}.html')
     fig3.data = []
     fig3trace_Bark = fig3trace_Wall = fig3trace_Trees = fig3trace_Ubc = legend_groupfig3 = None
+##############################################################################################################
+
+######################
+# MARK: - Drone Data
+######################
+Rate_drone = np.load('./arrays/Rate_drone.npy')
+
+fig4 = go.Figure()
+fig4.update_layout(margin=dict(l=20, r=20, t=25, b=25))
+x = [f'Img{i}' for i in range(153, 188)]
+fig4.update_layout(  xaxis = dict(tickmode = 'array', tickvals = x))
+fig4.update_yaxes(title_text="Correctly matched point rates %")
+for i in range(len(DetectorsLegend)):
+    color_index = 0
+    for j in range(len(DescriptorsLegend)):
+        for c3 in range(len(Norm)):
+            Rate_dr = Rate_drone[:, c3, i, j, 11]
+
+            color = colors[color_index]
+            style = line_styles[i % len(line_styles)]
+            legend_groupfig4 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
+            if not (np.isnan(Rate_drone[:, c3, i, j, 11]).any()):
+                fig4trace_Drone  = go.Scatter(x=x, y=Rate_dr, mode='lines', line=dict(color=color, dash=style),  name=legend_groupfig4, legendgroup=legend_groupfig4, showlegend=True)
+                fig4.add_trace(fig4trace_Drone)
+            color_index += 1
+    fig4.write_html(f'./html/drone_Detector_{DetectorsLegend[i]}.html')
+    fig4.data = []
+    fig4trace_Drone = legend_groupfig4 = None
 ##############################################################################################################

@@ -102,23 +102,19 @@ def executeScenarios(folder):
                         continue
             else:
                 continue
-    np.save(f"{maindir}/arrays/Rate_{folder}.npy",      Rate)
-    np.save(f"{maindir}/arrays/Exec_time_{folder}.npy", Exec_time)
-    
-    headers = [
-        "K", "Detector", "Descriptor", "Matching", "Matcher", "Keypoint1", "Keypoint2", "Descriptor1", "Descriptor2", "Inliers", "Total Matches", "Match Rate",
-        "Detect time", "Descript time", "Match time"
-    ]
-
-    with open(f'./csv/{folder}_analysis.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=';')
-        writer.writerow(headers)
-        for k in range(Rate.shape[0]):
-            for c3 in range(Rate.shape[1]):
-                for i in range(Rate.shape[2]):
-                    for j in range(Rate.shape[3]):
-                        row = np.append(Rate[k, c3, i, j, :], Exec_time[k, c3, i, j, :])
-                        writer.writerow(row)
+    if save:
+        np.save(f"./arrays/Rate_{folder}.npy",      Rate)
+        np.save(f"./arrays/Exec_time_{folder}.npy", Exec_time)
+        headers = ["K", "Detector", "Descriptor", "Matching", "Matcher", "Keypoint1", "Keypoint2", "Descriptor1", "Descriptor2", "Inliers", "Total Matches", "Match Rate", "Detect time", "Descript time", "Match time"]
+        with open(f'./csv/{folder}_analysis.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=';')
+            writer.writerow(headers)
+            for k in range(Rate.shape[0]):
+                for c3 in range(Rate.shape[1]):
+                    for i in range(Rate.shape[2]):
+                        for j in range(Rate.shape[3]):
+                            row = np.append(Rate[k, c3, i, j, :], Exec_time[k, c3, i, j, :])
+                            writer.writerow(row)
 ########################################################
 executeScenarios("graf")
 executeScenarios("bikes")

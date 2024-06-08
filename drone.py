@@ -4,41 +4,38 @@ import time, os, csv
 from define import *
 
 ########################################################
-def executeScenarios(folder):
+def executeDroneScenarios(a=100, b=100, save=True, drawing=False, matcher=0):
     print(time.ctime())
-    print(f"Folder: {folder}")
-    img = [cv2.imread(f"{datasetdir}/{folder}/DSC00{i}.JPG") for i in range(153, 189)]
-    if a == 100 and b == 100:
-        Rate      = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 12))
-        Exec_time = np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))
-    else:
-        Rate      = np.load(f"{maindir}/arrays/Rate_{folder}.npy")      if os.path.exists(f"{maindir}/arrays/Rate_{folder}.npy")      else np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 14))
-        Exec_time = np.load(f"{maindir}/arrays/Exec_time_{folder}.npy") if os.path.exists(f"{maindir}/arrays/Exec_time_{folder}.npy") else np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))
+    print(f"Folder: drone")
+    img = [cv2.imread(f"./Small_Buildings/droneResized/DSC00{i}.JPG") for i in range(153, 189)]
+    Rate      = np.load(f"./arrays/Rate_drone.npy")      if os.path.exists(f"./arrays/Rate_drone.npy")      else np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 14))
+    Exec_time = np.load(f"./arrays/Exec_time_drone.npy") if os.path.exists(f"./arrays/Exec_time_drone.npy") else np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))
     keypoints_cache   = np.empty((len(img), len(Detectors), 2), dtype=object)
     descriptors_cache = np.empty((len(img), len(Detectors), len(Descriptors), 2), dtype=object)
     for k in range(len(img)-1):
-        # if drawing:
-        #     if k != 3:
-        #         continue
+        if drawing:
+            if k != 3:
+                continue
         for i in range(len(Detectors)):
             if (i == a or a == 100):
                 method_dtect = Detectors[i]
-                if keypoints_cache[0, i, 0] is None:
+                if keypoints_cache[k, i, 0] is None:
                     keypoints1 = method_dtect.detect(img[k], None)
-                    keypoints_cache[0, i, 0] = keypoints1
+                    keypoints_cache[k, i, 0] = keypoints1
                 else:
-                    keypoints1 = keypoints_cache[0, i, 0]
-                if keypoints_cache[k, i, 1] is None:
+                    keypoints1 = keypoints_cache[k, i, 0]
+                if keypoints_cache[k+1, i, 1] is None:
                     start_time = time.time()
                     keypoints2 = method_dtect.detect(img[k+1], None)
                     detect_time = time.time() - start_time
-                    keypoints_cache[k, i, 1] = keypoints2
+                    keypoints_cache[k+1, i, 1] = keypoints2
                 else:
-                    keypoints2 = keypoints_cache[k, i, 1]
+                    keypoints2 = keypoints_cache[k+1, i, 1]
                 for j in range(len(Descriptors)):
                     if j == b or b == 100:
                         method_dscrpt = Descriptors[j]
                         for c3 in range(len(matching)):
+                            print(f"Image: {k} Detector: {method_dtect.getDefaultName().split('.')[-1]} Descriptor: {method_dscrpt.getDefaultName().split('.')[-1]} Matching: {matching[c3]}")
                             Exec_time[k, c3, i, j, 0] = detect_time
                             Rate[k, c3, i, j, 0] = k
                             Rate[k, c3, i, j, 1] = i
@@ -46,21 +43,21 @@ def executeScenarios(folder):
                             Rate[k, c3, i, j, 3] = matching[c3]
                             Rate[k, c3, i, j, 4] = matcher
                             try:
-                                if descriptors_cache[0, i, j, 0] is None:
+                                if descriptors_cache[k, i, j, 0] is None:
                                     _, descriptors1 = method_dscrpt.compute(img[k], keypoints1)
-                                    descriptors_cache[0, i, j, 0] = descriptors1
+                                    descriptors_cache[k, i, j, 0] = descriptors1
                                 else:
-                                    descriptors1 = descriptors_cache[0, i, j, 0]
-                                if descriptors_cache[k, i, j, 1] is None:
+                                    descriptors1 = descriptors_cache[k, i, j, 0]
+                                if descriptors_cache[k+1, i, j, 1] is None:
                                     start_time = time.time()
                                     _, descriptors2 = method_dscrpt.compute(img[k+1], keypoints2)
                                     descript_time = time.time() - start_time
-                                    descriptors_cache[k, i, j, 1] = descriptors2
+                                    descriptors_cache[k+1, i, j, 1] = descriptors2
                                 else:
-                                    descriptors2 = descriptors_cache[k, i, j, 1]
+                                    descriptors2 = descriptors_cache[k+1, i, j, 1]
                                 Exec_time[k, c3, i, j, 1] = descript_time
                                 start_time = time.time()
-                                Rate[k, c3, i, j, 11], good_matches, matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                                Rate[k, c3, i, j, 11], good_matches, matches, h = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                                 Exec_time[k, c3, i, j, 2] = time.time() - start_time
                                 Rate[k, c3, i, j, 5] = len(keypoints1)
                                 Rate[k, c3, i, j, 6] = len(keypoints2)
@@ -79,7 +76,7 @@ def executeScenarios(folder):
                                 Rate[k, c3, i, j,11] = None
                                 continue
                             
-                            if drawing and k == 3:
+                            if drawing and k == 3 and Rate[k, c3, i, j, 9] > 1000:
                                 img_matches    = cv2.drawMatches(img[k], keypoints1, img[k+1], keypoints2, good_matches[:], None, flags=cv2.DRAW_MATCHES_FLAGS_DEFAULT)
                                 text = [
                                     f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
@@ -101,31 +98,27 @@ def executeScenarios(folder):
                                     cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (255, 255, 255), 2, cv2.LINE_AA)
                                     cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
                                     
-                                filename = f"{maindir}/draws/{folder}/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
+                                filename = f"./draws/drone/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
                                 cv2.imwrite(filename, img_matches)
                     else:
                         continue
             else:
                 continue
-    np.save(f"{maindir}/arrays/Rate_{folder}.npy",      Rate)
-    np.save(f"{maindir}/arrays/Exec_time_{folder}.npy", Exec_time)
-    
-    headers = [
-        "K", "Detector", "Descriptor", "Matching", "Matcher", "Keypoint1", "Keypoint2", "Descriptor1", "Descriptor2", "Inliers", "Total Matches", "Match Rate",
-        "Detect time", "Descript time", "Match time"
-    ]
+    if save:
+        np.save(f"./arrays/Rate_drone.npy",      Rate)
+        np.save(f"./arrays/Exec_time_drone.npy", Exec_time)
+        headers = ["K", "Detector", "Descriptor", "Matching", "Matcher", "Keypoint1", "Keypoint2", "Descriptor1", "Descriptor2", "Inliers", "Total Matches", "Match Rate", "Detect time", "Descript time", "Match time"]
+        with open(f'./csv/drone_analysis.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=';')
+            writer.writerow(headers)
+            for k in range(Rate.shape[0]):
+                for c3 in range(Rate.shape[1]):
+                    for i in range(Rate.shape[2]):
+                        for j in range(Rate.shape[3]):
+                            row = np.append(Rate[k, c3, i, j, :], Exec_time[k, c3, i, j, :])
+                            writer.writerow(row)
 
-    with open(f'./csv/{folder}_analysis.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=';')
-        writer.writerow(headers)
-        for k in range(Rate.shape[0]):
-            for c3 in range(Rate.shape[1]):
-                for i in range(Rate.shape[2]):
-                    for j in range(Rate.shape[3]):
-                        row = np.append(Rate[k, c3, i, j, :], Exec_time[k, c3, i, j, :])
-                        writer.writerow(row)
-########################################################
-executeScenarios("drone")
-
-########################################################
+################MAIN CODE###################################
+executeDroneScenarios(a=100, b=100, save=True, drawing=False, matcher=0)
 print(time.ctime())
+########################################################
