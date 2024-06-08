@@ -89,7 +89,7 @@ def evaluate_scenario_intensity(matcher, KP1, KP2, Dspt1, Dspt2, norm_type):
         Y1 = int(KP1[m1].pt[1])
         X2 = int(KP2[m2].pt[0])
         Y2 = int(KP2[m2].pt[1])
-        if (abs(X1 - X2) <=4) and (abs(Y1 - Y2) <=4):   #  Tolerance allowance (∼ 4 pixels)
+        if (abs(X1 - X2) <=3) and (abs(Y1 - Y2) <=3):   # Tolerance allowance (∼ 3 pixels)
             Prob_P += 1
             good_matches.append(matches[i])
         else:
@@ -97,7 +97,7 @@ def evaluate_scenario_intensity(matcher, KP1, KP2, Dspt1, Dspt2, norm_type):
     Prob_True = ((Prob_P / (Prob_P + Prob_N))*100 if len(matches) > 0 else 0)
     good_matches = sorted(good_matches, key = lambda x:x.distance)
     return Prob_True, good_matches, matches
-# ................................................................................
+
 def evaluate_scenario_scale(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, scale):
     if matcher == 0: # Brute-force matcher
         bf = cv2.BFMatcher(norm_type, crossCheck=True) 
@@ -120,7 +120,7 @@ def evaluate_scenario_scale(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, scale):
         Y1 = int(KP1[m1].pt[1])
         X2 = int(KP2[m2].pt[0])
         Y2 = int(KP2[m2].pt[1])
-        if (abs(X1*scale - X2) <=4) and (abs(Y1*scale - Y2) <=4):   #  Tolerance allowance (∼ 4 pixels)
+        if (abs(X1*scale - X2) <=3) and (abs(Y1*scale - Y2) <=3):   # Tolerance allowance (∼ 3 pixels)
             Prob_P += 1
             good_matches.append(matches[i])
         else:
@@ -154,7 +154,7 @@ def evaluate_scenario_rotation(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, rot, 
         Y2 = int(KP2[m2].pt[1])
         X12 =  X1*np.cos(theta) + Y1*np.sin(theta) + rot_matrix[0,2]
         Y12 = -X1*np.sin(theta) + Y1*np.cos(theta) + rot_matrix[1,2]
-        if (abs(X12 - X2) <=4) and (abs(Y12 - Y2) <=4):   #  Tolerance allowance (∼ 1-2 pixels)
+        if (abs(X12 - X2) <=3) and (abs(Y12 - Y2) <=3):   #  Tolerance allowance (∼ 3 pixels)
             Prob_P += 1
             good_matches.append(matches[i])
         else:
