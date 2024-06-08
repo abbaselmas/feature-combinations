@@ -1,50 +1,18 @@
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
-from plotly.colors import sample_colorscale
 import numpy as np
-import os
-
-maindir = os.path.abspath(os.path.dirname(__file__))
-
-val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
-val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
-scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈ [0.5 : 0.2 : 1.5]
-rot   = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
-
-DetectorsLegend   = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'agast', 'gftt', 'gftt_harris', 'star', 'hl', 'msd', 'tbmr']
-DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'vgg', 'beblid', 'teblid', 'boost']
-line_styles = ['solid', 'dash', 'dot']
-Norm = ['L2', 'HAM']
-
-num_combinations = len(DetectorsLegend) * len(DescriptorsLegend) * len(Norm)
-colors = sample_colorscale('Turbo', [i / num_combinations for i in range(num_combinations)])
-
-Rate_intensity  = np.load(maindir + '/arrays/Rate_intensity.npy')
-Rate_scale      = np.load(maindir + '/arrays/Rate_scale.npy')
-Rate_rot        = np.load(maindir + '/arrays/Rate_rot.npy')
-Exec_time_intensity = np.load(maindir + '/arrays/Exec_time_intensity.npy')
-Exec_time_scale     = np.load(maindir + '/arrays/Exec_time_scale.npy')
-Exec_time_rot       = np.load(maindir + '/arrays/Exec_time_rot.npy')
-Rate_graf   = np.load(maindir + '/arrays/Rate_graf.npy')
-Rate_bikes  = np.load(maindir + '/arrays/Rate_bikes.npy')
-Rate_boat   = np.load(maindir + '/arrays/Rate_boat.npy')
-Rate_leuven = np.load(maindir + '/arrays/Rate_leuven.npy')
-Rate_wall   = np.load(maindir + '/arrays/Rate_wall.npy')
-Rate_trees  = np.load(maindir + '/arrays/Rate_trees.npy')
-Rate_bark   = np.load(maindir + '/arrays/Rate_bark.npy')
-Rate_ubc    = np.load(maindir + '/arrays/Rate_ubc.npy')
-Exec_time_graf   = np.load(maindir + '/arrays/Exec_time_graf.npy')
-Exec_time_wall   = np.load(maindir + '/arrays/Exec_time_wall.npy')
-Exec_time_trees  = np.load(maindir + '/arrays/Exec_time_trees.npy')
-Exec_time_bikes  = np.load(maindir + '/arrays/Exec_time_bikes.npy')
-Exec_time_bark   = np.load(maindir + '/arrays/Exec_time_bark.npy')
-Exec_time_boat   = np.load(maindir + '/arrays/Exec_time_boat.npy')
-Exec_time_leuven = np.load(maindir + '/arrays/Exec_time_leuven.npy')
-Exec_time_ubc    = np.load(maindir + '/arrays/Exec_time_ubc.npy')
+from define import *
 
 ########################
 # MARK: - Synthetic Data
 ########################
+Rate_intensity      = np.load('./arrays/Rate_intensity.npy')
+Rate_scale          = np.load('./arrays/Rate_scale.npy')
+Rate_rot            = np.load('./arrays/Rate_rot.npy')
+Exec_time_intensity = np.load('./arrays/Exec_time_intensity.npy')
+Exec_time_scale     = np.load('./arrays/Exec_time_scale.npy')
+Exec_time_rot       = np.load('./arrays/Exec_time_rot.npy')
+
 fig1 = make_subplots(rows=2, cols=2, shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig1.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 fig1.update_layout(xaxis = dict(tickvals = val_b), xaxis2 = dict(tickvals = val_c), xaxis3 = dict(tickvals = scale), xaxis4 = dict(tickvals = rot))
@@ -84,7 +52,7 @@ for i in range(len(DetectorsLegend)):
 fig1.write_html("./html/SyntheticData.html")
 
 ###########################
-# MARK: - Inlier Synthetic Timing on 100k features
+# MARK: - Inlier Synthetic Timing on 1k features
 ###########################
 fig25 = make_subplots(rows=3, cols=2, subplot_titles=['Average 1k Detect time', 'Average 1k Describe time', 'Average 1k Total time', 'Average 1k Inlier time'], shared_xaxes=False, shared_yaxes=False, specs=[[{}, {}],[{"colspan": 2}, None],[{"colspan": 2}, None]],horizontal_spacing=0.05, vertical_spacing=0.1)
 fig25.update_layout(margin=dict(l=20, r=20, t=25, b=25))
@@ -126,6 +94,15 @@ fig25.write_html("./html/SyntheticData_timing_Average1k.html")
 ######################
 # MARK: - Oxford 1234
 ######################
+Rate_graf        = np.load('./arrays/Rate_graf.npy')
+Rate_bikes       = np.load('./arrays/Rate_bikes.npy')
+Rate_boat        = np.load('./arrays/Rate_boat.npy')
+Rate_leuven      = np.load('./arrays/Rate_leuven.npy')
+Exec_time_graf   = np.load('./arrays/Exec_time_graf.npy')
+Exec_time_bikes  = np.load('./arrays/Exec_time_bikes.npy')
+Exec_time_boat   = np.load('./arrays/Exec_time_boat.npy')
+Exec_time_leuven = np.load('./arrays/Exec_time_leuven.npy')
+
 fig3 = make_subplots(rows=2, cols=2, subplot_titles=['Graf(Viewpoint)', 'Bikes(Blur)', 'Boat(Zoom + Rotation)', 'Leuven(Light)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig3.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
@@ -163,6 +140,15 @@ fig3.write_html("./html/oxfordAffineData1234.html")
 ######################
 # MARK: - Oxford 5678
 ######################
+Rate_wall       = np.load('./arrays/Rate_wall.npy')
+Rate_trees      = np.load('./arrays/Rate_trees.npy')
+Rate_bark       = np.load('./arrays/Rate_bark.npy')
+Rate_ubc        = np.load('./arrays/Rate_ubc.npy')
+Exec_time_wall  = np.load('./arrays/Exec_time_wall.npy')
+Exec_time_trees = np.load('./arrays/Exec_time_trees.npy')
+Exec_time_bark  = np.load('./arrays/Exec_time_bark.npy')
+Exec_time_ubc   = np.load('./arrays/Exec_time_ubc.npy')
+
 fig4 = make_subplots(rows=2, cols=2, subplot_titles=['Wall(Viewpoint)', 'Trees(Blur)', 'Bark(Zoom + Rotation)', 'UBC(JPEG)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig4.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 x = ["Img2", "Img3", "Img4", "Img5", "Img6"]

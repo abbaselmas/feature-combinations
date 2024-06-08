@@ -1,30 +1,14 @@
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
-from plotly.colors import sample_colorscale
 import numpy as np
-import os
-
-val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
-val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3].
-scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈ [0.5 : 0.2 : 1.5]
-rot   = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
-
-DetectorsLegend   = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'fast', 'mser', 'agast', 'gftt', 'gftt_harris', 'star', 'hl', 'msd', 'tbmr']
-DescriptorsLegend = ['sift', 'akaze', 'orb', 'brisk', 'kaze', 'daisy', 'freak', 'brief', 'lucid', 'latch', 'vgg', 'beblid', 'teblid', 'boost']
-line_styles = ['solid', 'dash', 'dot']
-Norm = ['L2', 'HAM']
-
-maindir = os.path.abspath(os.path.dirname(__file__))
-
-num_combinations = len(DetectorsLegend) * len(Norm)
-colors = sample_colorscale('Turbo', [i / num_combinations for i in range(num_combinations)])
+from define import *
 
 ########################
 # MARK: - Synthetic Data
 ########################
-Rate_intensity = np.load(maindir + '/arrays/Rate_intensity.npy')
-Rate_scale     = np.load(maindir + '/arrays/Rate_scale.npy')
-Rate_rot       = np.load(maindir + '/arrays/Rate_rot.npy')
+Rate_intensity = np.load('./arrays/Rate_intensity.npy')
+Rate_scale     = np.load('./arrays/Rate_scale.npy')
+Rate_rot       = np.load('./arrays/Rate_rot.npy')
 
 fig1 = make_subplots(rows=2, cols=2, shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig1.update_layout(margin=dict(l=20, r=20, t=25, b=25))
@@ -69,10 +53,10 @@ for j in range(len(DescriptorsLegend)):
 ######################
 # MARK: - Oxford 1234
 ######################
-Rate_graf   = np.load(maindir + '/arrays/Rate_graf.npy')
-Rate_bikes  = np.load(maindir + '/arrays/Rate_bikes.npy')
-Rate_boat   = np.load(maindir + '/arrays/Rate_boat.npy')
-Rate_leuven = np.load(maindir + '/arrays/Rate_leuven.npy')
+Rate_graf   = np.load('./arrays/Rate_graf.npy')
+Rate_bikes  = np.load('./arrays/Rate_bikes.npy')
+Rate_boat   = np.load('./arrays/Rate_boat.npy')
+Rate_leuven = np.load('./arrays/Rate_leuven.npy')
 
 fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf(Viewpoint)', 'Bikes(Blur)', 'Boat(Zoom + Rotation)', 'Leuven(Light)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig2.update_layout(margin=dict(l=20, r=20, t=25, b=25))
@@ -114,10 +98,10 @@ for j in range(len(DescriptorsLegend)):
 ######################
 # MARK: - Oxford 5678
 ######################
-Rate_wall  = np.load(maindir + '/arrays/Rate_wall.npy')
-Rate_trees = np.load(maindir + '/arrays/Rate_trees.npy')
-Rate_bark  = np.load(maindir + '/arrays/Rate_bark.npy')
-Rate_ubc   = np.load(maindir + '/arrays/Rate_ubc.npy')
+Rate_wall  = np.load('./arrays/Rate_wall.npy')
+Rate_trees = np.load('./arrays/Rate_trees.npy')
+Rate_bark  = np.load('./arrays/Rate_bark.npy')
+Rate_ubc   = np.load('./arrays/Rate_ubc.npy')
 
 fig3 = make_subplots(rows=2, cols=2, subplot_titles=['Wall(Viewpoint)', 'Trees(Blur)', 'Bark(Zoom + Rotation)', 'UBC(JPEG)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig3.update_layout(margin=dict(l=20, r=20, t=25, b=25))

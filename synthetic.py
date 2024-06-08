@@ -1,21 +1,9 @@
 import cv2
 import numpy as np
 import time, os, csv
+from define import *
 
-maindir = os.path.abspath(os.path.dirname(__file__))
-datasetdir = "./hpatches-sequences"  #"./oxfordAffine"
-folder =  "/v_dogman" #"/graf"
-picture = "/1.jpg" #"/img1.jpg"
-data = datasetdir + folder + picture
-
-Image = cv2.imread(data)
-Image = np.array(Image)
-
-val_b = np.array([-30, -10, 10, 30]) # b ∈ [−30 : 20 : +30]
-val_c = np.array([0.7, 0.9, 1.1, 1.3]) # c ∈ [0.7 : 0.2 : 1.3]
-nbre_img = len(val_b) + len(val_c) # number of intensity change values ==> number of test images
-scale = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5] # s ∈]1.1 : 0.2 : 2.3]
-rot = [15, 30, 45, 60, 75, 90] # r ∈ [15 : 15 : 90
+Image = np.array(cv2.imread("./hpatches-sequences/v_dogman/1.jpg"))
 
 ## Scenario 1 (Intensity): Function that returns 8 images with intensity changes from an I image.
 def get_intensity_8Img(Img, val_b, val_c): # val_b, val_c must be 2 vectors with 4 values each
@@ -29,42 +17,44 @@ def get_intensity_8Img(Img, val_b, val_c): # val_b, val_c must be 2 vectors with
         List8Img[i][List8Img[i] > 255] = 255 # set pixels with intensity > 255 to 255
         List8Img[i][List8Img[i] < 0] = 0 # set the pixels with intensity < 0 to the value of 0
         List8Img[i] = np.array(List8Img[i], dtype=np.uint8) # image transformation to uint8
-        # filename = f"{maindir}/intensity/image_I+{val_b[i]}.png"
-        # cv2.imwrite(filename, List8Img[i])
+        filename = f"./synthetic/intensity-image_I+{val_b[i]}.png"
+        cv2.imwrite(filename, List8Img[i])
     for j in range(len(val_c)): # for I ∗ c, with: c ∈ [0.7 : 0.2 : 1.3]
         I =  image * val_c[j]
         List8Img[j+4] = I.astype(int)
         List8Img[j+4][List8Img[j+4] > 255] = 255 # set pixels with intensity > 255 to 255
         List8Img[j+4][List8Img[j+4] < 0] = 0 # set the pixels with intensity < 0 to the value of 0
         List8Img[j+4] = np.array(List8Img[j+4], dtype=np.uint8) # transform image to uint8 (min value = 0, max value = 255)
-        # filename = f"{maindir}/intensity/image_Ix{val_c[j]}.png"
-        # cv2.imwrite(filename, List8Img[j+4])
+        filename = f"./synthetic/intensity-image_Ix{val_c[j]}.png"
+        cv2.imwrite(filename, List8Img[j+4])
     return Img, List8Img
 ## Scenario 2 (Scale): Function that takes as input the index of the camera, the index of the image n, and a scale, it returns a couple (I, Iscale). In the following, we will work with 7 images with a scale change Is : s ∈]1.1 : 0.2 : 2.3].
 def get_cam_scale(Img, s):
     ImgScale = cv2.resize(Img, (0, 0), fx=s, fy=s, interpolation = cv2.INTER_NEAREST) # opencv resize function with INTER_NEAREST interpolation
     I_Is = list([Img, ImgScale]) # list of 2 images (original image and scaled image)
-    # # Save the images to disk
-    # filename = f"{maindir}/scale/image_{s}.png"
-    # cv2.imwrite(filename, ImgScale)
+    filename = f"./synthetic/scale-image_{s}.png"
+    cv2.imwrite(filename, ImgScale)
     return I_Is
 ## Scenario 3 (Rotation): Function that takes as input the index of the camera, the index of the image n, and a rotation angle, it returns a couple (I, Irot), and the rotation matrix. In the following, we will work with 9 images with a change of scale For an image I, we will create 9 images (I10, I20...I90) with change of rotation from 10 to 90 with a step of 10.
-def get_cam_rot(Img, r):
-    # Get the height and width of the image
+def get_cam_rot(Img, rotationAngle):
     height, width = Img.shape[:2]
     image_center = (width/2, height/2)
-    rotation_mat = cv2.getRotationMatrix2D(image_center, r, 1.)
+    # Get the rotation matrix
+    rotation_mat = cv2.getRotationMatrix2D(image_center, rotationAngle, 1.)
+    # Calculate the new bounds of the image
     abs_cos = abs(rotation_mat[0,0])
     abs_sin = abs(rotation_mat[0,1])
     bound_w = int(height * abs_sin + width * abs_cos)
     bound_h = int(height * abs_cos + width * abs_sin)
+    # Adjust the rotation matrix to account for translation
     rotation_mat[0, 2] += bound_w/2 - image_center[0]
     rotation_mat[1, 2] += bound_h/2 - image_center[1]
+    # Perform the actual rotation and obtain the rotated image
     rotated_image = cv2.warpAffine(Img, rotation_mat, (bound_w, bound_h))
-    couple_I_Ir = [Img, rotated_image]  # list of 2 images (original image and image with rotation change)
-    # # Save the images to disk
-    # filename = f"{maindir}/rotation/image_{r}.png"  # You can change the format and naming convention as needed
-    # cv2.imwrite(filename, rotated_image)
+    couple_I_Ir = [Img, rotated_image]  # list of 2 images (original image and rotated image)
+    # save the rotated image
+    filename = f"./synthetic/rotation-image_{rotationAngle}.png"
+    cv2.imwrite(filename, rotated_image)
     return rotation_mat, couple_I_Ir
 
 def evaluate_scenario_intensity(matcher, KP1, KP2, Dspt1, Dspt2, norm_type):
@@ -128,7 +118,7 @@ def evaluate_scenario_scale(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, scale):
     Prob_True = ((Prob_P / (Prob_P + Prob_N))*100 if len(matches) > 0 else 0)
     good_matches = sorted(good_matches, key = lambda x:x.distance)
     return Prob_True, good_matches, matches
-# ................................................................................
+
 def evaluate_scenario_rotation(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, rot, rot_matrix):
     if matcher == 0: # Brute-force matcher
         bf = cv2.BFMatcher(norm_type, crossCheck=True) 
@@ -162,403 +152,349 @@ def evaluate_scenario_rotation(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, rot, 
     Prob_True = ((Prob_P / (Prob_P + Prob_N))*100 if len(matches) > 0 else 0)
     good_matches = sorted(good_matches, key = lambda x:x.distance)
     return Prob_True, good_matches, matches
-# ................................................................................
 
-### detectors/descriptors 5
-sift  = cv2.SIFT_create(nfeatures=2000, nOctaveLayers=3, contrastThreshold=0.1, edgeThreshold=10.0, sigma=1.6)
-akaze = cv2.AKAZE_create(descriptor_type=cv2.AKAZE_DESCRIPTOR_MLDB, descriptor_size=0, descriptor_channels=3, threshold=0.01, nOctaves=4, nOctaveLayers=4, diffusivity=cv2.KAZE_DIFF_PM_G2)
-orb   = cv2.ORB_create(nfeatures=2000, scaleFactor=1.1, nlevels=6, edgeThreshold=60, firstLevel=1, WTA_K=2, scoreType=cv2.ORB_HARRIS_SCORE, patchSize=60, fastThreshold=60)
-brisk = cv2.BRISK_create(thresh=30, octaves=3, patternScale=1.0)
-kaze  = cv2.KAZE_create(extended=False, upright=False, threshold=0.01, nOctaves=4, nOctaveLayers=4, diffusivity=cv2.KAZE_DIFF_PM_G2)
-
-### detectors 9
-fast  = cv2.FastFeatureDetector_create(nonmaxSuppression=True, type=cv2.FAST_FEATURE_DETECTOR_TYPE_5_8,  threshold=5)
-mser  = cv2.MSER_create(delta=5, min_area=30, max_area=14400, max_variation=0.15, min_diversity=0.75, max_evolution=300, area_threshold=1.01, min_margin=0.003, edge_blur_size=5)
-agast = cv2.AgastFeatureDetector_create(threshold=20, nonmaxSuppression=True, type=cv2.AGAST_FEATURE_DETECTOR_AGAST_5_8)
-gftt  = cv2.GFTTDetector_create(qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=False, k=0.04, maxCorners=2000)
-gftt_harris = cv2.GFTTDetector_create(qualityLevel=0.5, minDistance=20.0, blockSize=3, useHarrisDetector=True, k=0.04, maxCorners=2000) 
-star  = cv2.xfeatures2d.StarDetector_create(maxSize=20, responseThreshold=5, lineThresholdProjected=100, lineThresholdBinarized=30, suppressNonmaxSize=3)
-hl    = cv2.xfeatures2d.HarrisLaplaceFeatureDetector_create(numOctaves=4, corn_thresh=0.01, DOG_thresh=0.01, maxCorners=2000, num_layers=4)
-msd   = cv2.xfeatures2d.MSDDetector_create(m_patch_radius=3, m_search_area_radius=5, m_nms_radius=5, m_nms_scale_radius=0, m_th_saliency=250.0, m_kNN=4, m_scale_factor=1.25, m_n_scales=-1, m_compute_orientation=0)
-tbmr  = cv2.xfeatures2d.TBMR_create(min_area=40, max_area_relative=0.01, scale_factor=1.25, n_scales=-1)
-
-### descriptors 9
-vgg    = cv2.xfeatures2d.VGG_create(desc=103 ,isigma=1.4, img_normalize=False, use_scale_orientation=True, scale_factor=6.25, dsc_normalize=False)
-daisy  = cv2.xfeatures2d.DAISY_create(radius=15, q_radius=3, q_theta=8, q_hist=8, norm=cv2.xfeatures2d.DAISY_NRM_NONE, interpolation=True, use_orientation=False)
-freak  = cv2.xfeatures2d.FREAK_create(orientationNormalized=True, scaleNormalized=False, patternScale=22.0, nOctaves=3)
-brief  = cv2.xfeatures2d.BriefDescriptorExtractor_create(bytes=16, use_orientation=True)
-lucid  = cv2.xfeatures2d.LUCID_create(lucid_kernel=3, blur_kernel=6)
-latch  = cv2.xfeatures2d.LATCH_create(bytes=2, rotationInvariance=True, half_ssd_size=1, sigma=1.4)
-beblid = cv2.xfeatures2d.BEBLID_create(scale_factor=6.25, n_bits=100)
-teblid = cv2.xfeatures2d.TEBLID_create(scale_factor=6.25, n_bits=102)
-boost  = cv2.xfeatures2d.BoostDesc_create(desc=100, use_scale_orientation=True, scale_factor=6.25)
-
-Detectors      = list([sift, akaze, orb, brisk, kaze, fast, mser, agast, gftt, gftt_harris, star, hl, msd, tbmr])
-#                      0     1      2    3      4     5     6     7      8     9            10    11  12   13
-Descriptors    = list([sift, akaze, orb, brisk, kaze, daisy, freak, brief, lucid, latch, vgg, beblid, teblid, boost]) 
-#                      0     1      2    3      4     5      6      7      8      9      10   11      12      13
-matching       = list([cv2.NORM_L2, cv2.NORM_HAMMING])
-matcher        = 0 # 0: Brute-force matcher, 1: Flann-based matcher
-a = 6 #i
-b = 100 #j
-drawing = True
-
-if a == 100 and b == 100:
-    Rate_intensity      = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 12))
-    Rate_scale          = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 12))
-    Rate_rot            = np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 12))
-    Exec_time_intensity = np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 3))
-    Exec_time_scale     = np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
-    Exec_time_rot       = np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 3))
-else:
-    Rate_intensity      = np.load(f"{maindir}/arrays/Rate_intensity.npy")      if os.path.exists(f"{maindir}/arrays/Rate_intensity.npy")      else np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 14))
-    Rate_scale          = np.load(f"{maindir}/arrays/Rate_scale.npy")          if os.path.exists(f"{maindir}/arrays/Rate_scale.npy")          else np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 14))
-    Rate_rot            = np.load(f"{maindir}/arrays/Rate_rot.npy")            if os.path.exists(f"{maindir}/arrays/Rate_rot.npy")            else np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 14))
-    Exec_time_intensity = np.load(f"{maindir}/arrays/Exec_time_intensity.npy") if os.path.exists(f"{maindir}/arrays/Exec_time_intensity.npy") else np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 3))
-    Exec_time_scale     = np.load(f"{maindir}/arrays/Exec_time_scale.npy")     if os.path.exists(f"{maindir}/arrays/Exec_time_scale.npy")     else np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
-    Exec_time_rot       = np.load(f"{maindir}/arrays/Exec_time_rot.npy")       if os.path.exists(f"{maindir}/arrays/Exec_time_rot.npy")       else np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 3))
-
-########################################################
-# MARK: Intensity
-################ Scenario 1 (Intensity) ################
-print(time.ctime())
-print("Scenario 1 Intensity")
-img, List8Img = get_intensity_8Img(Image, val_b, val_c)
-keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
-for k in range(nbre_img):
-    # if drawing:
-    #         if k != 7:
-    #             continue
-    img2 = List8Img[k]
-    for i in range(len(Detectors)):
-        if i == a or a == 100:
-            method_dtect = Detectors[i]
-            if keypoints_cache[0, i, 0] is None:
-                keypoints1 = method_dtect.detect(img, None)
-                keypoints_cache[0, i, 0] = keypoints1
-            else:
-                keypoints1 = keypoints_cache[0, i, 0]
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img2, None)
-                detect_time = time.time() - start_time
-                keypoints_cache[k, i, 1] = keypoints2
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
-            for j in range(len(Descriptors)):
-                if j == b or b == 100:
-                    method_dscrpt = Descriptors[j]
-                    for c3 in range(len(matching)):
-                        Exec_time_intensity[k, c3, i, j, 0] = detect_time
-                        Rate_intensity[k, c3, i, j, 0] = k
-                        Rate_intensity[k, c3, i, j, 1] = i
-                        Rate_intensity[k, c3, i, j, 2] = j
-                        Rate_intensity[k, c3, i, j, 3] = matching[c3]
-                        Rate_intensity[k, c3, i, j, 4] = matcher
-                        try:
-                            if descriptors_cache[0, i, j, 0] is None:
-                                _, descriptors1 = method_dscrpt.compute(img, keypoints1)
-                                descriptors_cache[0, i, j, 0] = descriptors1
-                            else:
-                                descriptors1 = descriptors_cache[0, i, j, 0]
-                            if descriptors_cache[k, i, j, 1] is None:
-                                start_time = time.time()
-                                _, descriptors2 = method_dscrpt.compute(img2, keypoints2)
-                                descript_time = time.time() - start_time
-                                descriptors_cache[k, i, j, 1] = descriptors2
-                            else:
-                                descriptors2 = descriptors_cache[k, i, j, 1]
-                            Exec_time_intensity[k, c3, i, j, 1] = descript_time
-                            start_time = time.time()
-                            Rate_intensity[k, c3, i, j, 11], good_matches, matches = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
-                            Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
-                            Rate_intensity[k, c3, i, j, 5] = len(keypoints1)
-                            Rate_intensity[k, c3, i, j, 6] = len(keypoints2)
-                            Rate_intensity[k, c3, i, j, 7] = len(descriptors1)
-                            Rate_intensity[k, c3, i, j, 8] = len(descriptors2)
-                            Rate_intensity[k, c3, i, j, 9] = len(good_matches)
-                            Rate_intensity[k, c3, i, j,10] = len(matches)
-                        except:
-                            Exec_time_intensity[k, c3, i, j, :] = None
-                            Rate_intensity[k, c3, i, j, 5] = None
-                            Rate_intensity[k, c3, i, j, 6] = None
-                            Rate_intensity[k, c3, i, j, 7] = None
-                            Rate_intensity[k, c3, i, j, 8] = None
-                            Rate_intensity[k, c3, i, j, 9] = None
-                            Rate_intensity[k, c3, i, j,10] = None
-                            Rate_intensity[k, c3, i, j,11] = None
-                            continue
-                        
-                        if drawing and k == 7:
-                            img_matches = cv2.drawMatches(img, keypoints1, img2, keypoints2, good_matches[:], None, flags=cv2.DRAW_MATCHES_FLAGS_DEFAULT)
-                            text = [
-                                f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
-                                f"Keypoint1:    {len(keypoints1) if keypoints1 is not None else 0}",
-                                f"Keypoint2:    {len(keypoints2) if keypoints2 is not None else 0}",
-                                f"Time Detect:  {Exec_time_intensity[k, c3, i, j, 0]:.4f}",
-                                f"Descriptor:   {method_dscrpt.getDefaultName().split('.')[-1]}",
-                                f"Descriptor1:  {len(descriptors1) if descriptors1 is not None else 0}",
-                                f"Descriptor2:  {len(descriptors2) if descriptors2 is not None else 0}",
-                                f"Time Descrpt: {Exec_time_intensity[k, c3, i, j, 1]:.4f}",
-                                f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
-                                f"Matcher:      {'Brute-force' if matcher == 0 else 'Flann-based'}",
-                                f"Match Rate:   {Rate_intensity[k, c3, i, j, 11]:.2f}",
-                                f"Time Match:   {Exec_time_intensity[k, c3, i, j, 2]:.4f}",
-                                f"Inliers:      {len(good_matches)}",
-                                f"All Matches:  {len(matches)}"
-                            ]                                
-                            for idx, txt in enumerate(text):
-                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (198, 198, 198), 2, cv2.LINE_AA)
-                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
-                                
-                            filename = f"{maindir}/draws/intensity/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
-                            cv2.imwrite(filename, img_matches)
-                else:
+def execute_scenario_intensity(a=100, b=100, drawing=False, save=True, matcher=0):
+    print(time.ctime())
+    print("Scenario 1 Intensity")
+    Rate_intensity      = np.load(f"./arrays/Rate_intensity.npy")      if os.path.exists(f"./arrays/Rate_intensity.npy")      else np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 14))
+    Exec_time_intensity = np.load(f"./arrays/Exec_time_intensity.npy") if os.path.exists(f"./arrays/Exec_time_intensity.npy") else np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 3))
+    keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
+    descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
+    img, List8Img = get_intensity_8Img(Image, val_b, val_c)
+    for k in range(nbre_img):
+        if drawing:
+                if k != 7:
                     continue
-        else:
-            continue
-np.save(f"{maindir}/arrays/Rate_intensity.npy",      Rate_intensity)
-np.save(f"{maindir}/arrays/Exec_time_intensity.npy", Exec_time_intensity)
-headers = [
-    "K", "Detector", "Descriptor", "Matching", "Matcher", "Keypoint1", "Keypoint2", "Descriptor1", "Descriptor2", "Inliers", "Total Matches", "Match Rate",
-    "Detect time", "Descript time", "Match time"
-]
-with open(f'{maindir}/csv/intensity_analysis.csv', 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile, delimiter=';')
-    writer.writerow(headers)
-    for k in range(Rate_intensity.shape[0]):
-        for c3 in range(Rate_intensity.shape[1]):
-            for i in range(Rate_intensity.shape[2]):
-                for j in range(Rate_intensity.shape[3]):
-                    row = np.append(Rate_intensity[k, c3, i, j, :], Exec_time_intensity[k, c3, i, j, :])
-                    writer.writerow(row)
-##########################################################
-# MARK: Scale
-################ Scenario 2: Scale #######################
-print(time.ctime())
-print("Scenario 2 Scale")
-keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
-for k in range(len(scale)):
-    # if drawing:
-    #         if k != 4:
-    #             continue
-    img = get_cam_scale(Image, scale[k])
-    for i in range(len(Detectors)):
-        if i == a or a == 100:
-            method_dtect = Detectors[i]
-            if keypoints_cache[0, i, 0] is None:
-                keypoints1 = method_dtect.detect(img[0], None)
-                keypoints_cache[0, i, 0] = keypoints1
-            else:
-                keypoints1 = keypoints_cache[0, i, 0]
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img[1], None)
-                detect_time = time.time() - start_time
-                keypoints_cache[k, i, 1] = keypoints2
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
-            for j in range(len(Descriptors)):
-                if j == b or b == 100:
-                    method_dscrpt = Descriptors[j]
-                    for c3 in range(len(matching)):
-                        Exec_time_scale[k, c3, i, j, 0] = detect_time
-                        Rate_scale[k, c3, i, j, 0] = k
-                        Rate_scale[k, c3, i, j, 1] = i
-                        Rate_scale[k, c3, i, j, 2] = j
-                        Rate_scale[k, c3, i, j, 3] = matching[c3]
-                        Rate_scale[k, c3, i, j, 4] = matcher
-                        try:
-                            if descriptors_cache[0, i, j, 0] is None:
-                                _, descriptors1 = method_dscrpt.compute(img[0], keypoints1)
-                                descriptors_cache[0, i, j, 0] = descriptors1
-                            else:
-                                descriptors1 = descriptors_cache[0, i, j, 0]
-                            if descriptors_cache[k, i, j, 1] is None:
-                                start_time = time.time()
-                                _, descriptors2 = method_dscrpt.compute(img[1], keypoints2)
-                                descript_time = time.time() - start_time
-                                descriptors_cache[k, i, j, 1] = descriptors2
-                            else:
-                                descriptors2 = descriptors_cache[k, i, j, 1]
-                            Exec_time_scale[k, c3, i, j, 1] = descript_time
-                            start_time = time.time()
-                            Rate_scale[k, c3, i, j, 11], good_matches, matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
-                            Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
-                            Rate_scale[k, c3, i, j, 5] = len(keypoints1)
-                            Rate_scale[k, c3, i, j, 6] = len(keypoints2)
-                            Rate_scale[k, c3, i, j, 7] = len(descriptors1)
-                            Rate_scale[k, c3, i, j, 8] = len(descriptors2)
-                            Rate_scale[k, c3, i, j, 9] = len(good_matches)
-                            Rate_scale[k, c3, i, j,10] = len(matches)
-                        except:
-                            Exec_time_scale[k, c3, i, j, :] = None
-                            Rate_scale[k, c3, i, j, 5] = None
-                            Rate_scale[k, c3, i, j, 6] = None
-                            Rate_scale[k, c3, i, j, 7] = None
-                            Rate_scale[k, c3, i, j, 8] = None
-                            Rate_scale[k, c3, i, j, 9] = None
-                            Rate_scale[k, c3, i, j,10] = None
-                            Rate_scale[k, c3, i, j,11] = None
-                            continue
-                        
-                        if drawing and k == 4:
-                            img_matches = cv2.drawMatches(img[0], keypoints1, img[1], keypoints2, good_matches[:], None, flags=cv2.DRAW_MATCHES_FLAGS_DEFAULT)
-                            text = [
-                                f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
-                                f"Keypoint1:    {len(keypoints1) if keypoints1 is not None else 0}",
-                                f"Keypoint2:    {len(keypoints2) if keypoints2 is not None else 0}",
-                                f"Time Detect:  {Exec_time_scale[k, c3, i, j, 0]:.4f}",
-                                f"Descriptor:   {method_dscrpt.getDefaultName().split('.')[-1]}",
-                                f"Descriptor1:  {len(descriptors1) if descriptors1 is not None else 0}",
-                                f"Descriptor2:  {len(descriptors2) if descriptors2 is not None else 0}",
-                                f"Time Descrpt: {Exec_time_scale[k, c3, i, j, 1]:.4f}",
-                                f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
-                                f"Matcher:      {'Brute-force' if matcher == 0 else 'Flann-based'}",
-                                f"Match Rate:   {Rate_scale[k, c3, i, j, 11]:.2f}",
-                                f"Time Match:   {Exec_time_scale[k, c3, i, j, 2]:.4f}",
-                                f"Inliers:      {len(good_matches)}",
-                                f"All Matches:  {len(matches)}"
-                            ]                                
-                            for idx, txt in enumerate(text):
-                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (198, 198, 198), 2, cv2.LINE_AA)
-                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
-                                
-                            filename = f"{maindir}/draws/scale/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
-                            cv2.imwrite(filename, img_matches)
+        img2 = List8Img[k]
+        for i in range(len(Detectors)):
+            if i == a or a == 100:
+                method_dtect = Detectors[i]
+                if keypoints_cache[0, i, 0] is None:
+                    keypoints1 = method_dtect.detect(img, None)
+                    keypoints_cache[0, i, 0] = keypoints1
                 else:
-                    continue
-        else:
-            continue
-np.save(f"{maindir}/arrays/Rate_scale.npy",      Rate_scale)
-np.save(f"{maindir}/arrays/Exec_time_scale.npy", Exec_time_scale)
-headers = [
-    "K", "Detector", "Descriptor", "Matching", "Matcher", "Keypoint1", "Keypoint2", "Descriptor1", "Descriptor2", "Inliers", "Total Matches", "Match Rate",
-    "Detect time", "Descript time", "Match time"
-]
-with open(f'{maindir}/csv/scale_analysis.csv', 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile, delimiter=';')
-    writer.writerow(headers)
-    for k in range(Rate_scale.shape[0]):
-        for c3 in range(Rate_scale.shape[1]):
-            for i in range(Rate_scale.shape[2]):
-                for j in range(Rate_scale.shape[3]):
-                    row = np.append(Rate_scale[k, c3, i, j, :], Exec_time_scale[k, c3, i, j, :])
-                    writer.writerow(row)
-##########################################################
-# MARK: Rotation
-################ Scenario 3: Rotation ####################
-print(time.ctime())
-print("Scenario 3 Rotation")
-keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
-descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
-for k in range(len(rot)):
-    # if drawing:
-    #         if k != 4:
-    #             continue
-    rot_matrix, img = get_cam_rot(Image, rot[k])
-    for i in range(len(Detectors)):
-        if i == a or a == 100:
-            method_dtect = Detectors[i]
-            if keypoints_cache[0, i, 0] is None:
-                keypoints1 = method_dtect.detect(img[0], None)
-                keypoints_cache[0, i, 0] = keypoints1
-            else:
-                keypoints1 = keypoints_cache[0, i, 0] 
-            if keypoints_cache[k, i, 1] is None:
-                start_time = time.time()
-                keypoints2 = method_dtect.detect(img[1], None)
-                detect_time = time.time() - start_time
-                keypoints_cache[k, i, 1] = keypoints2
-            else:
-                keypoints2 = keypoints_cache[k, i, 1]
-            for j in range(len(Descriptors)):
-                if j == b or b == 100:
-                    method_dscrpt = Descriptors[j]
-                    for c3 in range(len(matching)):
-                        Exec_time_rot[k, c3, i, j, 0] = detect_time
-                        Rate_rot[k, c3, i, j, 0] = k
-                        Rate_rot[k, c3, i, j, 1] = i
-                        Rate_rot[k, c3, i, j, 2] = j
-                        Rate_rot[k, c3, i, j, 3] = matching[c3]
-                        Rate_rot[k, c3, i, j, 4] = matcher
-                        try:
-                            if descriptors_cache[0, i, j, 0] is None:
-                                _, descriptors1 = method_dscrpt.compute(img[0], keypoints1)
-                                descriptors_cache[0, i, j, 0] = descriptors1
-                            else:
-                                descriptors1 = descriptors_cache[0, i, j, 0]
-                            if descriptors_cache[k, i, j, 1] is None:
-                                start_time = time.time()
-                                _, descriptors2 = method_dscrpt.compute(img[1], keypoints2)
-                                descript_time = time.time() - start_time
-                                descriptors_cache[k, i, j, 1] = descriptors2
-                            else:
-                                descriptors2 = descriptors_cache[k, i, j, 1]
-                            Exec_time_rot[k, c3, i, j, 1] = descript_time
-                            start_time = time.time()
-                            Rate_rot[k, c3, i, j, 11], good_matches, matches = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
-                            Exec_time_rot[k, c3, i, j, 2] = time.time() - start_time
-                            Rate_rot[k, c3, i, j, 5] = len(keypoints1)
-                            Rate_rot[k, c3, i, j, 6] = len(keypoints2)
-                            Rate_rot[k, c3, i, j, 7] = len(descriptors1)
-                            Rate_rot[k, c3, i, j, 8] = len(descriptors2)
-                            Rate_rot[k, c3, i, j, 9] = len(good_matches)
-                            Rate_rot[k, c3, i, j,10] = len(matches)
-                        except:
-                            Exec_time_rot[k, c3, i, j, :] = None
-                            Rate_rot[k, c3, i, j, 5] = None
-                            Rate_rot[k, c3, i, j, 6] = None
-                            Rate_rot[k, c3, i, j, 7] = None
-                            Rate_rot[k, c3, i, j, 8] = None
-                            Rate_rot[k, c3, i, j, 9] = None
-                            Rate_rot[k, c3, i, j,10] = None
-                            Rate_rot[k, c3, i, j,11] = None
-                            continue
-                        if drawing and k == 4:
-                            img_matches = cv2.drawMatches(img[0], keypoints1, img[1], keypoints2, good_matches[:], None, flags=cv2.DRAW_MATCHES_FLAGS_DEFAULT)
-                            text = [
-                                f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
-                                f"Keypoint1:    {len(keypoints1) if keypoints1 is not None else 0}",
-                                f"Keypoint2:    {len(keypoints2) if keypoints2 is not None else 0}",
-                                f"Time Detect:  {Exec_time_rot[k, c3, i, j, 0]:.4f}",
-                                f"Descriptor:   {method_dscrpt.getDefaultName().split('.')[-1]}",
-                                f"Descriptor1:  {len(descriptors1) if descriptors1 is not None else 0}",
-                                f"Descriptor2:  {len(descriptors2) if descriptors2 is not None else 0}",
-                                f"Time Descrpt: {Exec_time_rot[k, c3, i, j, 1]:.4f}",
-                                f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
-                                f"Matcher:      {'Brute-force' if matcher == 0 else 'Flann-based'}",
-                                f"Match Rate:   {Rate_rot[k, c3, i, j, 11]:.2f}",
-                                f"Time Match:   {Exec_time_rot[k, c3, i, j, 2]:.4f}",
-                                f"Inliers:      {len(good_matches)}",
-                                f"All Matches:  {len(matches)}"
-                            ]                                
-                            for idx, txt in enumerate(text):
-                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (198, 198, 198), 2, cv2.LINE_AA)
-                                cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
-                                
-                            filename = f"{maindir}/draws/rot/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
-                            cv2.imwrite(filename, img_matches)
+                    keypoints1 = keypoints_cache[0, i, 0]
+                if keypoints_cache[k, i, 1] is None:
+                    start_time = time.time()
+                    keypoints2 = method_dtect.detect(img2, None)
+                    detect_time = time.time() - start_time
+                    keypoints_cache[k, i, 1] = keypoints2
                 else:
+                    keypoints2 = keypoints_cache[k, i, 1]
+                for j in range(len(Descriptors)):
+                    if j == b or b == 100:
+                        method_dscrpt = Descriptors[j]
+                        for c3 in range(len(matching)):
+                            Exec_time_intensity[k, c3, i, j, 0] = detect_time
+                            Rate_intensity[k, c3, i, j, 0] = k
+                            Rate_intensity[k, c3, i, j, 1] = i
+                            Rate_intensity[k, c3, i, j, 2] = j
+                            Rate_intensity[k, c3, i, j, 3] = matching[c3]
+                            Rate_intensity[k, c3, i, j, 4] = matcher
+                            try:
+                                if descriptors_cache[0, i, j, 0] is None:
+                                    _, descriptors1 = method_dscrpt.compute(img, keypoints1)
+                                    descriptors_cache[0, i, j, 0] = descriptors1
+                                else:
+                                    descriptors1 = descriptors_cache[0, i, j, 0]
+                                if descriptors_cache[k, i, j, 1] is None:
+                                    start_time = time.time()
+                                    _, descriptors2 = method_dscrpt.compute(img2, keypoints2)
+                                    descript_time = time.time() - start_time
+                                    descriptors_cache[k, i, j, 1] = descriptors2
+                                else:
+                                    descriptors2 = descriptors_cache[k, i, j, 1]
+                                Exec_time_intensity[k, c3, i, j, 1] = descript_time
+                                start_time = time.time()
+                                Rate_intensity[k, c3, i, j, 11], good_matches, matches = evaluate_scenario_intensity(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                                Exec_time_intensity[k, c3, i, j, 2] = time.time() - start_time
+                                Rate_intensity[k, c3, i, j, 5] = len(keypoints1)
+                                Rate_intensity[k, c3, i, j, 6] = len(keypoints2)
+                                Rate_intensity[k, c3, i, j, 7] = len(descriptors1)
+                                Rate_intensity[k, c3, i, j, 8] = len(descriptors2)
+                                Rate_intensity[k, c3, i, j, 9] = len(good_matches)
+                                Rate_intensity[k, c3, i, j,10] = len(matches)
+                            except:
+                                Exec_time_intensity[k, c3, i, j, :] = None
+                                Rate_intensity[k, c3, i, j, 5] = None
+                                Rate_intensity[k, c3, i, j, 6] = None
+                                Rate_intensity[k, c3, i, j, 7] = None
+                                Rate_intensity[k, c3, i, j, 8] = None
+                                Rate_intensity[k, c3, i, j, 9] = None
+                                Rate_intensity[k, c3, i, j,10] = None
+                                Rate_intensity[k, c3, i, j,11] = None
+                                continue
+                            
+                            if drawing and k == 7 and Rate_intensity[k, c3, i, j, 9] > 100:
+                                img_matches = cv2.drawMatches(img, keypoints1, img2, keypoints2, good_matches[:], None, flags=cv2.DRAW_MATCHES_FLAGS_DEFAULT)
+                                text = [
+                                    f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
+                                    f"Keypoint1:    {len(keypoints1) if keypoints1 is not None else 0}",
+                                    f"Keypoint2:    {len(keypoints2) if keypoints2 is not None else 0}",
+                                    f"Time Detect:  {Exec_time_intensity[k, c3, i, j, 0]:.4f}",
+                                    f"Descriptor:   {method_dscrpt.getDefaultName().split('.')[-1]}",
+                                    f"Descriptor1:  {len(descriptors1) if descriptors1 is not None else 0}",
+                                    f"Descriptor2:  {len(descriptors2) if descriptors2 is not None else 0}",
+                                    f"Time Descrpt: {Exec_time_intensity[k, c3, i, j, 1]:.4f}",
+                                    f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
+                                    f"Matcher:      {'Brute-force' if matcher == 0 else 'Flann-based'}",
+                                    f"Match Rate:   {Rate_intensity[k, c3, i, j, 11]:.2f}",
+                                    f"Time Match:   {Exec_time_intensity[k, c3, i, j, 2]:.4f}",
+                                    f"Inliers:      {len(good_matches)}",
+                                    f"All Matches:  {len(matches)}"
+                                ]                                
+                                for idx, txt in enumerate(text):
+                                    cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (198, 198, 198), 2, cv2.LINE_AA)
+                                    cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
+                                    
+                                filename = f"./draws/intensity/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
+                                cv2.imwrite(filename, img_matches)
+                    else:
+                        continue
+            else:
+                continue
+    if save:
+        np.save(f"./arrays/Rate_intensity.npy",      Rate_intensity)
+        np.save(f"./arrays/Exec_time_intensity.npy", Exec_time_intensity)
+        headers = ["K", "Detector", "Descriptor", "Matching", "Matcher", "Keypoint1", "Keypoint2", "Descriptor1", "Descriptor2", "Inliers", "Total Matches", "Match Rate", "Detect time", "Descript time", "Match time"]
+        with open(f'./csv/intensity_analysis.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=';')
+            writer.writerow(headers)
+            for k in range(Rate_intensity.shape[0]):
+                for c3 in range(Rate_intensity.shape[1]):
+                    for i in range(Rate_intensity.shape[2]):
+                        for j in range(Rate_intensity.shape[3]):
+                            row = np.append(Rate_intensity[k, c3, i, j, :], Exec_time_intensity[k, c3, i, j, :])
+                            writer.writerow(row)
+
+def execute_scenario_scale(a=100, b=100, drawing=False, save=True, matcher=0):
+    print(time.ctime())
+    print("Scenario 2 Scale")
+    Rate_scale          = np.load(f"./arrays/Rate_scale.npy")          if os.path.exists(f"./arrays/Rate_scale.npy")          else np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 14))
+    Exec_time_scale     = np.load(f"./arrays/Exec_time_scale.npy")     if os.path.exists(f"./arrays/Exec_time_scale.npy")     else np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
+    keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
+    descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
+    for k in range(len(scale)):
+        if drawing:
+                if k != 4:
                     continue
-        else:
-            continue
-np.save(f"{maindir}/arrays/Rate_rot.npy",      Rate_rot)
-np.save(f"{maindir}/arrays/Exec_time_rot.npy", Exec_time_rot)
-headers = [
-    "K", "Detector", "Descriptor", "Matching", "Matcher", "Keypoint1", "Keypoint2", "Descriptor1", "Descriptor2", "Inliers", "Total Matches", "Match Rate",
-    "Detect time", "Descript time", "Match time"
-]
-with open(f'{maindir}/csv/rot_analysis.csv', 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile, delimiter=';')
-    writer.writerow(headers)
-    for k in range(Rate_rot.shape[0]):
-        for c3 in range(Rate_rot.shape[1]):
-            for i in range(Rate_rot.shape[2]):
-                for j in range(Rate_rot.shape[3]):
-                    row = np.append(Rate_rot[k, c3, i, j, :], Exec_time_rot[k, c3, i, j, :])
-                    writer.writerow(row)
+        img = get_cam_scale(Image, scale[k])
+        for i in range(len(Detectors)):
+            if i == a or a == 100:
+                method_dtect = Detectors[i]
+                if keypoints_cache[0, i, 0] is None:
+                    keypoints1 = method_dtect.detect(img[0], None)
+                    keypoints_cache[0, i, 0] = keypoints1
+                else:
+                    keypoints1 = keypoints_cache[0, i, 0]
+                if keypoints_cache[k, i, 1] is None:
+                    start_time = time.time()
+                    keypoints2 = method_dtect.detect(img[1], None)
+                    detect_time = time.time() - start_time
+                    keypoints_cache[k, i, 1] = keypoints2
+                else:
+                    keypoints2 = keypoints_cache[k, i, 1]
+                for j in range(len(Descriptors)):
+                    if j == b or b == 100:
+                        method_dscrpt = Descriptors[j]
+                        for c3 in range(len(matching)):
+                            Exec_time_scale[k, c3, i, j, 0] = detect_time
+                            Rate_scale[k, c3, i, j, 0] = k
+                            Rate_scale[k, c3, i, j, 1] = i
+                            Rate_scale[k, c3, i, j, 2] = j
+                            Rate_scale[k, c3, i, j, 3] = matching[c3]
+                            Rate_scale[k, c3, i, j, 4] = matcher
+                            try:
+                                if descriptors_cache[0, i, j, 0] is None:
+                                    _, descriptors1 = method_dscrpt.compute(img[0], keypoints1)
+                                    descriptors_cache[0, i, j, 0] = descriptors1
+                                else:
+                                    descriptors1 = descriptors_cache[0, i, j, 0]
+                                if descriptors_cache[k, i, j, 1] is None:
+                                    start_time = time.time()
+                                    _, descriptors2 = method_dscrpt.compute(img[1], keypoints2)
+                                    descript_time = time.time() - start_time
+                                    descriptors_cache[k, i, j, 1] = descriptors2
+                                else:
+                                    descriptors2 = descriptors_cache[k, i, j, 1]
+                                Exec_time_scale[k, c3, i, j, 1] = descript_time
+                                start_time = time.time()
+                                Rate_scale[k, c3, i, j, 11], good_matches, matches = evaluate_scenario_scale(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], scale[k])
+                                Exec_time_scale[k, c3, i, j, 2] = time.time() - start_time
+                                Rate_scale[k, c3, i, j, 5] = len(keypoints1)
+                                Rate_scale[k, c3, i, j, 6] = len(keypoints2)
+                                Rate_scale[k, c3, i, j, 7] = len(descriptors1)
+                                Rate_scale[k, c3, i, j, 8] = len(descriptors2)
+                                Rate_scale[k, c3, i, j, 9] = len(good_matches)
+                                Rate_scale[k, c3, i, j,10] = len(matches)
+                            except:
+                                Exec_time_scale[k, c3, i, j, :] = None
+                                Rate_scale[k, c3, i, j, 5] = None
+                                Rate_scale[k, c3, i, j, 6] = None
+                                Rate_scale[k, c3, i, j, 7] = None
+                                Rate_scale[k, c3, i, j, 8] = None
+                                Rate_scale[k, c3, i, j, 9] = None
+                                Rate_scale[k, c3, i, j,10] = None
+                                Rate_scale[k, c3, i, j,11] = None
+                                continue
+                            
+                            if drawing and k == 4 and Rate_scale[k, c3, i, j, 9] > 100:
+                                img_matches = cv2.drawMatches(img[0], keypoints1, img[1], keypoints2, good_matches[:], None, flags=cv2.DRAW_MATCHES_FLAGS_DEFAULT)
+                                text = [
+                                    f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
+                                    f"Keypoint1:    {len(keypoints1) if keypoints1 is not None else 0}",
+                                    f"Keypoint2:    {len(keypoints2) if keypoints2 is not None else 0}",
+                                    f"Time Detect:  {Exec_time_scale[k, c3, i, j, 0]:.4f}",
+                                    f"Descriptor:   {method_dscrpt.getDefaultName().split('.')[-1]}",
+                                    f"Descriptor1:  {len(descriptors1) if descriptors1 is not None else 0}",
+                                    f"Descriptor2:  {len(descriptors2) if descriptors2 is not None else 0}",
+                                    f"Time Descrpt: {Exec_time_scale[k, c3, i, j, 1]:.4f}",
+                                    f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
+                                    f"Matcher:      {'Brute-force' if matcher == 0 else 'Flann-based'}",
+                                    f"Match Rate:   {Rate_scale[k, c3, i, j, 11]:.2f}",
+                                    f"Time Match:   {Exec_time_scale[k, c3, i, j, 2]:.4f}",
+                                    f"Inliers:      {len(good_matches)}",
+                                    f"All Matches:  {len(matches)}"
+                                ]                                
+                                for idx, txt in enumerate(text):
+                                    cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (198, 198, 198), 2, cv2.LINE_AA)
+                                    cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
+                                    
+                                filename = f"./draws/scale/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
+                                cv2.imwrite(filename, img_matches)
+                    else:
+                        continue
+            else:
+                continue
+    if save:
+        np.save(f"./arrays/Rate_scale.npy",      Rate_scale)
+        np.save(f"./arrays/Exec_time_scale.npy", Exec_time_scale)
+        headers = ["K", "Detector", "Descriptor", "Matching", "Matcher", "Keypoint1", "Keypoint2", "Descriptor1", "Descriptor2", "Inliers", "Total Matches", "Match Rate", "Detect time", "Descript time", "Match time"]
+        with open(f'./csv/scale_analysis.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=';')
+            writer.writerow(headers)
+            for k in range(Rate_scale.shape[0]):
+                for c3 in range(Rate_scale.shape[1]):
+                    for i in range(Rate_scale.shape[2]):
+                        for j in range(Rate_scale.shape[3]):
+                            row = np.append(Rate_scale[k, c3, i, j, :], Exec_time_scale[k, c3, i, j, :])
+                            writer.writerow(row)
+
+def execute_scenario_rotation(a=100, b=100, drawing=False, save=True, matcher=0):
+    print(time.ctime())
+    print("Scenario 3 Rotation")
+    Rate_rot          = np.load(f"./arrays/Rate_rot.npy")       if os.path.exists(f"./arrays/Rate_rot.npy")      else np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 14))
+    Exec_time_rot     = np.load(f"./arrays/Exec_time_rot.npy")  if os.path.exists(f"./arrays/Exec_time_rot.npy") else np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 3))
+    keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
+    descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
+    for k in range(len(rot)):
+        if drawing:
+                if k != 4:
+                    continue
+        rot_matrix, img = get_cam_rot(Image, rot[k])
+        for i in range(len(Detectors)):
+            if i == a or a == 100:
+                method_dtect = Detectors[i]
+                if keypoints_cache[0, i, 0] is None:
+                    keypoints1 = method_dtect.detect(img[0], None)
+                    keypoints_cache[0, i, 0] = keypoints1
+                else:
+                    keypoints1 = keypoints_cache[0, i, 0] 
+                if keypoints_cache[k, i, 1] is None:
+                    start_time = time.time()
+                    keypoints2 = method_dtect.detect(img[1], None)
+                    detect_time = time.time() - start_time
+                    keypoints_cache[k, i, 1] = keypoints2
+                else:
+                    keypoints2 = keypoints_cache[k, i, 1]
+                for j in range(len(Descriptors)):
+                    if j == b or b == 100:
+                        method_dscrpt = Descriptors[j]
+                        for c3 in range(len(matching)):
+                            Exec_time_rot[k, c3, i, j, 0] = detect_time
+                            Rate_rot[k, c3, i, j, 0] = k
+                            Rate_rot[k, c3, i, j, 1] = i
+                            Rate_rot[k, c3, i, j, 2] = j
+                            Rate_rot[k, c3, i, j, 3] = matching[c3]
+                            Rate_rot[k, c3, i, j, 4] = matcher
+                            try:
+                                if descriptors_cache[0, i, j, 0] is None:
+                                    _, descriptors1 = method_dscrpt.compute(img[0], keypoints1)
+                                    descriptors_cache[0, i, j, 0] = descriptors1
+                                else:
+                                    descriptors1 = descriptors_cache[0, i, j, 0]
+                                if descriptors_cache[k, i, j, 1] is None:
+                                    start_time = time.time()
+                                    _, descriptors2 = method_dscrpt.compute(img[1], keypoints2)
+                                    descript_time = time.time() - start_time
+                                    descriptors_cache[k, i, j, 1] = descriptors2
+                                else:
+                                    descriptors2 = descriptors_cache[k, i, j, 1]
+                                Exec_time_rot[k, c3, i, j, 1] = descript_time
+                                start_time = time.time()
+                                Rate_rot[k, c3, i, j, 11], good_matches, matches = evaluate_scenario_rotation(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3], rot[k], rot_matrix)
+                                Exec_time_rot[k, c3, i, j, 2] = time.time() - start_time
+                                Rate_rot[k, c3, i, j, 5] = len(keypoints1)
+                                Rate_rot[k, c3, i, j, 6] = len(keypoints2)
+                                Rate_rot[k, c3, i, j, 7] = len(descriptors1)
+                                Rate_rot[k, c3, i, j, 8] = len(descriptors2)
+                                Rate_rot[k, c3, i, j, 9] = len(good_matches)
+                                Rate_rot[k, c3, i, j,10] = len(matches)
+                            except:
+                                Exec_time_rot[k, c3, i, j, :] = None
+                                Rate_rot[k, c3, i, j, 5] = None
+                                Rate_rot[k, c3, i, j, 6] = None
+                                Rate_rot[k, c3, i, j, 7] = None
+                                Rate_rot[k, c3, i, j, 8] = None
+                                Rate_rot[k, c3, i, j, 9] = None
+                                Rate_rot[k, c3, i, j,10] = None
+                                Rate_rot[k, c3, i, j,11] = None
+                                continue
+                            if drawing and k == 4 and Rate_rot[k, c3, i, j, 9] > 100:
+                                img_matches = cv2.drawMatches(img[0], keypoints1, img[1], keypoints2, good_matches[:], None, flags=cv2.DRAW_MATCHES_FLAGS_DEFAULT)
+                                text = [
+                                    f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
+                                    f"Keypoint1:    {len(keypoints1) if keypoints1 is not None else 0}",
+                                    f"Keypoint2:    {len(keypoints2) if keypoints2 is not None else 0}",
+                                    f"Time Detect:  {Exec_time_rot[k, c3, i, j, 0]:.4f}",
+                                    f"Descriptor:   {method_dscrpt.getDefaultName().split('.')[-1]}",
+                                    f"Descriptor1:  {len(descriptors1) if descriptors1 is not None else 0}",
+                                    f"Descriptor2:  {len(descriptors2) if descriptors2 is not None else 0}",
+                                    f"Time Descrpt: {Exec_time_rot[k, c3, i, j, 1]:.4f}",
+                                    f"Matching:     {'L2'if matching[c3] == cv2.NORM_L2 else 'HAMMING'}",
+                                    f"Matcher:      {'Brute-force' if matcher == 0 else 'Flann-based'}",
+                                    f"Match Rate:   {Rate_rot[k, c3, i, j, 11]:.2f}",
+                                    f"Time Match:   {Exec_time_rot[k, c3, i, j, 2]:.4f}",
+                                    f"Inliers:      {len(good_matches)}",
+                                    f"All Matches:  {len(matches)}"
+                                ]                                
+                                for idx, txt in enumerate(text):
+                                    cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (198, 198, 198), 2, cv2.LINE_AA)
+                                    cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
+                                    
+                                filename = f"./draws/rot/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
+                                cv2.imwrite(filename, img_matches)
+                    else:
+                        continue
+            else:
+                continue
+    if save:
+        np.save(f"./arrays/Rate_rot.npy",      Rate_rot)
+        np.save(f"./arrays/Exec_time_rot.npy", Exec_time_rot)
+        headers = ["K", "Detector", "Descriptor", "Matching", "Matcher", "Keypoint1", "Keypoint2", "Descriptor1", "Descriptor2", "Inliers", "Total Matches", "Match Rate", "Detect time", "Descript time", "Match time"]
+        with open(f'./csv/rot_analysis.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=';')
+            writer.writerow(headers)
+            for k in range(Rate_rot.shape[0]):
+                for c3 in range(Rate_rot.shape[1]):
+                    for i in range(Rate_rot.shape[2]):
+                        for j in range(Rate_rot.shape[3]):
+                            row = np.append(Rate_rot[k, c3, i, j, :], Exec_time_rot[k, c3, i, j, :])
+                            writer.writerow(row)
+
 ##########################################################
+execute_scenario_intensity(a=0, b=0, drawing=False, save=True, matcher=0)
+execute_scenario_scale    (a=0, b=0, drawing=False, save=True, matcher=0)
+execute_scenario_rotation (a=0, b=0, drawing=False, save=True, matcher=0)
+
 print(time.ctime())
