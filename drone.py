@@ -8,7 +8,7 @@ def executeDroneScenarios(a=100, b=100, save=True, drawing=False, matcher=0):
     print(time.ctime())
     print(f"Folder: drone")
     img = [cv2.imread(f"./Small_Buildings/droneResized/DSC00{i}.JPG") for i in range(153, 189)]
-    Rate      = np.load(f"./arrays/Rate_drone.npy")      if os.path.exists(f"./arrays/Rate_drone.npy")      else np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 14))
+    Rate      = np.load(f"./arrays/Rate_drone.npy")      if os.path.exists(f"./arrays/Rate_drone.npy")      else np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 12))
     Exec_time = np.load(f"./arrays/Exec_time_drone.npy") if os.path.exists(f"./arrays/Exec_time_drone.npy") else np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))
     keypoints_cache   = np.empty((len(img), len(Detectors), 2), dtype=object)
     descriptors_cache = np.empty((len(img), len(Detectors), len(Descriptors), 2), dtype=object)

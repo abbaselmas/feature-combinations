@@ -156,7 +156,7 @@ def evaluate_scenario_rotation(matcher, KP1, KP2, Dspt1, Dspt2, norm_type, rot, 
 def execute_scenario_intensity(a=100, b=100, drawing=False, save=True, matcher=0):
     print(time.ctime())
     print("Scenario 1 Intensity")
-    Rate_intensity      = np.load(f"./arrays/Rate_intensity.npy")      if os.path.exists(f"./arrays/Rate_intensity.npy")      else np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 14))
+    Rate_intensity      = np.load(f"./arrays/Rate_intensity.npy")      if os.path.exists(f"./arrays/Rate_intensity.npy")      else np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 12))
     Exec_time_intensity = np.load(f"./arrays/Exec_time_intensity.npy") if os.path.exists(f"./arrays/Exec_time_intensity.npy") else np.zeros((nbre_img,   len(matching), len(Detectors), len(Descriptors), 3))
     keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
     descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)

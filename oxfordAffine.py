@@ -6,7 +6,7 @@ from define import *
 def executeScenarios(folder):
     print(time.ctime())
     print(f"Folder: {folder}")
-    Rate      = np.load(f"./arrays/Rate_{folder}.npy")      if os.path.exists(f"./arrays/Rate_{folder}.npy")      else np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 14))
+    Rate      = np.load(f"./arrays/Rate_{folder}.npy")      if os.path.exists(f"./arrays/Rate_{folder}.npy")      else np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 12))
     Exec_time = np.load(f"./arrays/Exec_time_{folder}.npy") if os.path.exists(f"./arrays/Exec_time_{folder}.npy") else np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))
     keypoints_cache   = np.empty((len(img), len(Detectors), 2), dtype=object)
     descriptors_cache = np.empty((len(img), len(Detectors), len(Descriptors), 2), dtype=object)
