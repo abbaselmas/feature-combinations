@@ -270,7 +270,7 @@ def execute_scenario_intensity(a=100, b=100, drawing=False, save=True, matcher=0
 def execute_scenario_scale(a=100, b=100, drawing=False, save=True, matcher=0):
     print(time.ctime())
     print("Scenario 2 Scale")
-    Rate_scale          = np.load(f"./arrays/Rate_scale.npy")          if os.path.exists(f"./arrays/Rate_scale.npy")          else np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 14))
+    Rate_scale          = np.load(f"./arrays/Rate_scale.npy")          if os.path.exists(f"./arrays/Rate_scale.npy")          else np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 12))
     Exec_time_scale     = np.load(f"./arrays/Exec_time_scale.npy")     if os.path.exists(f"./arrays/Exec_time_scale.npy")     else np.zeros((len(scale), len(matching), len(Detectors), len(Descriptors), 3))
     keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
     descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
@@ -383,7 +383,7 @@ def execute_scenario_scale(a=100, b=100, drawing=False, save=True, matcher=0):
 def execute_scenario_rotation(a=100, b=100, drawing=False, save=True, matcher=0):
     print(time.ctime())
     print("Scenario 3 Rotation")
-    Rate_rot          = np.load(f"./arrays/Rate_rot.npy")       if os.path.exists(f"./arrays/Rate_rot.npy")      else np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 14))
+    Rate_rot          = np.load(f"./arrays/Rate_rot.npy")       if os.path.exists(f"./arrays/Rate_rot.npy")      else np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 12))
     Exec_time_rot     = np.load(f"./arrays/Exec_time_rot.npy")  if os.path.exists(f"./arrays/Exec_time_rot.npy") else np.zeros((len(rot),   len(matching), len(Detectors), len(Descriptors), 3))
     keypoints_cache   = np.empty((nbre_img, len(Detectors), 2), dtype=object)
     descriptors_cache = np.empty((nbre_img, len(Detectors), len(Descriptors), 2), dtype=object)
@@ -493,8 +493,8 @@ def execute_scenario_rotation(a=100, b=100, drawing=False, save=True, matcher=0)
                             writer.writerow(row)
 
 ##########################################################
-execute_scenario_intensity(a=0, b=0, drawing=False, save=True, matcher=0)
-execute_scenario_scale    (a=0, b=0, drawing=False, save=True, matcher=0)
-execute_scenario_rotation (a=0, b=0, drawing=False, save=True, matcher=0)
+execute_scenario_intensity(a=100, b=100, drawing=False, save=True, matcher=0)
+execute_scenario_scale    (a=100, b=100, drawing=False, save=True, matcher=0)
+execute_scenario_rotation (a=100, b=100, drawing=False, save=True, matcher=0)
 
 print(time.ctime())

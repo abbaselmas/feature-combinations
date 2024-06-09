@@ -3,14 +3,14 @@ import numpy as np
 import time, os, csv
 from define import *
 
-def executeScenarios(folder):
+def executeScenarios(folder, a=100, b=100, save=True, drawing=False, matcher=0):
     print(time.ctime())
     print(f"Folder: {folder}")
+    img = [cv2.imread(f"./oxfordAffine/{folder}/img{i}.jpg") for i in range(1, 7)]
     Rate      = np.load(f"./arrays/Rate_{folder}.npy")      if os.path.exists(f"./arrays/Rate_{folder}.npy")      else np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 12))
     Exec_time = np.load(f"./arrays/Exec_time_{folder}.npy") if os.path.exists(f"./arrays/Exec_time_{folder}.npy") else np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))
     keypoints_cache   = np.empty((len(img), len(Detectors), 2), dtype=object)
     descriptors_cache = np.empty((len(img), len(Detectors), len(Descriptors), 2), dtype=object)
-    img = [cv2.imread(f"./oxfordAffine/{folder}/img{i}.jpg") for i in range(1, 7)]
     for k in range(len(img)):
         if drawing:
             if k != 3:
@@ -116,14 +116,14 @@ def executeScenarios(folder):
                             row = np.append(Rate[k, c3, i, j, :], Exec_time[k, c3, i, j, :])
                             writer.writerow(row)
 ########################################################
-executeScenarios("graf")
-executeScenarios("bikes")
-executeScenarios("boat")
-executeScenarios("leuven")
+executeScenarios("graf",   a=100, b=100, save=True, drawing=False, matcher=0)
+executeScenarios("bikes",  a=100, b=100, save=True, drawing=False, matcher=0)
+executeScenarios("boat",   a=100, b=100, save=True, drawing=False, matcher=0)
+executeScenarios("leuven", a=100, b=100, save=True, drawing=False, matcher=0)
 
-executeScenarios("wall")
-executeScenarios("trees")
-executeScenarios("bark")
-executeScenarios("ubc")
+executeScenarios("wall",   a=100, b=100, save=True, drawing=False, matcher=0)
+executeScenarios("trees",  a=100, b=100, save=True, drawing=False, matcher=0)
+executeScenarios("bark",   a=100, b=100, save=True, drawing=False, matcher=0)
+executeScenarios("ubc",    a=100, b=100, save=True, drawing=False, matcher=0)
 ########################################################
 print(time.ctime())
