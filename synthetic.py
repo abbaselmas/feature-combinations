@@ -224,7 +224,6 @@ def execute_scenario_intensity(a=100, b=100, drawing=False, save=True, matcher=0
                                 Rate_intensity[k, c3, i, j,10] = None
                                 Rate_intensity[k, c3, i, j,11] = None
                                 continue
-                            
                             if drawing and k == 7 and Rate_intensity[k, c3, i, j, 9] > 100:
                                 img_matches = cv2.drawMatches(img, keypoints1, img2, keypoints2, good_matches[:], None, flags=cv2.DRAW_MATCHES_FLAGS_DEFAULT)
                                 text = [
@@ -337,7 +336,6 @@ def execute_scenario_scale(a=100, b=100, drawing=False, save=True, matcher=0):
                                 Rate_scale[k, c3, i, j,10] = None
                                 Rate_scale[k, c3, i, j,11] = None
                                 continue
-                            
                             if drawing and k == 4 and Rate_scale[k, c3, i, j, 9] > 100:
                                 img_matches = cv2.drawMatches(img[0], keypoints1, img[1], keypoints2, good_matches[:], None, flags=cv2.DRAW_MATCHES_FLAGS_DEFAULT)
                                 text = [
@@ -491,10 +489,9 @@ def execute_scenario_rotation(a=100, b=100, drawing=False, save=True, matcher=0)
                         for j in range(Rate_rot.shape[3]):
                             row = np.append(Rate_rot[k, c3, i, j, :], Exec_time_rot[k, c3, i, j, :])
                             writer.writerow(row)
-
-##########################################################
-execute_scenario_intensity(a=100, b=100, drawing=False, save=True, matcher=0)
-execute_scenario_scale    (a=100, b=100, drawing=False, save=True, matcher=0)
-execute_scenario_rotation (a=100, b=100, drawing=False, save=True, matcher=0)
-
+################MAIN CODE###############################
+execute_scenario_intensity(a=100, b=100, save=True, drawing=False, matcher=0)
+execute_scenario_scale    (a=100, b=100, save=True, drawing=False, matcher=0)
+execute_scenario_rotation (a=100, b=100, save=True, drawing=False, matcher=0)
 print(time.ctime())
+########################################################

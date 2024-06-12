@@ -12,7 +12,6 @@ Rate_rot            = np.load('./arrays/Rate_rot.npy')
 Exec_time_intensity = np.load('./arrays/Exec_time_intensity.npy')
 Exec_time_scale     = np.load('./arrays/Exec_time_scale.npy')
 Exec_time_rot       = np.load('./arrays/Exec_time_rot.npy')
-
 fig1 = make_subplots(rows=2, cols=2, shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig1.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 fig1.update_layout(xaxis = dict(tickvals = val_b), xaxis2 = dict(tickvals = val_c), xaxis3 = dict(tickvals = scale), xaxis4 = dict(tickvals = rot))
@@ -32,7 +31,6 @@ for i in range(len(DetectorsLegend)):
             Rate2_I2 = Rate_intensity[len(val_c):, c3, i, j, 11]
             Rate2_S  = Rate_scale    [          :, c3, i, j, 11]
             Rate2_R  = Rate_rot      [          :, c3, i, j, 11]
-
             color = colors[color_index]
             style = line_styles[j % len(line_styles)]
             legend_groupfig1 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
@@ -50,7 +48,6 @@ for i in range(len(DetectorsLegend)):
                 fig1.add_trace(fig1trace_Rot,  row=2, col=2)
             color_index += 1
 fig1.write_html("./html/SyntheticData.html")
-
 ###########################
 # MARK: - Inlier Synthetic Timing on 1k features
 ###########################
@@ -102,7 +99,6 @@ Exec_time_graf   = np.load('./arrays/Exec_time_graf.npy')
 Exec_time_bikes  = np.load('./arrays/Exec_time_bikes.npy')
 Exec_time_boat   = np.load('./arrays/Exec_time_boat.npy')
 Exec_time_leuven = np.load('./arrays/Exec_time_leuven.npy')
-
 fig3 = make_subplots(rows=2, cols=2, subplot_titles=['Graf(Viewpoint)', 'Bikes(Blur)', 'Boat(Zoom + Rotation)', 'Leuven(Light)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig3.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
@@ -119,7 +115,6 @@ for i in range(len(DetectorsLegend)):
             Rate_Bikes  = Rate_bikes [1:, c3, i, j, 11]
             Rate_Boat   = Rate_boat  [1:, c3, i, j, 11]
             Rate_Leuven = Rate_leuven[1:, c3, i, j, 11]
-
             color = colors[color_index]
             style = line_styles[j % len(line_styles)]
             legend_groupfig3 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
@@ -148,7 +143,6 @@ Exec_time_wall  = np.load('./arrays/Exec_time_wall.npy')
 Exec_time_trees = np.load('./arrays/Exec_time_trees.npy')
 Exec_time_bark  = np.load('./arrays/Exec_time_bark.npy')
 Exec_time_ubc   = np.load('./arrays/Exec_time_ubc.npy')
-
 fig4 = make_subplots(rows=2, cols=2, subplot_titles=['Wall(Viewpoint)', 'Trees(Blur)', 'Bark(Zoom + Rotation)', 'UBC(JPEG)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig4.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
@@ -165,7 +159,6 @@ for i in range(len(DetectorsLegend)):
             Rate_Trees = Rate_trees[1:, c3, i, j, 11]
             Rate_Bark  = Rate_bark [1:, c3, i, j, 11]
             Rate_Ubc   = Rate_ubc  [1:, c3, i, j, 11]
-
             color = colors[color_index]
             style = line_styles[j % len(line_styles)]
             legend_groupfig4 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
@@ -228,7 +221,6 @@ for i in range(len(DetectorsLegend)):
             trace_match_oxford_result4 = go.Bar(x=[DetectorsLegend[i] + '-' + DescriptorsLegend[j]], y=[result4], name=DetectorsLegend[i] + '-' + DescriptorsLegend[j], showlegend=True, text=[f'{result4:.4f}'], textposition='auto')
             fig55.add_trace(trace_match_oxford_result4, row=3, col=1)
 fig55.write_html("./html/oxfordAffine_timing_Average1k.html")
-
 ######################
 # MARK: - Drone Data
 ######################

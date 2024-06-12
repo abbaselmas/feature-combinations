@@ -9,7 +9,6 @@ from define import *
 Rate_intensity = np.load('./arrays/Rate_intensity.npy')
 Rate_scale     = np.load('./arrays/Rate_scale.npy')
 Rate_rot       = np.load('./arrays/Rate_rot.npy')
-
 fig1 = make_subplots(rows=2, cols=2, shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig1.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 fig1.update_layout(xaxis = dict(tickvals = val_b), xaxis2 = dict(tickvals = val_c), xaxis3 = dict(tickvals = scale), xaxis4 = dict(tickvals = rot))
@@ -30,7 +29,6 @@ for i in range(len(DetectorsLegend)):
             Rate2_I2 = Rate_intensity[len(val_c):, c3, i, j, 11]
             Rate2_S  = Rate_scale    [          :, c3, i, j, 11]
             Rate2_R  = Rate_rot      [          :, c3, i, j, 11]
-
             color = colors[color_index]
             style = line_styles[j % len(line_styles)]
             legend_groupfig1 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
@@ -57,7 +55,6 @@ Rate_graf   = np.load('./arrays/Rate_graf.npy')
 Rate_bikes  = np.load('./arrays/Rate_bikes.npy')
 Rate_boat   = np.load('./arrays/Rate_boat.npy')
 Rate_leuven = np.load('./arrays/Rate_leuven.npy')
-
 fig2 = make_subplots(rows=2, cols=2, subplot_titles=['Graf(Viewpoint)', 'Bikes(Blur)', 'Boat(Zoom + Rotation)', 'Leuven(Light)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig2.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
@@ -75,7 +72,6 @@ for i in range(len(DetectorsLegend)):
             Rate_Bikes  = Rate_bikes [1:, c3, i, j, 11]
             Rate_Boat   = Rate_boat  [1:, c3, i, j, 11]
             Rate_Leuven = Rate_leuven[1:, c3, i, j, 11]
-
             color = colors[color_index]
             style = line_styles[j % len(line_styles)]
             legend_groupfig2 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
@@ -102,7 +98,6 @@ Rate_wall  = np.load('./arrays/Rate_wall.npy')
 Rate_trees = np.load('./arrays/Rate_trees.npy')
 Rate_bark  = np.load('./arrays/Rate_bark.npy')
 Rate_ubc   = np.load('./arrays/Rate_ubc.npy')
-
 fig3 = make_subplots(rows=2, cols=2, subplot_titles=['Wall(Viewpoint)', 'Trees(Blur)', 'Bark(Zoom + Rotation)', 'UBC(JPEG)'], shared_xaxes=False, shared_yaxes=False, horizontal_spacing=0.05, vertical_spacing=0.1)
 fig3.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 x = ["Img2", "Img3", "Img4", "Img5", "Img6"]
@@ -120,7 +115,6 @@ for i in range(len(DetectorsLegend)):
             Rate_Trees = Rate_trees[1:, c3, i, j, 11]
             Rate_Bark  = Rate_bark [1:, c3, i, j, 11]
             Rate_Ubc   = Rate_ubc  [1:, c3, i, j, 11]
-
             color = colors[color_index]
             style = line_styles[j % len(line_styles)]
             legend_groupfig3 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'
@@ -140,13 +134,10 @@ for i in range(len(DetectorsLegend)):
     fig3.write_html(f'./html/oxfordAffine5678_Detector_{DetectorsLegend[i]}.html')
     fig3.data = []
     fig3trace_Bark = fig3trace_Wall = fig3trace_Trees = fig3trace_Ubc = legend_groupfig3 = None
-##############################################################################################################
-
 ######################
 # MARK: - Drone Data
 ######################
 Rate_drone = np.load('./arrays/Rate_drone.npy')
-
 fig4 = go.Figure()
 fig4.update_layout(margin=dict(l=20, r=20, t=25, b=25))
 x = [f'Img{i}' for i in range(153, 188)]
@@ -157,7 +148,6 @@ for i in range(len(DetectorsLegend)):
     for j in range(len(DescriptorsLegend)):
         for c3 in range(len(Norm)):
             Rate_dr = Rate_drone[:, c3, i, j, 11]
-
             color = colors[color_index]
             style = line_styles[j % len(line_styles)]
             legend_groupfig4 = f'{DetectorsLegend[i]}-{DescriptorsLegend[j]}-{Norm[c3]}'

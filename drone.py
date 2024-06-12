@@ -57,7 +57,7 @@ def executeDroneScenarios(a=100, b=100, save=True, drawing=False, matcher=0):
                                     descriptors2 = descriptors_cache[k+1, i, j, 1]
                                 Exec_time[k, c3, i, j, 1] = descript_time
                                 start_time = time.time()
-                                Rate[k, c3, i, j, 11], good_matches, matches, h = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                                Rate[k, c3, i, j, 11], good_matches, matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                                 Exec_time[k, c3, i, j, 2] = time.time() - start_time
                                 Rate[k, c3, i, j, 5] = len(keypoints1)
                                 Rate[k, c3, i, j, 6] = len(keypoints2)
@@ -75,7 +75,6 @@ def executeDroneScenarios(a=100, b=100, save=True, drawing=False, matcher=0):
                                 Rate[k, c3, i, j,10] = None
                                 Rate[k, c3, i, j,11] = None
                                 continue
-                            
                             if drawing and k == 3 and Rate[k, c3, i, j, 9] > 1000:
                                 img_matches    = cv2.drawMatches(img[k], keypoints1, img[k+1], keypoints2, good_matches[:], None, flags=cv2.DRAW_MATCHES_FLAGS_DEFAULT)
                                 text = [
@@ -96,8 +95,7 @@ def executeDroneScenarios(a=100, b=100, save=True, drawing=False, matcher=0):
                                 ]                                
                                 for idx, txt in enumerate(text):
                                     cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (255, 255, 255), 2, cv2.LINE_AA)
-                                    cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA)
-                                    
+                                    cv2.putText(img_matches, txt, (30, 30+idx*22), cv2.FONT_HERSHEY_COMPLEX , 0.6, (  0,   0,   0), 1, cv2.LINE_AA) 
                                 filename = f"./draws/drone/{k}_{method_dtect.getDefaultName().split('.')[-1]}_{method_dscrpt.getDefaultName().split('.')[-1]}_{matching[c3]}.png"
                                 cv2.imwrite(filename, img_matches)
                     else:
@@ -117,8 +115,7 @@ def executeDroneScenarios(a=100, b=100, save=True, drawing=False, matcher=0):
                         for j in range(Rate.shape[3]):
                             row = np.append(Rate[k, c3, i, j, :], Exec_time[k, c3, i, j, :])
                             writer.writerow(row)
-
-################MAIN CODE###################################
+################MAIN CODE###############################
 executeDroneScenarios(a=100, b=100, save=True, drawing=False, matcher=0)
 print(time.ctime())
 ########################################################

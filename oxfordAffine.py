@@ -55,7 +55,7 @@ def executeScenarios(folder, a=100, b=100, save=True, drawing=False, matcher=0):
                                     descriptors2 = descriptors_cache[k, i, j, 1]
                                 Exec_time[k, c3, i, j, 1] = descript_time
                                 start_time = time.time()
-                                Rate[k, c3, i, j, 11], good_matches, matches, h = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
+                                Rate[k, c3, i, j, 11], good_matches, matches = evaluate_with_fundamentalMat_and_XSAC(matcher, keypoints1, keypoints2, descriptors1, descriptors2, matching[c3])
                                 Exec_time[k, c3, i, j, 2] = time.time() - start_time
                                 Rate[k, c3, i, j, 5] = len(keypoints1)
                                 Rate[k, c3, i, j, 6] = len(keypoints2)
@@ -63,6 +63,7 @@ def executeScenarios(folder, a=100, b=100, save=True, drawing=False, matcher=0):
                                 Rate[k, c3, i, j, 8] = len(descriptors2)
                                 Rate[k, c3, i, j, 9] = len(good_matches)
                                 Rate[k, c3, i, j,10] = len(matches)
+                                print(f"K: {k}, Detector: {method_dtect.getDefaultName().split('.')[-1]}, Descriptor: {method_dscrpt.getDefaultName().split('.')[-1]}, Matching: {matching[c3]}, Match Rate: {Rate[k, c3, i, j, 11]:.2f}), Inliers: {len(good_matches)}, Total Matches: {len(matches)}")
                             except:
                                 Exec_time[k, c3, i, j, :] = None
                                 Rate[k, c3, i, j, 5] = None
@@ -73,8 +74,7 @@ def executeScenarios(folder, a=100, b=100, save=True, drawing=False, matcher=0):
                                 Rate[k, c3, i, j,10] = None
                                 Rate[k, c3, i, j,11] = None
                                 continue
-                            
-                            if drawing and k == 3 and Rate[k, c3, i, j, 9] > 100:
+                            if drawing and k == 3:
                                 img_matches    = cv2.drawMatches(img[0], keypoints1, img[k], keypoints2, good_matches[:], None, flags=cv2.DRAW_MATCHES_FLAGS_DEFAULT)
                                 text = [
                                     f"Detector:     {method_dtect.getDefaultName().split('.')[-1]}",
@@ -115,7 +115,7 @@ def executeScenarios(folder, a=100, b=100, save=True, drawing=False, matcher=0):
                         for j in range(Rate.shape[3]):
                             row = np.append(Rate[k, c3, i, j, :], Exec_time[k, c3, i, j, :])
                             writer.writerow(row)
-########################################################
+################MAIN CODE###############################
 executeScenarios("graf",   a=100, b=100, save=True, drawing=False, matcher=0)
 executeScenarios("bikes",  a=100, b=100, save=True, drawing=False, matcher=0)
 executeScenarios("boat",   a=100, b=100, save=True, drawing=False, matcher=0)
@@ -125,5 +125,5 @@ executeScenarios("wall",   a=100, b=100, save=True, drawing=False, matcher=0)
 executeScenarios("trees",  a=100, b=100, save=True, drawing=False, matcher=0)
 executeScenarios("bark",   a=100, b=100, save=True, drawing=False, matcher=0)
 executeScenarios("ubc",    a=100, b=100, save=True, drawing=False, matcher=0)
-########################################################
 print(time.ctime())
+########################################################
