@@ -35,7 +35,6 @@ def executeDroneScenarios(a=100, b=100, save=True, drawing=False, matcher=0):
                     if j == b or b == 100:
                         method_dscrpt = Descriptors[j]
                         for c3 in range(len(matching)):
-                            print(f"Image: {k} Detector: {method_dtect.getDefaultName().split('.')[-1]} Descriptor: {method_dscrpt.getDefaultName().split('.')[-1]} Matching: {matching[c3]}")
                             Exec_time[k, c3, i, j, 0] = detect_time
                             Rate[k, c3, i, j, 0] = k
                             Rate[k, c3, i, j, 1] = i

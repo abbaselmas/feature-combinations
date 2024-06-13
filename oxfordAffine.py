@@ -11,7 +11,7 @@ def executeScenarios(folder, a=100, b=100, save=True, drawing=False, matcher=0):
     Exec_time = np.load(f"./arrays/Exec_time_{folder}.npy") if os.path.exists(f"./arrays/Exec_time_{folder}.npy") else np.zeros((len(img), len(matching), len(Detectors), len(Descriptors), 3))
     keypoints_cache   = np.empty((len(img), len(Detectors), 2), dtype=object)
     descriptors_cache = np.empty((len(img), len(Detectors), len(Descriptors), 2), dtype=object)
-    for k in range(len(img)):
+    for k in range(1, len(img)):
         if drawing:
             if k != 3:
                 continue
@@ -63,7 +63,6 @@ def executeScenarios(folder, a=100, b=100, save=True, drawing=False, matcher=0):
                                 Rate[k, c3, i, j, 8] = len(descriptors2)
                                 Rate[k, c3, i, j, 9] = len(good_matches)
                                 Rate[k, c3, i, j,10] = len(matches)
-                                print(f"K: {k}, Detector: {method_dtect.getDefaultName().split('.')[-1]}, Descriptor: {method_dscrpt.getDefaultName().split('.')[-1]}, Matching: {matching[c3]}, Match Rate: {Rate[k, c3, i, j, 11]:.2f}), Inliers: {len(good_matches)}, Total Matches: {len(matches)}")
                             except:
                                 Exec_time[k, c3, i, j, :] = None
                                 Rate[k, c3, i, j, 5] = None
@@ -120,7 +119,6 @@ executeScenarios("graf",   a=100, b=100, save=True, drawing=False, matcher=0)
 executeScenarios("bikes",  a=100, b=100, save=True, drawing=False, matcher=0)
 executeScenarios("boat",   a=100, b=100, save=True, drawing=False, matcher=0)
 executeScenarios("leuven", a=100, b=100, save=True, drawing=False, matcher=0)
-
 executeScenarios("wall",   a=100, b=100, save=True, drawing=False, matcher=0)
 executeScenarios("trees",  a=100, b=100, save=True, drawing=False, matcher=0)
 executeScenarios("bark",   a=100, b=100, save=True, drawing=False, matcher=0)
